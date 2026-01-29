@@ -25,6 +25,7 @@ book:
     - 91-ap-1-sw-para-MTA.qmd
     - 92-ap-2-doc-CXOs.qmd
     - 93-ap-3-exposure.qmd
+    - 94-biblio-anotada.qmd
     - references.qmd
 
 bibliography: references.bib
