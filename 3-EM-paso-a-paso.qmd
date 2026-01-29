@@ -1,0 +1,182 @@
+# EM paso a paso en este contexto
+
+Nos centramos en el caso **unidades (Poisson)** porque ahí EM queda **cerrado** y muy limpio. Luego te dejo al final el análogo para **euros (Gamma)**.
+
+## 0️⃣ Recordatorio del modelo (del Capítulo 2)
+
+Para cada brick (b) y HCP (h \\in \\mathcal{H}\_b):
+
+-   Latentes (no observados):\
+    \[\
+    z\_{h,b} \\sim \\text{Poisson}(\\lambda_h, w\_{h,b})\
+    \]
+
+-   Observado:\
+    \[\
+    y_b = \\sum\_{h\\in\\mathcal{H}*b} z*{h,b}\
+    \]
+
+-   Parámetros:\
+    (\\lambda_h \> 0) (productividad/tasa por exposición)
+
+## 1️⃣ Idea clave: condicionando en el total
+
+Propiedad fundamental:
+
+Si (z_1,\\dots,z_K) son Poisson independientes con medias (\\mu_1,\\dots,\\mu_K), entonces condicionado en la suma (y=\\sum z_k):
+
+\[\
+(z_1,\\dots,z_K)\\mid y \\sim \\text{Multinomial}\\left(y;; p_1,\\dots,p_K\\right)\
+\]\
+donde\
+\[\
+p_k = \\frac{\\mu_k}{\\sum_j \\mu_j}\
+\]
+
+En nuestro caso, para un brick (b):
+
+-   (\\mu\_{h,b} = \\lambda_h w\_{h,b})
+
+-   (y = y_b)
+
+## 2️⃣ E-step: contribución esperada por HCP dentro del brick
+
+Definimos el “share” esperado (responsabilidad) del HCP (h) en el brick (b):
+
+\[\
+p\_{h,b}\^{(t)} = \\frac{\\lambda_h\^{(t)} w\_{h,b}}{\\sum\_{h'\\in\\mathcal{H}*b}\\lambda*{h'}\^{(t)} w\_{h',b}}\
+\]
+
+Entonces:
+
+# \[ \\boxed{ \\mathbb{E}!\\left\[z\_{h,b}\\mid y_b,\\lambda\^{(t)}\\right\]
+
+y_b , p\_{h,b}\^{(t)}\
+}\
+\]
+
+y además (útil para el M-step):
+
+\[\
+\\mathbb{E}!\\left\[\\log p(z\_{h,b}\\mid \\lambda_h)\\right\]\
+\\ \\text{se evalúa usando}\\\
+\\mathbb{E}\[z\_{h,b}\]\
+\]\
+porque en Poisson el log-likelihood depende de (z) linealmente salvo el (\\log(z!)) (que no depende de (\\lambda_h) en el M-step).
+
+🔎 **Interpretación inmediata**
+
+-   Dentro de un brick, EM reparte el total (y_b) proporcionalmente a “capacidad” actual:\
+    (\\lambda_h\^{(t)} w\_{h,b}).
+
+-   Si (w\_{h,b}=1), es proporcional solo a (\\lambda_h\^{(t)}).
+
+## 3️⃣ M-step: actualizar la productividad de cada HCP
+
+Si los (z\_{h,b}) fueran observados, el MLE de (\\lambda_h) sería:
+
+\[\
+\\hat{\\lambda}*h = \\frac{\\sum_b z*{h,b}}{\\sum_b w\_{h,b}}\
+\]
+
+Como no lo son, EM sustituye (z\_{h,b}) por su esperanza del E-step:
+
+# \[ \\boxed{ \\lambda_h\^{(t+1)}
+
+\\frac{\\sum\_{b: h\\in\\mathcal{H}*b}\\ \\mathbb{E}\[z*{h,b}\\mid y_b,\\lambda\^{(t)}\]}\
+{\\sum\_{b: h\\in\\mathcal{H}*b} w*{h,b}}\
+}\
+\]
+
+Sustituyendo explícitamente:
+
+# \[ \\boxed{ \\lambda_h\^{(t+1)}
+
+\\frac{\\sum\_{b: h\\in\\mathcal{H}*b} y_b \\cdot\
+\\frac{\\lambda_h\^{(t)} w*{h,b}}{\\sum\_{h'\\in\\mathcal{H}*b}\\lambda*{h'}\^{(t)} w\_{h',b}}\
+}\
+{\\sum\_{b: h\\in\\mathcal{H}*b} w*{h,b}}\
+}\
+\]
+
+## 4️⃣ Interpretación probabilística del “share” de ventas
+
+Hay dos niveles de “share”, y es útil separarlos:
+
+### A) Share **dentro del brick** (local)
+
+\[\
+\\boxed{\
+p\_{h,b}\^{(t)} =\
+\\frac{\\lambda_h\^{(t)} w\_{h,b}}{\\sum\_{h'\\in b}\\lambda\_{h'}\^{(t)} w\_{h',b}}\
+}\
+\]
+
+Esto es literalmente:
+
+-   la probabilidad de que una unidad del brick (b) “venga” del HCP (h),\
+    bajo el modelo actual,
+
+-   y la esperanza de unidades atribuibles es (y_b p\_{h,b}\^{(t)}).
+
+### B) Share **global** del HCP (agregando bricks)
+
+Una vez tienes (\\mathbb{E}\[z\_{h,b}\]), puedes construir:
+
+\[\
+\\text{Ventas esperadas de }h = \\sum_b \\mathbb{E}\[z\_{h,b}\]\
+\]
+
+y el share global sobre el total:
+
+\[\
+\\text{Share}*h = \\frac{\\sum_b \\mathbb{E}\[z*{h,b}\]}{\\sum_b y_b}\
+\]
+
+## 5️⃣ Resumen del algoritmo EM (Poisson) en 4 líneas
+
+Inicializa (\\lambda_h\^{(0)}\>0). Repite hasta convergencia:
+
+**E-step**:\
+\[\
+p\_{h,b}\^{(t)} = \\frac{\\lambda_h\^{(t)} w\_{h,b}}{\\sum\_{h'\\in b}\\lambda\_{h'}\^{(t)} w\_{h',b}}\
+\\quad;\\quad\
+\\hat z\_{h,b}\^{(t)} = y_b,p\_{h,b}\^{(t)}\
+\]
+
+**M-step**:\
+\[\
+\\lambda_h\^{(t+1)} = \\frac{\\sum_b \\hat z\_{h,b}\^{(t)}}{\\sum_b w\_{h,b}}\
+\]
+
+📌 Esto ya es **EM totalmente explícito** para tu caso.
+
+## 6️⃣ Nota rápida: análogo para euros (Gamma)
+
+Si modelas euros con Gamma y eliges una parametrización aditiva (por ejemplo, misma forma (k) y media proporcional a (\\theta_h w\_{h,b})), aparece un resultado análogo:
+
+-   El reparto en el E-step suele terminar siendo (bajo esas parametrizaciones) proporcional a la contribución esperada:\
+    \[\
+    \\mathbb{E}\[z\_{h,b}\\mid y_b\] \\approx y_b \\cdot\
+    \\frac{\\theta_h w\_{h,b}}{\\sum\_{h'} \\theta\_{h'} w\_{h',b}}\
+    \]
+
+-   El M-step actualiza (\\theta_h) parecido a “ventas esperadas / exposición”.
+
+La diferencia es que, dependiendo de cómo parametrices Gamma (shape/scale vs shape/rate) y si estimas (k), el M-step puede requerir:
+
+-   o una actualización cerrada,
+
+-   o un paso numérico (Newton) para (k).
+
+(En el curso, cuando lleguemos a euros, lo dejaremos consistente y operativo.)
+
+## ✅ Checkpoint
+
+¿Te cuadra esta lectura?
+
+-   E-step = “reparto probabilístico” por brick según (\\lambda_h w\_{h,b})
+
+-   M-step = “recalibrar” (\\lambda_h) como ventas esperadas / exposición
+
+Si todo OK, pasamos al **Capítulo 4** y lo hacemos **con un ejemplo numérico pequeño a mano** (2 bricks, 4 HCPs) para que se vea cómo convergen (\\lambda) y los shares.

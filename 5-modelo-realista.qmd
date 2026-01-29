@@ -1,0 +1,208 @@
+# Incorporando features de HCP (modelo realista)
+
+Este capítulo es **el salto a producción**.\
+Pasamos de “un (\\lambda_h) libre por HCP” a un modelo **paramétrico, generalizable y regularizado**.
+
+## 1️⃣ Por qué necesitamos covariables (motivación)
+
+En el Capítulo 4 vimos un problema clave:
+
+-   HCPs “exclusivos” de bricks grandes pueden absorber demasiada venta
+
+-   El modelo es **débilmente identificable**
+
+-   No generaliza a HCPs nuevos
+
+👉 Solución: **atar la productividad a información observable**.
+
+## 2️⃣ Nueva definición de productividad
+
+Definimos:
+
+\[\
+\\boxed{\
+\\lambda_h = \\exp(X_h \\beta)\
+}\
+\]
+
+donde:
+
+-   (X_h \\in \\mathbb{R}\^p): features del HCP\
+    (especialidad, seniority, nº visitas, potencial, etc.)
+
+-   (\\beta \\in \\mathbb{R}\^p): coeficientes globales
+
+📌 Interpretación:
+
+-   Dos HCPs con mismos (X) tienen misma productividad esperada
+
+-   El modelo **comparte fuerza estadística**
+
+## 3️⃣ Modelo completo con covariables (Poisson)
+
+### 🔹 Generativo
+
+\[\
+z\_{h,b} \\sim \\text{Poisson}(\\exp(X_h\\beta), w\_{h,b})\
+\]
+
+\[\
+y_b = \\sum\_{h\\in b} z\_{h,b}\
+\]
+
+## 4️⃣ EM + GLM: cómo encajan
+
+### 🔁 E-step (igual que antes)
+
+Con (\\lambda_h\^{(t)} = \\exp(X_h\\beta\^{(t)})):
+
+# \[ \\boxed{ \\mathbb{E}\[z\_{h,b}\\mid y_b,\\beta\^{(t)}\]
+
+y_b\
+\\cdot\
+\\frac{\\exp(X_h\\beta\^{(t)}) w\_{h,b}}\
+{\\sum\_{h'\\in b}\\exp(X\_{h'}\\beta\^{(t)}) w\_{h',b}}\
+}\
+\]
+
+📌 **Nada cambia conceptualmente**.
+
+### 🔄 M-step (ahora es un GLM)
+
+Definimos los “pseudo-targets”:
+
+\[\
+\\tilde y_h = \\sum_b \\mathbb{E}\[z\_{h,b}\]\
+\]
+
+y la exposición total:
+
+\[\
+\\tilde w_h = \\sum_b w\_{h,b}\
+\]
+
+Entonces el M-step es:
+
+## \[ \\boxed{ \\max\_\\beta \\sum_h \\left\[ \\tilde y_h \\log \\lambda_h
+
+\\lambda_h \\tilde w_h\
+\\right\]\
+}\
+\\quad\
+\\text{con }\
+\\lambda_h = \\exp(X_h\\beta)\
+\]
+
+👉 Esto es exactamente una **Poisson regression con offset**:
+
+-   Response: (\\tilde y_h)
+
+-   Offset: (\\log(\\tilde w_h))
+
+📌 Se resuelve con IRLS estándar.
+
+## 5️⃣ Caso euros (Gamma + covariables)
+
+Análogo:
+
+\[\
+z\_{h,b} \\sim \\text{Gamma}(k, \\theta_h w\_{h,b})\
+\\quad\
+\\text{con}\
+\\quad\
+\\theta_h = \\exp(X_h\\beta)\
+\]
+
+-   E-step: reparto proporcional a (\\theta_h w\_{h,b})
+
+-   M-step:
+
+    -   (\\beta): GLM Gamma con link log
+
+    -   (k): fijo o estimado con Newton
+
+📌 Misma lógica, distinta distribución.
+
+## 6️⃣ Regularización (crítica en la práctica)
+
+Sin regularización:
+
+-   (\\beta) puede explotar
+
+-   Especialmente si hay features raras o colineales
+
+### 🔹 Penalización típica
+
+\[\
+\\beta \\sim \\mathcal{N}(0,\\sigma\^2 I)\
+\]
+
+Equivalente a:
+
+-   Ridge (L2)
+
+-   MAP en versión bayesiana
+
+📌 Muy recomendable en producción.
+
+## 7️⃣ Identificabilidad (qué se arregla y qué no)
+
+### ✔️ Lo que mejora
+
+-   HCPs exclusivos ya no “absorben” arbitrariamente
+
+-   Productividades están ancladas a (X_h)
+
+-   Generaliza a HCPs nuevos
+
+### ❌ Lo que sigue siendo cierto
+
+-   Attribution ≠ causalidad
+
+-   Si dos HCPs tienen (X) casi idéntico y siempre co-ocurren, no se distinguen
+
+## 8️⃣ ¿Qué pasa cuando un HCP está en muchos bricks?
+
+Esto es **bueno**, no malo.
+
+-   Aparece en muchas ecuaciones:\
+    \[\
+    y_b \\approx \\sum_h \\exp(X_h\\beta) w\_{h,b}\
+    \]
+
+-   El modelo **lo usa como ancla**
+
+-   Reduce varianza de (\\beta)
+
+📌 En la práctica:
+
+-   HCPs “centrales” estabilizan el modelo
+
+-   HCPs raros se benefician del pooling
+
+## 9️⃣ ✔️ SALIDA — Modelo listo para datos reales
+
+### Modelo final (unidades)
+
+\[\
+\\boxed{\
+\\begin{aligned}\
+z\_{h,b} &\\sim \\text{Poisson}(\\exp(X_h\\beta), w\_{h,b}) \\\
+y_b &= \\sum\_{h\\in b} z\_{h,b}\
+\\end{aligned}\
+}\
+\]
+
+con:
+
+-   EM para inferencia
+
+-   GLM en el M-step
+
+-   Regularización opcional
+
+## 🔚 Lectura de negocio (muy importante)
+
+> “Estamos estimando un **modelo probabilístico de generación de ventas**,\
+> usando información observable del HCP,\
+> y la attribution es la **mejor explicación consistente** con ese modelo.”

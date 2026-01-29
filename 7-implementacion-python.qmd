@@ -1,0 +1,76 @@
+# Implementación completa en Python
+
+Aquí tienes el **Capítulo 7** con una implementación **EM desde cero en Python (sin sklearn)**, E-step **vectorizado**, M-step con **IRLS** (Poisson GLM con *offset*) + **ridge**, y un bloque de **debugging** típico.
+
+[Download the notebook](sandbox:/mnt/data/em_hcp_brick_end_to_end.ipynb)
+
+## Qué incluye el notebook (end-to-end)
+
+-   **Generación de datos mock** (`hcp_df`, `hb_df`, `y_df`) con `beta_true`, `lambda_true`, `z_true`
+
+-   **EM completo**:
+
+    -   **E-step** vectorizado con `np.bincount`
+
+    -   **M-step**: Poisson GLM con link log y **offset** `log(w_tilde)` implementado con **IRLS** + **ridge**
+
+-   **Convergencia**: trazado de log-likelihood observada por iteración + criterio de parada por cambio relativo en `beta`
+
+-   **Evaluación** contra ground truth:
+
+    -   correlación y RMSE en `η = Xβ` (más estable que comparar β directo si hay colinealidad)
+
+    -   correlación y RMSE en `z_true` vs `zhat`
+
+    -   check duro: por brick, `sum_h zhat_{h,b} == y_b`
+
+## Puntos clave de implementación (por si quieres leerlo rápido)
+
+### E-step vectorizado (la parte crítica)
+
+En cada relación (fila) HCP–brick:
+
+-   `num[r] = lambda_h[h[r]] * w[r]`
+
+-   `den[b] = sum_{r: b[r]=b} num[r]`
+
+-   `zhat[r] = y[b[r]] * num[r] / den[b[r]]`
+
+Esto garantiza automáticamente:\
+\[\
+\\sum\_{h\\in b} \\hat z\_{h,b} = y_b\
+\]
+
+### M-step como GLM con offset
+
+Construyes:
+
+-   `y_tilde[h] = sum_b zhat[h,b]`
+
+-   `w_tilde[h] = sum_b w[h,b]`
+
+-   Ajustas:\
+    \[\
+    \\tilde y_h \\sim \\text{Poisson}(\\exp(X_h\\beta + \\log \\tilde w_h))\
+    \]\
+    con IRLS y ridge.
+
+## Debugging típico (lo más útil en producción)
+
+-   **Check #1**: `max |sum_h zhat - y|` por brick debe ser \~`1e-9`
+
+-   **Check #2**: no debe haber bricks con `den[b]=0` (normalmente bricks sin HCPs o `w=0`)
+
+-   **Check #3**: si tienes intercept + todas las dummies, usa **ridge** (el notebook lo hace)
+
+-   **Check #4**: si `exp(Xβ)` explota, sube ridge o estandariza/clipea `η`
+
+✅ **Checkpoint**: si lo abres y lo ejecutas, deberías ver:
+
+-   log-likelihood creciendo y estabilizando
+
+-   suma por brick consistente
+
+-   correlaciones razonables `z_true` vs `zhat` y `η_true` vs `η_hat`
+
+Cuando me digas “OK”, pasamos al **Capítulo 8 — Unidades vs Euros (Poisson vs Gamma/Lognormal)**.
