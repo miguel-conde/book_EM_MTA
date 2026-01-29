@@ -1,5 +1,6 @@
 .quarto/
 _book/
+_freeze/
 
 /.quarto/
 
@@ -9,3 +10,7 @@ _book/
 *.toc
 *.tex
 *.pdf
+
+# OS / editor
+.DS_Store
+*~
