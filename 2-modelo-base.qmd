@@ -4,38 +4,38 @@
 
 ### Índices
 
--   ( h = 1,\\dots,H ) → HCPs
+-   $h = 1,\dots,H$ → HCPs
 
--   ( b = 1,\\dots,B ) → Bricks
+-   $b = 1,\dots,B$ → Bricks
 
 ### Conjuntos
 
--   ( \\mathcal{H}\_b \\subset {1,\\dots,H} ): HCPs que pertenecen al brick ( b )
+-   $\mathcal{H}_b \subset \{1,\dots,H\}$: HCPs que pertenecen al brick $b$
 
 ### Variables observadas
 
--   ( y_b \\in \\mathbb{R}\^+ ): ventas totales del brick ( b )
+-   $y_b \in \mathbb{R}^+$: ventas totales del brick $b$
 
--   ( w\_{h,b} \\ge 0 ): exposición del HCP ( h ) en el brick ( b )\
+-   $w_{h,b} \ge 0$: exposición del HCP $h$ en el brick $b$  
     (por ahora puede ser 1 si hay pertenencia)
 
 ### Parámetros (a estimar)
 
--   ( \\theta_h ): productividad latente del HCP ( h )
+-   $\theta_h$: productividad latente del HCP $h$
 
 ## 2️⃣ Variable latente clave
 
 Definimos:
 
-\[\
-z\_{h,b} \\equiv \\text{ventas atribuibles al HCP } h \\text{ en el brick } b\
-\]
+$$
+z_{h,b} \equiv \text{ventas atribuibles al HCP } h \text{ en el brick } b
+$$
 
 con la **restricción estructural**:
 
-\[\
-\\sum\_{h \\in \\mathcal{H}*b} z*{h,b} = y_b\
-\]
+$$
+\sum_{h \in \mathcal{H}_b} z_{h,b} = y_b
+$$
 
 📌 Esta restricción es lo que hace el problema **no trivial**.
 
@@ -45,54 +45,44 @@ con la **restricción estructural**:
 
 Cada HCP genera ventas de forma independiente:
 
-\[\
-z\_{h,b} \\sim \\text{Poisson}(\\lambda_h , w\_{h,b})\
-\]
+$$
+z_{h,b} \sim \text{Poisson}(\lambda_h w_{h,b})
+$$
 
 donde:
 
--   ( \\lambda_h \> 0 ): tasa base del HCP
+-   $\lambda_h > 0$: tasa base del HCP
 
--   ( w\_{h,b} ): exposición en el brick
+-   $w_{h,b}$: exposición en el brick
 
 ### 🔹 Propiedad clave (aditividad)
 
 La suma de Poisson independientes es Poisson:
 
-\[\
-y_b = \\sum\_{h \\in b} z\_{h,b}\
-\\quad \\Rightarrow \\quad\
-y_b \\sim \\text{Poisson}\
-\\left(\
-\\sum\_{h \\in b} \\lambda_h w\_{h,b}\
-\\right)\
-\]
+$$
+y_b = \sum_{h \in b} z_{h,b}
+\quad \Rightarrow \quad
+y_b \sim \text{Poisson}\left(\sum_{h \in b} \lambda_h w_{h,b}\right)
+$$
 
 📌 Esta propiedad **justifica EM** y simplifica enormemente el E-step.
 
 ### 🔹 Likelihood marginal (observada)
 
-# \[ \\mathcal{L}\_{\\text{obs}}(\\lambda)
-
-\\prod\_{b=1}\^B\
-\\text{Poisson}\
-\\left(\
-y_b ;\\middle\|;\
-\\sum\_{h \\in b} \\lambda_h w\_{h,b}\
-\\right)\
-\]
+$$
+\mathcal{L}_{\text{obs}}(\lambda)=
+\prod_{b=1}^B
+	ext{Poisson}\left(y_b \,\Big|\, \sum_{h \in b} \lambda_h w_{h,b}\right)
+$$
 
 ### 🔹 Likelihood completa (con latentes)
 
-# \[ \\mathcal{L}\_{\\text{comp}}(\\lambda)
-
-\\prod\_{b=1}\^B\
-\\prod\_{h \\in b}\
-\\text{Poisson}\
-\\left(\
-z\_{h,b} \\mid \\lambda_h w\_{h,b}\
-\\right)\
-\]
+$$
+\mathcal{L}_{\text{comp}}(\lambda)=
+\prod_{b=1}^B
+\prod_{h \in b}
+	ext{Poisson}\left(z_{h,b} \,\big|\, \lambda_h w_{h,b}\right)
+$$
 
 📌 EM optimiza la **esperanza del log** de esta expresión.
 
@@ -104,11 +94,11 @@ Aquí ya no podemos usar Poisson. Dos opciones realistas:
 
 #### Supuesto
 
-\[\
-z\_{h,b} \\sim \\text{Gamma}(k, \\theta_h w\_{h,b})\
-\]
+$$
+z_{h,b} \sim \text{Gamma}(k, \theta_h w_{h,b})
+$$
 
--   Media: ( \\mathbb{E}\[z\_{h,b}\] = k \\theta_h w\_{h,b} )
+-   Media: $\mathbb{E}[z_{h,b}] = k \theta_h w_{h,b}$
 
 -   Varianza proporcional a la media
 
@@ -120,21 +110,17 @@ z\_{h,b} \\sim \\text{Gamma}(k, \\theta_h w\_{h,b})\
 
 Si todos los ( k ) son iguales:
 
-\[\
-y_b = \\sum\_{h \\in b} z\_{h,b}\
-\\sim\
-\\text{Gamma}\
-\\left(\
-k\|\\mathcal{H}*b\|,\
-\\sum*{h \\in b} \\theta_h w\_{h,b}\
-\\right)\
-\]
+$$
+y_b = \sum_{h \in b} z_{h,b}
+\sim \text{Gamma}\left(k|\mathcal{H}_b|,\, \sum_{h \in b} \theta_h w_{h,b}\right)
+$$
 
 ### 🔹 Opción 2: **Lognormal** (más frágil)
 
-\[\
-\\log z\_{h,b} \\sim \\mathcal{N}(\\mu_h + \\log w\_{h,b}, \\sigma\^2)\
-\]
+
+$$
+\log z_{h,b} \sim \mathcal{N}(\mu_h + \log w_{h,b}, \sigma^2)
+$$
 
 Problemas:
 
@@ -152,27 +138,23 @@ Problemas:
 
 La que *queremos* maximizar:
 
-# \[ \\log p({y_b, z\_{h,b}} \\mid \\theta)
+$$
+\log p(\{y_b, z_{h,b}\} \mid \theta)
+= \sum_{b,h} \log p(z_{h,b} \mid \theta_h)
+$$
 
-\\sum\_{b,h}\
-\\log p(z\_{h,b} \\mid \\theta_h)\
-\]
-
-pero **no podemos** porque ( z\_{h,b} ) no se observa.
+pero **no podemos** porque $z_{h,b}$ no se observa.
 
 ### 🔹 Likelihood marginal (observada)
 
-# \[ \\log p({y_b} \\mid \\theta)
-
-\\sum_b\
-\\log\
-\\int\
-\\prod\_{h \\in b}\
-p(z\_{h,b} \\mid \\theta_h)\
-,\
-\\delta\\Big(\\sum z - y_b\\Big)\
-dz\
-\]
+$$
+\log p(\{y_b\} \mid \theta)
+= \sum_b \log
+\int
+\prod_{h \in b} p(z_{h,b} \mid \theta_h)
+\,\delta\Big(\sum_{h \in b} z_{h,b} - y_b\Big)
+\,dz
+$$
 
 📌 Integral intratable → EM.
 
@@ -180,51 +162,36 @@ dz\
 
 -   **E-step**\
     Calcula:\
-    \[\
-    \\mathbb{E}\[z\_{h,b} \\mid y_b, \\theta\^{(t)}\]\
-    \]
+    $$
+    \mathbb{E}[z_{h,b} \mid y_b, \theta^{(t)}]
+    $$
 
--   <div>
-
-    # **M-step** Actualiza: \[ \\theta_h\^{(t+1)}
-
-    \\arg\\max\_{\\theta_h}\
-    \\sum_b\
-    \\mathbb{E}\[z\_{h,b}\]\
-    \\log p(z\_{h,b} \\mid \\theta_h)\
-    \]
-
-    </div>
+-   **M-step**\
+    Actualiza:
+    $$
+    	heta_h^{(t+1)} =
+    \arg\max_{\theta_h}
+    \sum_b \mathbb{E}[z_{h,b}]\, \log p(z_{h,b} \mid \theta_h)
+    $$
 
 ## 7️⃣ ✔️ SALIDA — Likelihood formal del problema
 
 ### 🔹 Unidades (Poisson)
 
-\[\
-\\boxed{\
-y_b \\sim \\text{Poisson}\
-\\left(\
-\\sum\_{h \\in b} \\lambda_h w\_{h,b}\
-\\right)\
-}\
-\]
+$$
+\boxed{y_b \sim \text{Poisson}\left(\sum_{h \in b} \lambda_h w_{h,b}\right)}
+$$
 
 con latentes:\
-\[\
-z\_{h,b} \\sim \\text{Poisson}(\\lambda_h w\_{h,b})\
-\]
+$$
+z_{h,b} \sim \text{Poisson}(\lambda_h w_{h,b})
+$$
 
 ### 🔹 Euros (Gamma)
 
-\[\
-\\boxed{\
-y_b \\sim \\text{Gamma}\
-\\left(\
-k\|\\mathcal{H}*b\|,\
-\\sum*{h \\in b} \\theta_h w\_{h,b}\
-\\right)\
-}\
-\]
+$$
+\boxed{y_b \sim \text{Gamma}\left(k|\mathcal{H}_b|,\, \sum_{h \in b} \theta_h w_{h,b}\right)}
+$$
 
 ------------------------------------------------------------------------
 
@@ -258,23 +225,21 @@ Cuando digo **productividad del HCP**, **NO** me refiero a:
 
 La **productividad del HCP ( h )** es:
 
-# \[ \\boxed{ \\lambda_h
-
-\\mathbb{E}\[\\text{unidades generadas por } h \\text{ por unidad de exposición}\]\
-}\
-\]
+$$
+\boxed{\lambda_h = \mathbb{E}[\text{unidades generadas por } h \text{ por unidad de exposición}]}
+$$
 
 y el modelo dice:
 
-\[\
-z\_{h,b} \\sim \\text{Poisson}(\\lambda_h , w\_{h,b})\
-\]
+$$
+z_{h,b} \sim \text{Poisson}(\lambda_h w_{h,b})
+$$
 
 Interpretación:
 
--   A igualdad de exposición ( w\_{h,b} )
+-   A igualdad de exposición $w_{h,b}$
 
--   Un HCP con mayor ( \\lambda_h )
+-   Un HCP con mayor $\lambda_h$
 
 -   “genera” más unidades **en promedio**
 
@@ -284,32 +249,29 @@ Interpretación:
 
 Aquí la productividad es:
 
-# \[ \\boxed{ \\theta_h
-
-\\mathbb{E}\[\\text{€ generados por } h \\text{ por unidad de exposición}\]\
-}\
-\]
+$$
+\boxed{\theta_h = \mathbb{E}[\text{€ generados por } h \text{ por unidad de exposición}]}
+$$
 
 con:
 
-\[\
-z\_{h,b} \\sim \\text{Gamma}(k, \\theta_h w\_{h,b})\
-\]
+$$
+z_{h,b} \sim \text{Gamma}(k, \theta_h w_{h,b})
+$$
 
 📌 Es el **nivel medio de revenue** atribuible al HCP.
 
-## 2️⃣ “Si conociéramos ( z\_{h,b} ), podríamos estimar productividad”
+## 2️⃣ “Si conociéramos $z_{h,b}$, podríamos estimar productividad”
 
 Ahora sí, con precisión:
 
-### 🔹 Supón que ( z\_{h,b} ) es observado
+### 🔹 Supón que $z_{h,b}$ es observado
 
 Entonces para Poisson:
 
-# \[ \\hat{\\lambda}\_h
-
-\\frac{\\sum_b z\_{h,b}}{\\sum_b w\_{h,b}}\
-\]
+$$
+\hat{\lambda}_h = \frac{\sum_b z_{h,b}}{\sum_b w_{h,b}}
+$$
 
 Es el **MLE cerrado** del Poisson.
 
@@ -321,13 +283,11 @@ Supón ahora que conocemos ( \\lambda_h ).
 
 Entonces, para un brick ( b ):
 
-# \[ \\mathbb{E}\[z\_{h,b} \\mid y_b\]
-
-y_b\
-\\cdot\
-\\frac{\\lambda_h w\_{h,b}}\
-{\\sum\_{h' \\in b} \\lambda\_{h'} w\_{h',b}}\
-\]
+$$
+\mathbb{E}[z_{h,b} \mid y_b]
+= y_b\cdot
+\frac{\lambda_h w_{h,b}}{\sum_{h' \in b} \lambda_{h'} w_{h',b}}
+$$
 
 📌 Esta es la **regla de atribución** del E-step.
 
@@ -365,9 +325,9 @@ Si mañana cambiamos el modelo (por ejemplo, jerárquico bayesiano), **la produc
 
 En el **Capítulo 5**, redefiniremos:
 
-\[\
-\\lambda_h = \\exp(X_h \\beta)\
-\]
+$$
+\lambda_h = \exp(X_h \beta)
+$$
 
 Aquí la productividad:
 
@@ -490,9 +450,9 @@ eso es una **consecuencia** del E-step.
 En EM:
 
 -   El **E-step** calcula:\
-    \[\
-    \\mathbb{E}\[z\_{h,b} \\mid y_b\]\
-    \]
+    $$
+    \mathbb{E}[z_{h,b} \mid y_b]
+    $$
 
 -   Eso **es una attribution probabilística**
 
@@ -589,7 +549,7 @@ Ejemplos:
 
 -   Hierarchical model
 
-📌 Aquí decides **qué es ( z\_{h,b} )** y cómo se genera.
+📌 Aquí decides **qué es $z_{h,b}$** y cómo se genera.
 
 ### 3️⃣ **CÓMO INFERIR** — EM / Bayesian / VI
 
@@ -633,13 +593,13 @@ La versión **exacta** sería:
     Repartir ventas del brick entre HCPs
 
 -   MODELO:\
-    ( z\_{h,b} \\sim \\text{Poisson}(\\lambda_h w\_{h,b}) )
+    $z_{h,b} \sim \text{Poisson}(\lambda_h w_{h,b})$
 
 -   CÓMO (opción A):\
-    EM → MLE de ( \\lambda_h )
+    EM → MLE de $\lambda_h$
 
 -   CÓMO (opción B):\
-    Bayes → ( p(\\lambda_h \\mid y) )
+    Bayes → $p(\lambda_h \mid y)$
 
 Ambos producen:
 
