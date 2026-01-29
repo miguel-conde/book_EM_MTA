@@ -1,5 +1,60 @@
 # Preface {.unnumbered}
 
-This is a Quarto book.
+Este libro es una guía **pragmática y end-to-end** para entender y aplicar el algoritmo **Expectation–Maximization (EM)** a un problema recurrente en analytics:
 
-To learn more about Quarto books visit <https://quarto.org/docs/books>.
+> Tienes un **total agregado** (ventas por brick, contribución incremental por canal, etc.) y necesitas repartirlo a unidades inferiores (HCPs, campañas, creatividades) de forma **coherente, auditable y reproducible**.
+
+La tesis del libro es simple:
+
+- El problema es, de forma natural, un **modelo de variables latentes**.
+- El reparto que buscamos es la **esperanza condicional** de esas variables latentes bajo un modelo generativo.
+- **EM** es el mecanismo estándar para estimar productividades/eficiencias y obtener un reparto consistente.
+
+## Para quién es
+
+- Data Scientists / Analytics que trabajan con MMM/MTA, CRM, ventas agregadas o asignación de crédito.
+- Equipos que necesitan un output **estable** (no una heurística) y defendible ante negocio.
+
+## Lo que este libro SÍ y NO hace
+
+Sí:
+
+- Garantiza conservación de masa: la atribución **cuadra exactamente** con el agregado observado.
+- Da un marco probabilístico claro para *credit allocation*.
+- Enseña criterios de producción: identificabilidad, regularización, cold start, estabilidad.
+
+No (a propósito):
+
+- No promete causalidad intra-canal por sí misma. Si el total viene de un MMM incremental, el total es “causal”; el **split** intra-canal es un modelo explicativo salvo identificación extra.
+- No sustituye experimentos (geo-lift, A/B, etc.).
+
+## Cómo leerlo (ruta recomendada)
+
+1. Capítulos 1–4: marco conceptual + modelo + EM + ejemplo pequeño a mano.
+2. Capítulos 5–7: salto a producción (covariables) + mock data + implementación en Python.
+3. Capítulo extra (MMM → MTA): cómo reutilizar el mismo patrón para bajar de canal a campañas/creatividades.
+4. Capítulos finales: unidades vs euros, pitfalls, cómo explicarlo a negocio, y alternativa bayesiana.
+
+## Mapa del contenido
+
+- **Capítulo 1**: plantea el problema como variables latentes y conecta con mixture/credit attribution.
+- **Capítulo 2**: formaliza el modelo base (Poisson para unidades; Gamma/Lognormal para euros) y el rol de la exposición.
+- **Capítulo 3**: deriva EM paso a paso y fija la interpretación del “share”.
+- **Capítulo 4**: ejemplo numérico mínimo (2 bricks, 4 HCPs) para interiorizar la dinámica.
+- **Capítulo 5**: modelo realista con covariables: $\lambda_h=\exp(X_h\beta)$, M-step como GLM con offset + regularización.
+- **Capítulo 6**: generación de datos mock con ground truth para testear recuperación y estabilidad.
+- **Capítulo 7**: implementación completa en Python (E-step vectorizado + M-step IRLS + ridge) y checklist de debugging.
+- **Capítulo extra (MMM → MTA)**: aplica EM para repartir contribuciones de MMM a campañas/creatividades por tiempo y geo.
+- **Capítulo 8 (Unidades vs Euros)**: guía práctica de elección Poisson vs Gamma/Lognormal y consecuencias en EM.
+- **Capítulo 9 (Pitfalls y extensiones)**: identificabilidad, overfitting silencioso, cold start, jerárquico/VI.
+- **Capítulo 10 (Explicar a negocio)**: una narrativa defendible en 3 slides + Q&A difícil.
+- **Capítulo 12 (Bayesiano)**: cómo se vería un modelo jerárquico, qué cambia y qué ganas (incertidumbre + shrinkage).
+- **Apéndices**: software público relevante, documento para CXOs, y nomenclatura de “exposure/offset”.
+
+## Notebook incluido (MMM → MTA con adstock + saturación)
+
+Además del texto, el repositorio incluye el notebook `em_mmm_to_mta_adstock_saturation.ipynb`, que muestra un flujo completo para:
+
+- Construir **exposición efectiva MMM-consistente** con adstock + saturación (Hill).
+- Repartir contribución incremental $C_{m,t,g}^{inc}$ a campañas dentro de cada medio.
+- Validar conservación de masa y comparar contra ground truth en datos simulados.
