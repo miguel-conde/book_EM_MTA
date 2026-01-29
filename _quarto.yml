@@ -16,6 +16,15 @@ book:
     - 5-modelo-realista.qmd
     - 6-mock-data.qmd
     - 7-implementacion-python.qmd
+    - 8-caso-de-uso-MTA.qmd
+    - 9-unidades-y-euros.qmd
+    - 10-pitfalls-y-extensiones.qmd
+    - 11-explicar-a-negocio.qmd
+    - 12-enfoque-bayesiano.qmd
+    - 90-apendices.qmd
+    - 91-ap-1-sw-para-MTA.qmd
+    - 92-ap-2-doc-CXOs.qmd
+    - 93-ap-3-exposure.qmd
     - references.qmd
 
 bibliography: references.bib
@@ -25,8 +34,7 @@ format:
     theme:
       - cosmo
       - brand
-  pdf:
-    documentclass: scrreprt
+
 
 
 

@@ -1,0 +1,300 @@
+Sí — **toca exactamente ahora** 👍
+Este capítulo es el que evita muchos errores de modelado en producción. Vamos a hacerlo **práctico**, no académico.
+
+---
+
+# 📘 Capítulo 8 — **Unidades vs Euros**
+
+**Poisson vs Gamma / Lognormal**
+
+> **Pregunta central**:
+> *¿Qué distribución uso para repartir contribuciones cuando el total observado son unidades vs euros?*
+
+---
+
+## 1️⃣ Diferencia conceptual clave (la más importante)
+
+### 🟦 **Unidades**
+
+Ejemplos:
+
+* nº de prescripciones
+* nº de ventas
+* nº de conversiones
+* nº de tickets
+
+👉 Son:
+
+* discretas
+* no negativas
+* con varianza ≈ media (o mayor)
+
+📌 **Modelo natural**: **Poisson** (o NegBin)
+
+---
+
+### 🟧 **Euros**
+
+Ejemplos:
+
+* revenue
+* margin
+* GMV
+* contribución monetaria del MMM
+
+👉 Son:
+
+* continuas
+* positivas
+* heavy-tailed
+* con outliers estructurales
+
+📌 **Modelo natural**: **Gamma** o **Lognormal**
+
+---
+
+## 2️⃣ Qué cambia *realmente* entre Poisson y Gamma
+
+| Aspecto             | Poisson (unidades) | Gamma / Lognormal (euros) |
+| ------------------- | ------------------ | ------------------------- |
+| Tipo de variable    | Discreta           | Continua                  |
+| Soporte             | {0,1,2,…}          | (0, +∞)                   |
+| Varianza            | ≈ media            | >> media                  |
+| Outliers            | Poco frecuentes    | Comunes                   |
+| Interpretación      | Conteos            | Valor monetario           |
+| Robustez            | Alta               | Media / baja              |
+| Estabilidad EM      | Muy alta           | Más delicada              |
+| Sensible a escalado | No                 | Sí                        |
+
+---
+
+## 3️⃣ Impacto directo en el EM
+
+### 🔹 E-step (reparto)
+
+**Importante**:
+👉 **El E-step es casi idéntico** en los tres casos.
+
+En la práctica:
+
+[
+\hat z_{h,b}
+============
+
+y_b
+\cdot
+\frac{\lambda_h \omega_{b,h}}
+{\sum_{h'} \lambda_{h'} \omega_{b,h'}}
+]
+
+* Poisson → exacto
+* Gamma → exacto si shape común
+* Lognormal → aproximado (pero funciona)
+
+📌 **El reparto (shares)** cambia poco entre modelos.
+
+---
+
+### 🔹 M-step (aprendizaje de (\lambda))
+
+Aquí sí hay diferencias fuertes.
+
+---
+
+## 4️⃣ Poisson (unidades): el caso “feliz”
+
+### Modelo
+
+[
+z_{h,b} \sim \text{Poisson}(\lambda_h \omega_{b,h})
+]
+
+### M-step cerrado (sin covariables)
+
+[
+\boxed{
+\lambda_h
+=========
+
+\frac{\sum_b \hat z_{h,b}}{\sum_b \omega_{b,h}}
+}
+]
+
+### Ventajas
+
+* ultra-estable
+* convexidad
+* convergencia rápida
+* fácil de explicar
+
+### Riesgos
+
+* si hay overdispersion fuerte → subestima varianza
+
+📌 **Default recomendado siempre que puedas.**
+
+---
+
+## 5️⃣ Gamma (euros): el caso realista
+
+### Modelo
+
+[
+z_{h,b} \sim \text{Gamma}(k,\ \theta_h \omega_{b,h})
+]
+(media = (k\theta_h \omega))
+
+### M-step
+
+* (\theta_h): GLM Gamma (log link)
+* (k): fijo o estimado global
+
+### Ventajas
+
+* respeta continuidad
+* maneja colas largas
+* interpretable en media
+
+### Riesgos
+
+* sensible a outliers extremos
+* EM más lento
+* puede volverse inestable sin regularización
+
+📌 Requiere:
+
+* winsorización o trimming
+* regularización
+* buen escalado de (\omega)
+
+---
+
+## 6️⃣ Lognormal (euros): el caso peligroso
+
+### Modelo
+
+[
+\log z_{h,b} \sim \mathcal N(\mu_h + \log \omega_{b,h},\ \sigma^2)
+]
+
+### Ventajas
+
+* modela muy bien heavy tails
+* muy común en revenue real
+
+### Problemas serios en EM
+
+* el reparto depende de (\exp(\mu))
+* un outlier puede:
+
+  * dominar el M-step
+  * “secuestrar” (\lambda)
+* no hay M-step cerrado
+
+📌 **Solo recomendable si**:
+
+* haces inferencia bayesiana
+* o usas strong priors + VI
+
+---
+
+## 7️⃣ Sesgo por outliers (ejemplo mental)
+
+Supón:
+
+* 100 bricks normales
+* 1 brick con revenue 100× mayor
+
+### Poisson
+
+* ese brick pesa 100×
+* pero no rompe el modelo
+
+### Gamma
+
+* ese brick domina el likelihood
+* (\lambda) se ajusta para “explicarlo”
+
+### Lognormal
+
+* el log ayuda, pero:
+* el EM puede volverse errático
+
+👉 **Esto no es un bug, es matemática.**
+
+---
+
+## 8️⃣ Cuándo conviene cada uno (guía práctica)
+
+### ✅ Usa **Poisson** si:
+
+* trabajas con unidades
+* puedes redefinir euros como:
+
+  * nº de transacciones × ticket medio
+* quieres estabilidad y explicabilidad
+
+> **Recomendación fuerte**:
+> incluso para revenue, intenta modelar **unidades primero**.
+
+---
+
+### ✅ Usa **Gamma** si:
+
+* el negocio exige euros
+* los outliers están controlados
+* tienes buena señal en (\omega)
+* aplicas regularización
+
+---
+
+### ⚠️ Usa **Lognormal** solo si:
+
+* tienes colas extremas reales
+* estás cómodo con Bayesian inference
+* aceptas más complejidad
+
+---
+
+## 9️⃣ Regla de oro (muy importante)
+
+> **El EM reparte masa.
+> Cuanto más “pesada” sea la cola del total observado,
+> más cuidado necesitas en el M-step.**
+
+---
+
+## 10️⃣ Recomendación final (industrial)
+
+En la práctica, equipos maduros hacen:
+
+1. **Modelar unidades con Poisson EM**
+2. Convertir a euros *post hoc*:
+   [
+   \hat z^{€}*{h,b} = \hat z^{units}*{h,b} \times \text{ticket medio}
+   ]
+3. Usar Gamma solo si el paso 2 no es aceptable
+
+---
+
+## ✔️ Salida — **Guía de model choice**
+
+| Caso                     | Recomendación            |
+| ------------------------ | ------------------------ |
+| Unidades                 | **Poisson (default)**    |
+| Euros “limpios”          | Gamma                    |
+| Euros con colas extremas | Lognormal (con cautela)  |
+| Dudas                    | Poisson + conversión     |
+| Producción crítica       | Poisson + regularización |
+
+---
+
+## Checkpoint
+
+¿Te encaja esta guía con lo que has visto en datos reales?
+
+El siguiente capítulo natural sería:
+
+* **Capítulo 9 — Regularización, pooling y priors (cómo evitar que EM se rompa)**
+  o, si prefieres,
+* **Capítulo 9 — Cómo explicar todo esto a negocio sin ecuaciones**

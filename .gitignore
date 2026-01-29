@@ -2,3 +2,10 @@
 _book/
 
 /.quarto/
+
+# Quarto / LaTeX intermediates
+*.aux
+*.log
+*.toc
+*.tex
+*.pdf

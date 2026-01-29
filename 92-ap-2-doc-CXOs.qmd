@@ -1,0 +1,875 @@
+Tenemos que preparar un documento en inglés dirigido a CMOs y Data Science Head.
+
+He pensado que los primeros apartados sean:
+
+<START>
+# What is Multitouch Attribution (MTA)?
+
+# MTA and Marketing Mix Models (MMM)
+
+# Measurment (MMM + MTA) and causalty: (quasi)experiments
+<END>
+
+posteriormente hablaremos de:
+
+<START>
+# MTA as a credit allocation problem
+
+## Expectation Maximization (EM) algorithm
+
+## Potential pitfalls of EM for MTA
+
+## Modeling alternatives: Bayesian Inference and Variational Inference (VI)
+
+## FAQ
+
+# MTA as a sequence mining problem: using transformers and graphs
+<END>
+
+para lo que usaremos el contenido de este curso.
+
+¿Qué te parece? ¿Cómo plantearias el documento? Cuando acordemos el planteamietno te pediré que lo escribas completo
+
+***
+
+Me parece **muy buena** la estructura y, sobre todo, **muy acertado el orden**.
+Lo que propones está alineado con cómo **CMOs y Heads of Data Science** entienden el problema *cuando está bien explicado*.
+
+Dicho eso, te propongo **refinar el planteamiento** para que:
+
+* el **CMO** no se pierda ni se sienta “modelado”
+* el **Head of DS** vea rigor, trade-offs y control
+* ambos entiendan **por qué MTA no es una cosa única**
+* el documento tenga **autoridad metodológica**, no “opinión”
+
+Voy por partes.
+
+---
+
+## 1️⃣ Evaluación general de tu planteamiento
+
+### Lo que está muy bien
+
+✔️ Empiezas por **qué es MTA**, no por algoritmos
+✔️ Anclas MTA en **MMM e incrementalidad** (crítico)
+✔️ Separas:
+
+* *qué es MTA*
+* *cómo se implementa (credit allocation)*
+* *qué NO cubre (sequences / transformers)*
+  ✔️ EM aparece **como una solución**, no como “la solución”
+
+Esto ya te pone por encima del 90% de documentos que circulan.
+
+---
+
+## 2️⃣ El ajuste clave: framing por “problemas”, no por técnicas
+
+Mi recomendación principal:
+
+> **El documento debe estar estructurado por “problemas de medición”**,
+> y dentro de cada uno presentar **familias de soluciones**.
+
+Eso hace que:
+
+* el CMO siga la historia
+* el DS lead vea criterio
+* no parezca que “vendemos EM”
+
+---
+
+## 3️⃣ Propuesta de estructura refinada (acordable)
+
+Te propongo esta estructura **muy cercana a la tuya**, pero con algunos ajustes de framing y títulos.
+
+---
+
+## **PART I — Setting the ground truth**
+
+### 1. What is Multitouch Attribution (MTA)?
+
+**Objetivo**
+Alinear definiciones y expectativas.
+
+**Mensajes clave**
+
+* Qué problema intenta resolver MTA
+* Qué decisiones pretende informar
+* Qué NO es MTA (no causal per se)
+
+---
+
+### 2. MTA and Marketing Mix Models (MMM)
+
+**Objetivo**
+Dejar claro que MTA **sin MMM es incompleto**.
+
+**Mensajes clave**
+
+* MMM responde al “how much”
+* MTA responde al “where inside the channel”
+* Por qué mezclar ambos es inevitable en entornos modernos
+
+---
+
+### 3. Measurement (MMM + MTA) and causality: (quasi-)experiments
+
+**Objetivo**
+Blindar el documento ante críticas de causalidad.
+
+**Mensajes clave**
+
+* Qué partes son causales
+* Qué partes son model-based
+* Dónde entran los experimentos
+* Qué se puede y no se puede afirmar
+
+📌 Este bloque da **credibilidad institucional**.
+
+---
+
+## **PART II — MTA as a credit allocation problem**
+
+> Aquí entramos en el “core” del curso que hemos hecho.
+
+### 4. MTA as a credit allocation problem
+
+**Objetivo**
+Reformular MTA de forma matemática pero comprensible.
+
+**Mensajes clave**
+
+* Observamos totales agregados
+* Queremos repartir crédito
+* El problema es estructural, no tecnológico
+
+Aquí introduces:
+
+* analogía HCP–Brick
+* analogía MMM→MTA
+
+---
+
+### 5. Expectation–Maximization (EM) for MTA
+
+**Objetivo**
+Presentar EM como **una solución natural y controlada**.
+
+**Mensajes clave**
+
+* Qué asume EM
+* Qué garantiza
+* Por qué es atractivo en producción
+* Cómo preserva incrementalidad del MMM
+
+Sin fórmulas duras, pero con claridad conceptual.
+
+---
+
+### 6. Potential pitfalls of EM for MTA
+
+**Objetivo**
+Demostrar seniority y evitar overselling.
+
+**Mensajes clave**
+
+* Identifiability
+* Overfitting silencioso
+* Cold start
+* Sensibilidad a exposición y outliers
+
+📌 Esta sección es clave para el Head of DS.
+
+---
+
+### 7. Modeling alternatives: Bayesian Inference and Variational Inference (VI)
+
+**Objetivo**
+Mostrar que EM **no es dogma**.
+
+**Mensajes clave**
+
+* Qué añade el enfoque bayesiano
+* Cuándo merece la pena
+* Costes reales (complejidad, compute, explicabilidad)
+
+Aquí usas directamente lo que ya discutimos:
+
+* jerarquías
+* pooling
+* incertidumbre
+
+---
+
+### 8. FAQ
+
+**Objetivo**
+Cerrar frentes políticos y operativos.
+
+Audiencias:
+
+* CMO
+* Finance
+* Analytics
+* Legal
+
+👉 Aquí puedes reutilizar casi tal cual el Q&A defensivo.
+
+---
+
+## **PART III — Beyond credit allocation**
+
+### 9. MTA as a sequence mining problem: transformers and graphs
+
+**Objetivo**
+Poner límites claros y mostrar visión de futuro.
+
+**Mensajes clave**
+
+* Qué problema distinto resuelven estos enfoques
+* Cuándo aplican (user-level, paths)
+* Por qué **no sustituyen** MMM+MTA
+* Riesgos de interpretabilidad y causalidad
+
+📌 Muy importante:
+
+> no vender esto como “the next step”, sino como **otro eje**.
+
+---
+
+## 4️⃣ Qué añadiría (muy poco) para hacerlo excelente
+
+### 🔹 Un Executive Summary (1 página)
+
+Al principio, con:
+
+* 5 bullets
+* 1 diagrama mental
+* 1 frase fuerte tipo:
+
+> “MTA is not a single model, but a family of solutions to different measurement problems.”
+
+---
+
+### 🔹 Un “Decision map”
+
+Cerca del final:
+
+| Need                       | Recommended approach |
+| -------------------------- | -------------------- |
+| Channel budgeting          | MMM                  |
+| Intra-channel optimization | EM-based MTA         |
+| Cold start & uncertainty   | Bayesian MTA         |
+| User journey analysis      | Sequence models      |
+
+Esto encanta a CMOs.
+
+---
+
+## 5️⃣ Veredicto final
+
+Tu planteamiento es **muy sólido**.
+Mi recomendación es:
+
+* Mantener **exactamente tus bloques**
+* Ajustar títulos para:
+
+  * enfatizar *problem → solution*
+  * no sonar “tool-centric”
+* Separar claramente:
+
+  * **measurement**
+  * **causality**
+  * **optimization**
+
+Si estás de acuerdo con esta estructura:
+👉 en el siguiente mensaje puedo **escribir el documento completo en inglés**, con:
+
+* tono C-level + DS-level
+* sin ecuaciones
+* con frases defendibles
+* listo para circular internamente o externamente
+
+Dime:
+
+1. ¿Audiencia principal: más CMO o más DS Head?
+2. ¿Longitud objetivo? (10–15 páginas / whitepaper / blog long-form)
+
+
+***
+
+Me parece genial! Algunas precisiones:
+
+- La parte III  no la trataremos ahora
+- FAQ: reutiliza las secciones "Cierre para preguntas difíciles (chuleta)" y "Q&A defensivo — EM + MMM + MTA"
+
+El documento debe valer solo para CMO, solo para DS Head y para los dos juntos
+Longitud: si, como 10-15 páginas, más bien whitepaper. Lo usaremos después para generar presentación con slides y blog post.
+
+***
+
+Perfecto — con esas precisiones ya estamos **100% alineados**.
+Lo que propones da para un **whitepaper sólido (10–15 páginas)** que:
+
+* **un CMO** puede leer sin perderse
+* **un Head of Data Science** respeta metodológicamente
+* **ambos** pueden usar como referencia común
+* se puede **reutilizar** casi sin fricción para:
+
+  * slides ejecutivas
+  * blog posts
+  * FAQs internas
+
+A continuación te propongo el **planteamiento definitivo del documento**, ya **cerrado para escritura**, y luego te explico **por qué funciona para ambas audiencias**.
+
+---
+
+# Propuesta final de estructura del whitepaper
+
+## Executive Summary (1 página)
+
+**Objetivo**
+
+* Alinear expectativas
+* Explicar *qué problema resolvemos* y *qué no*
+* Dar una “north star” clara
+
+**Contenido**
+
+* Qué es MTA (y qué no)
+* Por qué MMM + MTA deben convivir
+* Qué aporta el enfoque EM
+* Qué decisiones habilita
+* Qué límites tiene
+
+> Esta sección debe poder leerse sola por un CMO.
+
+---
+
+## PART I — Measurement foundations
+
+### 1. What is Multitouch Attribution (MTA)?
+
+**Objetivo**
+
+* Definición clara, no técnica
+* Desmitificar MTA
+
+**Claves**
+
+* MTA como problema de atribución, no de predicción
+* Touchpoints, exposure y credit
+* Por qué “last-click” es insuficiente
+
+**Nivel**
+
+* 80% negocio
+* 20% analítico ligero
+
+---
+
+### 2. MTA and Marketing Mix Models (MMM)
+
+**Objetivo**
+
+* Posicionar MTA dentro del ecosistema de medición
+* Evitar el error “MTA vs MMM”
+
+**Claves**
+
+* Qué responde MMM
+* Qué responde MTA
+* Por qué MTA sin MMM pierde incrementalidad
+* Enfoque top-down vs bottom-up
+
+📌 Aquí se gana la confianza del CMO **y** del DS Head.
+
+---
+
+### 3. Measurement (MMM + MTA) and causality: (quasi-)experiments
+
+**Objetivo**
+
+* Blindar el documento frente a críticas de causalidad
+
+**Claves**
+
+* Qué parte es causal (MMM, experimentos)
+* Qué parte es model-based (MTA)
+* Rol de los experimentos:
+
+  * validación
+  * calibración
+  * aprendizaje
+
+📌 Esta sección es **clave para credibilidad institucional**.
+
+---
+
+## PART II — MTA as a credit allocation problem
+
+### 4. MTA as a credit allocation problem
+
+**Objetivo**
+
+* Reformular MTA de forma rigurosa pero comprensible
+
+**Claves**
+
+* Observamos resultados agregados
+* Queremos repartir crédito a niveles más bajos
+* Analogía intuitiva:
+
+  * HCP–Brick
+  * MMM → campañas / creatividades
+
+📌 Aquí introduces el **marco conceptual único** del documento.
+
+---
+
+### 5. Expectation–Maximization (EM) for MTA
+
+**Objetivo**
+
+* Presentar EM como una solución natural y controlada
+
+**Claves**
+
+* Por qué EM encaja con el problema
+* Qué asume
+* Qué garantiza:
+
+  * conservación de masa
+  * coherencia con MMM
+  * estabilidad
+
+**Muy importante**
+
+* Nada de ecuaciones duras
+* Mucha intuición
+* Frases defendibles
+
+---
+
+### 6. Potential pitfalls of EM for MTA
+
+**Objetivo**
+
+* Mostrar madurez y evitar overselling
+
+**Claves**
+
+* Identifiability
+* Overfitting silencioso
+* Cold start
+* Sensibilidad a exposición y outliers
+
+📌 Esta sección es donde el **Head of DS** dice:
+
+> “OK, aquí hay criterio”.
+
+---
+
+### 7. Modeling alternatives: Bayesian Inference and Variational Inference (VI)
+
+**Objetivo**
+
+* Posicionar EM dentro de un continuo metodológico
+
+**Claves**
+
+* Qué añade Bayes:
+
+  * pooling
+  * incertidumbre
+  * robustez
+* Costes reales:
+
+  * complejidad
+  * compute
+  * explicabilidad
+* Cuándo tiene sentido dar el salto
+
+📌 Muy importante: **no vender Bayes como “mejor”, sino como “distinto”**.
+
+---
+
+## PART III — FAQ and defensive Q&A
+
+### 8. FAQ
+
+👉 **Aquí reutilizamos explícitamente**:
+
+* **“Cierre para preguntas difíciles (chuleta)”**
+* **“Q&A defensivo — EM + MMM + MTA”**
+
+Organizado por audiencia:
+
+* Analytics / DS
+* Finance
+* Marketing
+* Legal / Compliance
+
+📌 Esta sección convierte el documento en:
+
+* material de comité
+* referencia interna
+* escudo político
+
+---
+
+## Qué NO entra (por ahora)
+
+* ❌ Parte III original (transformers, graphs, sequence mining)
+* ❌ User-level path modeling
+* ❌ Deep learning details
+
+👉 Perfectamente coherente con un whitepaper de **measurement**, no de **adtech hype**.
+
+---
+
+# Por qué este documento sirve a **ambas audiencias**
+
+## Para el CMO
+
+* Empieza por decisiones, no por modelos
+* Refuerza incrementalidad
+* Marca límites claros
+* Evita promesas irreales
+
+## Para el Head of Data Science
+
+* Marco formal consistente
+* Trade-offs explícitos
+* Alternativas bien posicionadas
+* Lenguaje metodológico correcto
+
+## Para ambos
+
+* Vocabulario compartido
+* Expectativas alineadas
+* Base común para discusión estratégica
+
+---
+
+# Próximo paso (si estás de acuerdo)
+
+Si confirmas este planteamiento, en el siguiente mensaje puedo:
+
+👉 **Escribir el documento completo en inglés**, con:
+
+* tono whitepaper (neutral, riguroso, claro)
+* 10–15 páginas equivalentes
+* secciones bien balanceadas
+* texto reutilizable para:
+
+  * slides
+  * blog posts
+  * FAQs internas
+
+Antes de escribir, solo una última confirmación rápida (sí/no basta):
+
+1. ¿Usamos un **tono neutral/academic-industry** (tipo Google / Meta whitepaper)?
+2. ¿Lo escribimos como **vendor-agnostic** (sin mencionar tools concretas)?
+
+Cuando me digas, empiezo a escribir.
+
+***
+
+si y si. Escribe el documento
+
+***
+
+Perfecto. A continuación tienes el **whitepaper completo**, escrito en **inglés**, con **tono neutral industry / academic**, **vendor-agnostic**, pensado explícitamente para **CMOs y Heads of Data Science** *a la vez*.
+El texto está estructurado para poder reutilizarse casi directamente en **slides** y **blog posts**.
+
+---
+
+# **Multitouch Attribution in Modern Marketing Measurement**
+
+### Bridging Marketing Mix Models, Incrementality, and Intra-Channel Optimization
+
+---
+
+## **Executive Summary**
+
+Multitouch Attribution (MTA) aims to explain how marketing impact should be distributed across touchpoints, campaigns, or creatives. However, when used in isolation, MTA often conflates correlation with causation and can lead to misleading conclusions.
+
+Marketing Mix Models (MMM), on the other hand, provide robust, incremental and causal estimates at an aggregated channel level, but lack the granularity required for day-to-day execution.
+
+This whitepaper presents a unified measurement framework in which:
+
+* **MMM establishes incremental impact at the channel level**
+* **MTA distributes that incremental impact within channels**
+* **Expectation–Maximization (EM)** is introduced as a principled and scalable method for credit allocation
+* **Bayesian hierarchical models** are positioned as a complementary extension when uncertainty, cold start, or deep hierarchies matter
+
+The goal is not to promote a single model, but to provide a **decision-oriented measurement framework** that is rigorous, transparent, and operationally useful.
+
+---
+
+## **PART I — Measurement Foundations**
+
+---
+
+## **1. What Is Multitouch Attribution (MTA)?**
+
+Multitouch Attribution is a family of methods that aim to distribute marketing credit across multiple touchpoints involved in a customer journey.
+
+In practical terms, MTA tries to answer questions such as:
+
+* Which campaigns or creatives contributed most to outcomes?
+* How should performance be compared within a channel?
+* Where should execution be optimized?
+
+### What MTA *Is*
+
+* A **credit allocation problem**
+* A tool for **intra-channel optimization**
+* A way to bring structure to complex delivery data
+
+### What MTA *Is Not*
+
+* A causal model by default
+* A replacement for MMM
+* A guarantee of incremental impact at granular levels
+
+A key limitation of traditional MTA approaches is that they often operate on user-level paths without a reliable counterfactual. As a result, they are highly sensitive to selection bias and timing effects.
+
+---
+
+## **2. MTA and Marketing Mix Models (MMM)**
+
+MMM and MTA address **different but complementary questions**.
+
+| Question                                                      | MMM | MTA |
+| ------------------------------------------------------------- | --- | --- |
+| How much impact does marketing have?                          | ✔️  | ❌   |
+| Which channels drive incremental results?                     | ✔️  | ❌   |
+| Which campaigns or creatives perform better within a channel? | ❌   | ✔️  |
+| Suitable for budget allocation                                | ✔️  | ❌   |
+| Suitable for execution optimization                           | ❌   | ✔️  |
+
+### Why MTA Without MMM Is Incomplete
+
+MTA models typically allocate credit based on observed exposure patterns. Without an incremental baseline, they cannot distinguish:
+
+* correlation vs causation
+* demand capture vs demand creation
+
+### Why MMM Without MTA Is Insufficient
+
+MMM produces reliable channel-level insights, but:
+
+* execution teams need guidance below the channel level
+* creative, campaign, and targeting decisions remain under-informed
+
+**Conclusion:**
+MMM and MTA should not compete. They should be **connected**.
+
+---
+
+## **3. Measurement, Causality, and (Quasi-)Experiments**
+
+Marketing measurement combines different levels of causal confidence.
+
+### Causality in MMM
+
+* MMM estimates incremental impact via counterfactual modeling
+* When well specified, MMM provides **causal estimates at an aggregated level**
+
+### Causality in MTA
+
+* MTA is typically **model-based**, not causal
+* It explains how observed outcomes can be allocated, not what would have happened otherwise
+
+### Role of Experiments
+
+Experiments remain the gold standard for causality:
+
+* Geo-experiments
+* Holdouts
+* Creative tests
+
+In practice:
+
+* MMM provides global causal grounding
+* MTA provides granular structure
+* Experiments validate and calibrate both
+
+---
+
+## **PART II — MTA as a Credit Allocation Problem**
+
+---
+
+## **4. MTA as a Credit Allocation Problem**
+
+At its core, MTA can be reframed as a **credit allocation problem under constraints**.
+
+We observe:
+
+* aggregated outcomes (e.g., conversions, revenue, incremental contribution)
+* detailed exposure data (campaigns, creatives, impressions, timing)
+
+We want to infer:
+
+* how much each granular entity contributed to the observed total
+
+This structure appears in many domains:
+
+* sales attribution across territories
+* healthcare outcomes across providers
+* marketing contribution across campaigns
+
+The defining constraint is:
+
+> **The allocated contributions must sum exactly to the observed total.**
+
+This reframing allows us to use well-understood statistical tools rather than ad-hoc heuristics.
+
+---
+
+## **5. Expectation–Maximization (EM) for MTA**
+
+### Why EM Fits the Problem
+
+The Expectation–Maximization algorithm is designed for models with:
+
+* latent variables
+* observed aggregates
+* structured constraints
+
+In MTA:
+
+* latent variables represent campaign-level contributions
+* observed data are aggregated outcomes
+* constraints enforce conservation of total impact
+
+### What EM Guarantees
+
+* **Mass conservation**: allocated credit always matches MMM totals
+* **Stability**: small data changes lead to smooth updates
+* **Scalability**: works with large datasets
+* **Transparency**: assumptions are explicit and auditable
+
+### Interpretation
+
+EM does not “create” performance.
+It **distributes known incremental impact** using exposure patterns and learned efficiencies.
+
+This makes EM particularly suitable as the **bridge between MMM and execution-level optimization**.
+
+---
+
+## **6. Potential Pitfalls of EM for MTA**
+
+EM is powerful, but not foolproof.
+
+### Identifiability
+
+If two campaigns have identical exposure patterns, the model cannot distinguish them. EM will distribute credit arbitrarily unless additional structure is introduced.
+
+### Silent Overfitting
+
+Likelihood can increase even when the model is fitting noise. Without regularization and stability checks, results may appear plausible but be unreliable.
+
+### Cold Start
+
+New campaigns or creatives with limited history may receive unstable estimates unless pooling or priors are used.
+
+### Sensitivity to Exposure Design
+
+Poorly defined exposure signals (e.g., raw impressions without saturation or carryover) can distort attribution.
+
+**Key takeaway:**
+EM requires **careful modeling choices**, not blind application.
+
+---
+
+## **7. Modeling Alternatives: Bayesian Inference and Variational Inference**
+
+Bayesian hierarchical models extend EM by introducing uncertainty and structured pooling.
+
+### What Bayesian Models Add
+
+* Partial pooling across campaigns, creatives, or groups
+* Natural handling of cold start
+* Posterior distributions instead of point estimates
+* Explicit uncertainty quantification
+
+### Trade-offs
+
+| Aspect           | EM      | Bayesian (VI) |
+| ---------------- | ------- | ------------- |
+| Scalability      | High    | Medium        |
+| Complexity       | Low     | High          |
+| Interpretability | High    | Medium        |
+| Uncertainty      | ❌       | ✔️            |
+| Cold start       | Limited | Strong        |
+
+### Practical Positioning
+
+* EM is often the **right production baseline**
+* Bayesian approaches are valuable when:
+
+  * uncertainty matters for decisions
+  * data are sparse
+  * hierarchies are deep
+
+---
+
+## **PART III — FAQ and Defensive Q&A**
+
+---
+
+## **8. FAQ and Defensive Q&A**
+
+This section consolidates common questions from Analytics, Finance, Marketing, and Legal stakeholders.
+
+### Does this model create or destroy revenue?
+
+No. All allocations strictly preserve MMM totals.
+
+### Is this causal?
+
+The total impact is causal (from MMM). The allocation within channels is model-based.
+
+### Can this be audited?
+
+Yes. The methodology is transparent, reproducible, and version-controlled.
+
+### Why not use user-level MTA only?
+
+Because user-level attribution alone cannot reliably identify incrementality.
+
+### Can this guide optimization?
+
+Yes—**as a prioritization signal**, not as a substitute for experimentation.
+
+---
+
+## **Final Takeaway**
+
+> **MMM determines how much marketing works.
+> MTA determines how to execute better within that reality.**
+
+A robust measurement strategy recognizes that:
+
+* no single model answers all questions
+* causality and granularity must be handled separately
+* rigor and usability must coexist
+
+This framework provides a principled way to connect strategy, analytics, and execution—without over-promising or oversimplifying.
+
+---
+
+**End of document**
+
+---
+
+Cuando quieras, a partir de este texto puedo:
+
+* generar la **presentación ejecutiva (10–12 slides)**
+* extraer **2–3 blog posts** (CMO-focused vs DS-focused)
+* o preparar una **versión con diagramas y esquemas visuales**
