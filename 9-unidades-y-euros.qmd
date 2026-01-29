@@ -77,15 +77,13 @@ Ejemplos:
 
 En la práctica:
 
-[
+$$
 \hat z_{h,b}
-============
-
+=
 y_b
 \cdot
-\frac{\lambda_h \omega_{b,h}}
-{\sum_{h'} \lambda_{h'} \omega_{b,h'}}
-]
+\frac{\lambda_h \omega_{b,h}}{\sum_{h'} \lambda_{h'} \omega_{b,h'}}
+$$
 
 * Poisson → exacto
 * Gamma → exacto si shape común
@@ -95,7 +93,7 @@ y_b
 
 ---
 
-### 🔹 M-step (aprendizaje de (\lambda))
+### 🔹 M-step (aprendizaje de $\lambda$)
 
 Aquí sí hay diferencias fuertes.
 
@@ -105,20 +103,19 @@ Aquí sí hay diferencias fuertes.
 
 ### Modelo
 
-[
+$$
 z_{h,b} \sim \text{Poisson}(\lambda_h \omega_{b,h})
-]
+$$
 
 ### M-step cerrado (sin covariables)
 
-[
+$$
 \boxed{
 \lambda_h
-=========
-
+=
 \frac{\sum_b \hat z_{h,b}}{\sum_b \omega_{b,h}}
 }
-]
+$$
 
 ### Ventajas
 
@@ -139,15 +136,15 @@ z_{h,b} \sim \text{Poisson}(\lambda_h \omega_{b,h})
 
 ### Modelo
 
-[
+$$
 z_{h,b} \sim \text{Gamma}(k,\ \theta_h \omega_{b,h})
-]
-(media = (k\theta_h \omega))
+$$
+(media = $k\theta_h \omega$)
 
 ### M-step
 
-* (\theta_h): GLM Gamma (log link)
-* (k): fijo o estimado global
+* $\theta_h$: GLM Gamma (log link)
+* $k$: fijo o estimado global
 
 ### Ventajas
 
@@ -165,7 +162,7 @@ z_{h,b} \sim \text{Gamma}(k,\ \theta_h \omega_{b,h})
 
 * winsorización o trimming
 * regularización
-* buen escalado de (\omega)
+* buen escalado de $\omega$
 
 ---
 
@@ -173,9 +170,9 @@ z_{h,b} \sim \text{Gamma}(k,\ \theta_h \omega_{b,h})
 
 ### Modelo
 
-[
+$$
 \log z_{h,b} \sim \mathcal N(\mu_h + \log \omega_{b,h},\ \sigma^2)
-]
+$$
 
 ### Ventajas
 
@@ -184,11 +181,11 @@ z_{h,b} \sim \text{Gamma}(k,\ \theta_h \omega_{b,h})
 
 ### Problemas serios en EM
 
-* el reparto depende de (\exp(\mu))
+* el reparto depende de $\exp(\mu)$
 * un outlier puede:
 
   * dominar el M-step
-  * “secuestrar” (\lambda)
+  * "secuestrar" $\lambda$
 * no hay M-step cerrado
 
 📌 **Solo recomendable si**:
@@ -213,7 +210,7 @@ Supón:
 ### Gamma
 
 * ese brick domina el likelihood
-* (\lambda) se ajusta para “explicarlo”
+* $\lambda$ se ajusta para "explicarlo"
 
 ### Lognormal
 
@@ -243,7 +240,7 @@ Supón:
 
 * el negocio exige euros
 * los outliers están controlados
-* tienes buena señal en (\omega)
+* tienes buena señal en $\omega$
 * aplicas regularización
 
 ---
@@ -270,9 +267,9 @@ En la práctica, equipos maduros hacen:
 
 1. **Modelar unidades con Poisson EM**
 2. Convertir a euros *post hoc*:
-   [
-   \hat z^{€}*{h,b} = \hat z^{units}*{h,b} \times \text{ticket medio}
-   ]
+   $$
+   \hat z^{€}_{h,b} = \hat z^{units}_{h,b} \times \text{ticket medio}
+   $$
 3. Usar Gamma solo si el paso 2 no es aceptable
 
 ---
