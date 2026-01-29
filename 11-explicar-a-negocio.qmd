@@ -2,7 +2,7 @@ Perfecto. Te lo doy **exactamente como lo usaría un senior delante de comité**
 
 ---
 
-# 🧩 Capítulo 10 — **Cómo explicar EM + MMM + MTA a negocio en 3 slides**
+# Cómo explicar EM + MMM + MTA a negocio en 3 slides
 
 > Objetivo:
 > Que entiendan **qué hacemos**, **por qué es coherente**, y **qué NO promete**.

@@ -2,7 +2,7 @@ Perfecto. Este es **el capítulo que diferencia a alguien que “sabe EM” de a
 
 ---
 
-# 📕 Capítulo 9 — **Pitfalls reales y extensiones**
+# Pitfalls reales y extensiones
 
 **Criterio de Senior Data Scientist**
 

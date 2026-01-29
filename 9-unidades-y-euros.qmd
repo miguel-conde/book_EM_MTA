@@ -3,7 +3,7 @@ Este capítulo es el que evita muchos errores de modelado en producción. Vamos 
 
 ---
 
-# 📘 Capítulo 8 — **Unidades vs Euros**
+# Unidades vs Euros
 
 **Poisson vs Gamma / Lognormal**
 
