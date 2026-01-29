@@ -1,7 +1,7 @@
 # Incorporando features de HCP (modelo realista)
 
 Este capítulo es **el salto a producción**.\
-Pasamos de “un (\\lambda_h) libre por HCP” a un modelo **paramétrico, generalizable y regularizado**.
+Pasamos de “un $\lambda_h$ libre por HCP” a un modelo **paramétrico, generalizable y regularizado**.
 
 ## 1️⃣ Por qué necesitamos covariables (motivación)
 
@@ -19,22 +19,20 @@ En el Capítulo 4 vimos un problema clave:
 
 Definimos:
 
-\[\
-\\boxed{\
-\\lambda_h = \\exp(X_h \\beta)\
-}\
-\]
+$$
+\boxed{\lambda_h = \exp(X_h \beta)}
+$$
 
 donde:
 
--   (X_h \\in \\mathbb{R}\^p): features del HCP\
+-   $X_h \in \mathbb{R}^p$: features del HCP\
     (especialidad, seniority, nº visitas, potencial, etc.)
 
--   (\\beta \\in \\mathbb{R}\^p): coeficientes globales
+-   $\beta \in \mathbb{R}^p$: coeficientes globales
 
 📌 Interpretación:
 
--   Dos HCPs con mismos (X) tienen misma productividad esperada
+-   Dos HCPs con mismos $X$ tienen misma productividad esperada
 
 -   El modelo **comparte fuerza estadística**
 
@@ -42,28 +40,28 @@ donde:
 
 ### 🔹 Generativo
 
-\[\
-z\_{h,b} \\sim \\text{Poisson}(\\exp(X_h\\beta), w\_{h,b})\
-\]
+$$
+z_{h,b} \sim \text{Poisson}(\exp(X_h\beta), w_{h,b})
+$$
 
-\[\
-y_b = \\sum\_{h\\in b} z\_{h,b}\
-\]
+$$
+y_b = \sum_{h\in b} z_{h,b}
+$$
 
 ## 4️⃣ EM + GLM: cómo encajan
 
 ### 🔁 E-step (igual que antes)
 
-Con (\\lambda_h\^{(t)} = \\exp(X_h\\beta\^{(t)})):
+Con $\lambda_h^{(t)} = \exp(X_h\beta^{(t)})$:
 
-# \[ \\boxed{ \\mathbb{E}\[z\_{h,b}\\mid y_b,\\beta\^{(t)}\]
-
-y_b\
-\\cdot\
-\\frac{\\exp(X_h\\beta\^{(t)}) w\_{h,b}}\
-{\\sum\_{h'\\in b}\\exp(X\_{h'}\\beta\^{(t)}) w\_{h',b}}\
-}\
-\]
+$$
+\boxed{
+\mathbb{E}\big[z_{h,b}\mid y_b,\beta^{(t)}\big]
+= y_b\cdot
+\frac{\exp(X_h\beta^{(t)})\, w_{h,b}}
+{\sum_{h'\in b}\exp(X_{h'}\beta^{(t)})\, w_{h',b}}
+}
+$$
 
 📌 **Nada cambia conceptualmente**.
 
@@ -71,33 +69,31 @@ y_b\
 
 Definimos los “pseudo-targets”:
 
-\[\
-\\tilde y_h = \\sum_b \\mathbb{E}\[z\_{h,b}\]\
-\]
+$$
+    ilde y_h = \sum_b \mathbb{E}[z_{h,b}]
+$$
 
 y la exposición total:
 
-\[\
-\\tilde w_h = \\sum_b w\_{h,b}\
-\]
+$$
+    ilde w_h = \sum_b w_{h,b}
+$$
 
 Entonces el M-step es:
 
-## \[ \\boxed{ \\max\_\\beta \\sum_h \\left\[ \\tilde y_h \\log \\lambda_h
-
-\\lambda_h \\tilde w_h\
-\\right\]\
-}\
-\\quad\
-\\text{con }\
-\\lambda_h = \\exp(X_h\\beta)\
-\]
+$$
+\boxed{
+\max_{\beta} \sum_h \left[ \tilde y_h \log \lambda_h - \lambda_h \tilde w_h \right]
+\quad
+    \text{con }\lambda_h = \exp(X_h\beta)
+}
+$$
 
 👉 Esto es exactamente una **Poisson regression con offset**:
 
--   Response: (\\tilde y_h)
+-   Response: $\tilde y_h$
 
--   Offset: (\\log(\\tilde w_h))
+-   Offset: $\log(\tilde w_h)$
 
 📌 Se resuelve con IRLS estándar.
 
@@ -105,21 +101,19 @@ Entonces el M-step es:
 
 Análogo:
 
-\[\
-z\_{h,b} \\sim \\text{Gamma}(k, \\theta_h w\_{h,b})\
-\\quad\
-\\text{con}\
-\\quad\
-\\theta_h = \\exp(X_h\\beta)\
-\]
+$$
+z_{h,b} \sim \text{Gamma}(k, \theta_h w_{h,b})
+\quad
+    \text{con }\theta_h = \exp(X_h\beta)
+$$
 
--   E-step: reparto proporcional a (\\theta_h w\_{h,b})
+-   E-step: reparto proporcional a $\theta_h w_{h,b}$
 
 -   M-step:
 
-    -   (\\beta): GLM Gamma con link log
+    -   $\beta$: GLM Gamma con link log
 
-    -   (k): fijo o estimado con Newton
+    -   $k$: fijo o estimado con Newton
 
 📌 Misma lógica, distinta distribución.
 
@@ -127,15 +121,15 @@ z\_{h,b} \\sim \\text{Gamma}(k, \\theta_h w\_{h,b})\
 
 Sin regularización:
 
--   (\\beta) puede explotar
+-   $\beta$ puede explotar
 
 -   Especialmente si hay features raras o colineales
 
 ### 🔹 Penalización típica
 
-\[\
-\\beta \\sim \\mathcal{N}(0,\\sigma\^2 I)\
-\]
+$$
+\beta \sim \mathcal{N}(0,\sigma^2 I)
+$$
 
 Equivalente a:
 
@@ -151,7 +145,7 @@ Equivalente a:
 
 -   HCPs exclusivos ya no “absorben” arbitrariamente
 
--   Productividades están ancladas a (X_h)
+-   Productividades están ancladas a $X_h$
 
 -   Generaliza a HCPs nuevos
 
@@ -159,20 +153,21 @@ Equivalente a:
 
 -   Attribution ≠ causalidad
 
--   Si dos HCPs tienen (X) casi idéntico y siempre co-ocurren, no se distinguen
+-   Si dos HCPs tienen $X$ casi idéntico y siempre co-ocurren, no se distinguen
 
 ## 8️⃣ ¿Qué pasa cuando un HCP está en muchos bricks?
 
 Esto es **bueno**, no malo.
 
--   Aparece en muchas ecuaciones:\
-    \[\
-    y_b \\approx \\sum_h \\exp(X_h\\beta) w\_{h,b}\
-    \]
+-   Aparece en muchas ecuaciones:
+
+    $$
+    y_b \approx \sum_h \exp(X_h\beta)\, w_{h,b}
+    $$
 
 -   El modelo **lo usa como ancla**
 
--   Reduce varianza de (\\beta)
+-   Reduce varianza de $\beta$
 
 📌 En la práctica:
 
@@ -184,14 +179,14 @@ Esto es **bueno**, no malo.
 
 ### Modelo final (unidades)
 
-\[\
-\\boxed{\
-\\begin{aligned}\
-z\_{h,b} &\\sim \\text{Poisson}(\\exp(X_h\\beta), w\_{h,b}) \\\
-y_b &= \\sum\_{h\\in b} z\_{h,b}\
-\\end{aligned}\
-}\
-\]
+$$
+\boxed{
+\begin{aligned}
+z_{h,b} &\sim \text{Poisson}(\exp(X_h\beta), w_{h,b}) \\
+y_b &= \sum_{h\in b} z_{h,b}
+\end{aligned}
+}
+$$
 
 con:
 
