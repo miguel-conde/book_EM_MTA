@@ -36,10 +36,11 @@ En cada relación (fila) HCP–brick:
 
 -   `zhat[r] = y[b[r]] * num[r] / den[b[r]]`
 
-Esto garantiza automáticamente:\
-\[\
-\\sum\_{h\\in b} \\hat z\_{h,b} = y_b\
-\]
+Esto garantiza automáticamente:
+
+$$
+\sum_{h\in b} \hat z_{h,b} = y_b
+$$
 
 ### M-step como GLM con offset
 
@@ -49,10 +50,12 @@ Construyes:
 
 -   `w_tilde[h] = sum_b w[h,b]`
 
--   Ajustas:\
-    \[\
-    \\tilde y_h \\sim \\text{Poisson}(\\exp(X_h\\beta + \\log \\tilde w_h))\
-    \]\
+-   Ajustas:
+
+    $$
+    \tilde y_h \sim \text{Poisson}(\exp(X_h\beta + \log \tilde w_h))
+    $$
+    
     con IRLS y ridge.
 
 ## Debugging típico (lo más útil en producción)
