@@ -36,23 +36,22 @@ Formalmente:
 
 ### 🔍 Observado (datos)
 
--   ( y_b ): ventas totales del brick ( b )
+-   $y_b$: ventas totales del brick $b$
 
--   ( X_h ): covariables del HCP ( h )
+-   $X_h$: covariables del HCP $h$
 
--   ( M\_{h,b} \\in {0,1} ): pertenencia HCP–brick\
+-   $M_{h,b} \in \{0,1\}$: pertenencia HCP–brick\
     (o peso si la pertenencia no es binaria)
 
 ### 👻 Latente (no observado)
 
--   ( z\_{h,b} ): contribución de ventas del HCP ( h ) al brick ( b )
+-   $z_{h,b}$: contribución de ventas del HCP $h$ al brick $b$
 
-con la restricción:\
-\[\
-\\sum\_{h \\in b} z\_{h,b} = y_b\
-\]
+con la restricción: $$
+\sum_{h \in b} z_{h,b} = y_b
+$$
 
-📌 Este ( z\_{h,b} ) es **la variable oculta clave**.
+📌 Este $z_{h,b}$ es **la variable oculta clave**.
 
 ## 3️⃣ Por qué esto NO es una regresión directa
 
@@ -60,9 +59,9 @@ con la restricción:\
 
 Podrías intentar algo como:
 
-\[\
-y_b = \\sum\_{h \\in b} f(X_h)\
-\]
+$$
+y_b = \sum_{h \in b} f(X_h)
+$$
 
 Problemas:
 
@@ -99,7 +98,7 @@ no *“cómo se generaron los datos”*.
 
 ### 🔑 Observación clave
 
-Si conociéramos ( z\_{h,b} ):
+Si conociéramos $z_{h,b}$:
 
 -   Podríamos estimar fácilmente productividad de HCPs
 
@@ -122,15 +121,15 @@ Si conociéramos la productividad de HCPs:
 
 Cada venta del brick proviene de un **“componente” HCP**:
 
-\[\
-p(\\text{venta} \\mid b) = \\sum\_{h \\in b} \\pi\_{h,b} , p_h\
-\]
+$$
+p(\text{venta} \mid b) = \sum_{h \in b} \pi_{h,b} \cdot p_h
+$$
 
 -   HCPs = componentes
 
--   ( \\pi\_{h,b} ) = peso del HCP en el brick
+-   $\pi_{h,b}$ = peso del HCP en el brick
 
--   ( z\_{h,b} ) = responsabilidades
+-   $z_{h,b}$ = responsabilidades
 
 📌 Es un **mixture model con labels parcialmente observados**.
 
@@ -172,87 +171,68 @@ Este es el **modelo conceptual que usaremos**:
 
 ### 🔹 Nivel HCP
 
-Cada HCP tiene una **productividad latente**:\
-\[\
-\\theta_h = f(X_h; \\beta)\
-\]
+Cada HCP tiene una **productividad latente**: $$
+    \theta_h = f(X_h; \beta)
+$$
 
 Ejemplos:
 
--   Unidades → ( \\theta_h = \\lambda_h ) (Poisson)
+-   Unidades → $\theta_h = \lambda_h$ (Poisson)
 
 -   Euros → media Gamma / Lognormal
 
 ### 🔹 Nivel Brick
 
-Las ventas del brick se generan como:\
-\[\
-y_b = \\sum\_{h \\in b} z\_{h,b}\
-\]
+Las ventas del brick se generan como: $$
+y_b = \sum_{h \in b} z_{h,b}
+$$
 
-con:\
-\[\
-z\_{h,b} \\sim \\text{Distribución}(\\theta_h, w\_{h,b})\
-\]
+con: $$
+z_{h,b} \sim \text{Distribución}(\theta_h, w_{h,b})
+$$
 
 donde:
 
--   ( w\_{h,b} ): exposición / peso del HCP en el brick\
+-   $w_{h,b}$: exposición / peso del HCP en el brick\
     (visitas, tiempo, overlap geográfico…)
 
 ### 🔹 Lo que hace EM
 
--   **E-step**:\
-    \[\
-    \\mathbb{E}\[z\_{h,b} \\mid y_b, \\theta\]\
-    \]
+-   **E-step**: $$
+    \mathbb{E}[z_{h,b} \mid y_b, \theta]
+    $$
 
--   **M-step**:\
-    \[\
-    \\arg\\max\_\\beta \\sum\_{h,b} \\mathbb{E}\[z\_{h,b}\] \\log p(z\_{h,b} \\mid X_h)\
-    \]
+-   **M-step**: $$
+    \arg\max_\beta \sum_{h,b} \mathbb{E}[z_{h,b}] \log p(z_{h,b} \mid X_h)
+    $$
 
 📌 Todo lo demás del curso es *implementar esto bien*.
 
--------------------------------------
+------------------------------------------------------------------------
 
-perfecto asi. tengo 2 preguntas: 1) En Mixture Models explicas 𝑧
-ℎ
-,
-𝑏
-z
-h,b
-	​
+perfecto asi. tengo 2 preguntas: 1) En Mixture Models explicas $z_{h,b}$ = responsabilidades pero no aprece en la formula (aparece $p_h$) 2) En pocas lineas, dime sobre credit attribution y relacion con MTA en marketing - solo para entender, no entraremos mas en este curso
 
-= responsabilidades
-
-pero no aprece en la formula (aparece p_h) 2) En pocas lineas, dime sobre credit attribution y relacion con MTA en marketing - solo para entender, no entraremos mas en este curso
-
------------------------------------------------------
+------------------------------------------------------------------------
 
 Muy buenas preguntas — ambas van **al núcleo conceptual** del modelo. Las respondo con precisión y sin desviar el curso.
 
-## 1️⃣ Mixture Models: ¿dónde están exactamente las *responsabilidades* ( z\_{h,b} )?
+## 1️⃣ Mixture Models: ¿dónde están exactamente las *responsabilidades* ($z_{h,b}$)?
 
 Tienes razón: **tal como estaba escrita**, la fórmula era **incompleta / implícita**. Vamos a corregirla y dejarla *canónica*.
 
 ### 🔹 Mixture model estándar (recordatorio)
 
-En un mixture clásico:
+En un mixture clásico: $$
+p(y) = \sum_{k=1}^K \pi_k \cdot p(y \mid \theta_k)
+$$
 
-\[\
-p(y) = \\sum\_{k=1}\^K \\pi_k , p(y \\mid \\theta_k)\
-\]
+y la **variable latente** es: $$
+z_{ik} \in \{0,1\}, \quad \sum_k z_{ik} = 1
+$$
 
-y la **variable latente** es:\
-\[\
-z\_{ik} \\in {0,1}, \\quad \\sum_k z\_{ik} = 1\
-\]
-
-Las **responsabilidades** son:\
-\[\
-\\gamma\_{ik} = \\mathbb{E}\[z\_{ik} \\mid y_i\]\
-\]
+Las **responsabilidades** son: $$
+\gamma_{ik} = \mathbb{E}[z_{ik} \mid y_i]
+$$
 
 ### 🔹 Mixture reinterpretado en tu problema HCP–Brick
 
@@ -266,64 +246,53 @@ Aquí:
 
 #### Variable latente correcta
 
-\[\
-z\_{h,b} \\equiv \\text{número de unidades del brick } b \\text{ atribuibles al HCP } h\
-\]
+$$
+z_{h,b} \equiv \text{número de unidades del brick } b \text{ atribuibles al HCP } h
+$$
 
 No es binaria, es **conteo latente**.
 
 ### 🔹 Modelo correctamente escrito
 
-Para un brick ( b ):
+Para un brick $b$: $$
+y_b = \sum_{h \in b} z_{h,b}
+$$
 
-\[\
-y_b = \\sum\_{h \\in b} z\_{h,b}\
-\]
-
-y la probabilidad marginal:
-
-\[\
-p(y_b \\mid \\theta) =\
-\\sum\_{{z\_{h,b}}:\\sum z = y_b}\
-\\prod\_{h \\in b}\
-\\left\[\
-\\pi\_{h,b}\^{z\_{h,b}} \\cdot p(z\_{h,b} \\mid \\theta_h)\
-\\right\]\
-\]
+y la probabilidad marginal: $$
+p(y_b \mid \theta) =
+\sum_{\{z_{h,b}\}:\sum z = y_b}
+\prod_{h \in b}
+\left[
+\pi_{h,b}^{z_{h,b}} \cdot p(z_{h,b} \mid \theta_h)
+\right]
+$$
 
 👉 Esto es un **mixture con datos agregados**.
 
 ### 🔹 Responsabilidades (E-step real)
 
-Las **responsabilidades** NO aparecen directamente en la likelihood, sino en el **E-step**:
-
-\[\
-\\gamma\_{h,b}\
-;\\equiv;\
-\\mathbb{E}\[z\_{h,b} \\mid y_b, \\theta\]\
-\]
+Las **responsabilidades** NO aparecen directamente en la likelihood, sino en el **E-step**: $$
+\gamma_{h,b} \equiv \mathbb{E}[z_{h,b} \mid y_b, \theta]
+$$
 
 Intuición:
 
--   ( p_h ) describe **cómo genera ventas un HCP**
+-   $p_h$ describe **cómo genera ventas un HCP**
 
--   ( \\gamma\_{h,b} ) dice **qué fracción del brick le pertenece**
+-   $\gamma_{h,b}$ dice **qué fracción del brick le pertenece**
 
-En Poisson, por ejemplo:
-
-# \[ \\gamma\_{h,b}
-
-y_b \\cdot\
-\\frac{\\lambda_h w\_{h,b}}{\\sum\_{h' \\in b} \\lambda\_{h'} w\_{h',b}}\
-\]
+En Poisson, por ejemplo: $$
+\gamma_{h,b} = y_b \cdot
+\frac{\lambda_h w_{h,b}}{\sum_{h' \in b} \lambda_{h'} w_{h',b}}
+$$
 
 📌 **Conclusión**
 
--   ( p_h ) = distribución del componente
+-   $p_h$ = distribución del componente
 
--   ( z\_{h,b} ) = variable latente
+-   $z_{h,b}$ = variable latente
 
--   ( \\gamma\_{h,b} = \\mathbb{E}\[z\_{h,b}\] ) = responsabilidades
+-   $\gamma_{h,b} = \mathbb{E}[z_{h,b}]$ = responsabilidades
 
 Gracias por señalarlo: es una distinción crítica.
 
@@ -364,14 +333,6 @@ Modelos MTA modernos:
 | Canales       | HCPs               |
 | Touches       | Presencia en brick |
 | Conversión    | Ventas del brick   |
-| Attribution   | ( z\_{h,b} )       |
+| Attribution   | $z_{h,b}$          |
 
 📌 Conceptualmente **idéntico**, solo cambia la semántica del dominio.
-
-## ✅ Checkpoint final
-
-Si estás de acuerdo:\
-➡️ pasamos al **Capítulo 2 — Modelo probabilístico base**\
-(donde fijamos **Poisson vs Gamma**, likelihood formal y supuestos).
-
-Confírmame y arrancamos.
