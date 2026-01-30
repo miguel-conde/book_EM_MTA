@@ -1,0 +1,226 @@
+name: "Technical Editing Framework"
+description: "Complete agentic framework for professional technical book editing. Includes systematic workflows, backup systems, book intake process, and publication-quality editing standards for mathematical and technical content."
+version: "1.0.0"
+author: "Technical Editing Framework Project"
+tags:
+  - editing
+  - technical-writing
+  - publishing
+  - book-editing
+  - quality-assurance
+  - workflow
+  - systematic-editing
+  - professional-publishing
+  - mathematical-content
+  - academic-writing
+  - technical-documentation
+
+# Core technical editing agent with professional workflow integration
+agents:
+  - path: ".github/agents/technical-editor.agent.md"
+    name: "Technical Editor"
+    description: "Professional technical book editor specializing in clarity, consistency, and publication-quality standards. Integrates with backup systems, book intake process, and domain expertise."
+    use_cases:
+      - "Technical book chapter editing"
+      - "Mathematical content review"
+      - "Terminology consistency"
+      - "Publication-quality improvements"
+      - "Academic writing enhancement"
+
+# Operational prompts for framework workflows
+prompts:
+  - path: ".github/prompts/backup-restore.prompt.md"
+    name: "Backup and Restore"
+    description: "Comprehensive backup system for safe editing with timestamped recovery capabilities."
+    use_cases:
+      - "Create project backups before editing"
+      - "Compare current vs original files"
+      - "Selective file restoration"
+      - "Emergency recovery procedures"
+  
+  - path: ".github/prompts/load-context.prompt.md"
+    name: "Load Context"
+    description: "Context loading template for maintaining book-wide awareness across editing sessions."
+    use_cases:
+      - "Load book intake context for editing sessions"
+      - "Maintain global book coherence"
+      - "Establish editing session foundation"
+      - "Ensure agent awareness of book structure"
+  
+  - path: ".github/prompts/technical-editing.prompt.md"
+    name: "Technical Editing"
+    description: "Professional technical editing with focus on clarity, consistency, and publication quality standards."
+    use_cases:
+      - "Chapter-level editing improvements"
+      - "Technical content clarity enhancement"
+      - "Mathematical notation consistency"
+      - "Professional writing standards application"
+
+# Domain expertise and workflow guidance
+skills:
+  - path: ".github/skills/book-intake/SKILL.md"
+    name: "Book Intake Process"
+    description: "Professional book intake methodology for establishing global editorial context, target audience analysis, and systematic chapter planning."
+    use_cases:
+      - "Project initialization and setup"
+      - "Editorial standards establishment"
+      - "Audience and technical scope definition"
+      - "Chapter coherence planning"
+  
+  - path: ".github/skills/workflow-guidance/SKILL.md"
+    name: "Workflow Guidance"
+    description: "Expert knowledge in guiding users through agentic technical editing workflows with setup procedures and troubleshooting."
+    use_cases:
+      - "Framework setup guidance"
+      - "User onboarding assistance"
+      - "Workflow troubleshooting"
+      - "Professional editing methodology"
+
+# Editorial standards and guidelines
+instructions:
+  - path: ".github/instructions/technical-edtion.instructions.md"
+    name: "Technical Edition Guidelines"
+    description: "Editorial guidelines for technical book content ensuring clarity, consistency, and professional publishing tone."
+    applies_to: "**/*.{qmd,md}"
+    use_cases:
+      - "Technical writing standards"
+      - "Mathematical notation consistency"
+      - "Publication quality requirements"
+      - "Editorial best practices"
+
+# Professional workflows for systematic editing
+workflows:
+  - name: "Complete Framework Setup"
+    description: "End-to-end setup for new technical editing projects"
+    steps:
+      - "Create backup: `/backup-restore`"
+      - "Complete book intake: `Use skill: book-intake`"
+      - "Load context for editing: `/load-context`"
+      - "Begin professional editing: `@technical-editor`"
+  
+  - name: "Regular Editing Session"
+    description: "Standard workflow for ongoing chapter editing"
+    steps:
+      - "Load session context: `/load-context`"
+      - "Edit with full context: `@technical-editor Edit chapter X`"
+      - "Verify against book standards"
+  
+  - name: "Recovery and Restoration"
+    description: "Emergency procedures for editing problems"
+    steps:
+      - "Assess damage with: `/backup-restore`"
+      - "Compare files and restore as needed"
+      - "Restart from last known good state"
+
+# Framework capabilities and features
+features:
+  safety:
+    - "Timestamped backup system with selective restoration"
+    - "Non-destructive editing with rollback capabilities"
+    - "Original file preservation in `_originals/` directory"
+  
+  quality_assurance:
+    - "Systematic book intake process for global coherence"
+    - "Professional editorial standards enforcement"
+    - "Publication-quality output requirements"
+    - "Mathematical notation consistency"
+  
+  workflow_integration:
+    - "Context-aware editing sessions"
+    - "Book-wide terminology consistency"
+    - "Professional publishing methodology"
+    - "Systematic troubleshooting guidance"
+  
+  domain_expertise:
+    - "Mathematical content editing"
+    - "Technical terminology consistency"
+    - "Academic writing standards"
+    - "Publication-quality requirements"
+
+# Installation and usage
+installation:
+  prerequisites:
+    - "VSCode with GitHub Copilot"
+    - "Quarto (for .qmd files) or Markdown support"
+  
+  quick_start:
+    - "Install collection in VSCode"
+    - "Run `/backup-restore` to create initial backup"
+    - "Use `book-intake` skill to establish context"
+    - "Load context with `/load-context`"
+    - "Begin editing with `@technical-editor`"
+
+# Professional editing standards
+editorial_standards:
+  consistency:
+    - "Global terminology management"
+    - "Mathematical notation standardization"
+    - "Cross-chapter coherence"
+    - "Publication-quality requirements"
+  
+  methodology:
+    - "Systematic intake process"
+    - "Context-aware editing"
+    - "Professional workflow adherence"
+    - "Quality assurance checkpoints"
+  
+  safety:
+    - "Comprehensive backup systems"
+    - "Non-destructive editing approach"
+    - "Recovery and restoration capabilities"
+
+# Framework philosophy
+philosophy: |
+  This framework treats technical book editing as professional publishing, not casual content improvement. 
+  By establishing systematic workflows, comprehensive context, and safety measures, it ensures 
+  publication-quality results that isolated AI editing cannot achieve. The modular architecture 
+  separates concerns while maintaining coherent integration across all editing activities.
+
+# Target use cases
+target_projects:
+  - "Technical books and textbooks"
+  - "Academic publications"
+  - "Professional documentation"
+  - "Mathematical and algorithmic content"
+  - "Domain-specific educational materials"
+  - "Multi-chapter coherent works"
+
+compatibility:
+  file_types:
+    - ".qmd (Quarto documents)"
+    - ".md (Markdown files)"
+    - ".tex (LaTeX documents)"
+  
+  frameworks:
+    - "Quarto publishing"
+    - "R Markdown"
+    - "Jupyter Books"
+    - "GitBook"
+    - "Standard Markdown workflows"
+
+# Metrics and outcomes
+expected_outcomes:
+  quality_improvements:
+    - "Publication-ready editorial quality"
+    - "Consistent terminology across chapters"
+    - "Improved mathematical notation"
+    - "Enhanced clarity and readability"
+  
+  workflow_efficiency:
+    - "Systematic editing approach"
+    - "Reduced rework through context awareness"
+    - "Safe experimentation with backup protection"
+    - "Streamlined multi-session editing"
+  
+  professional_standards:
+    - "Publisher-acceptable manuscript quality"
+    - "Academic publication readiness"
+    - "Professional documentation standards"
+    - "Technical accuracy assurance"
+
+# Framework maintenance and evolution
+maintenance:
+  versioning: "Semantic versioning for framework updates"
+  backwards_compatibility: "Maintains compatibility with existing projects"
+  extensibility: "Modular design supports domain-specific customization"
+  community: "Open to contributions and domain expertise additions"

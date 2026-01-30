@@ -1,5 +1,6 @@
 ---
 description: Fix ill-formed LaTeX math equations in Quarto .qmd files using systematic patterns
+agent: agent
 ---
 
 Fix all ill-formed LaTeX math equations in the specified .qmd file(s). If no files are specified, politely ask which files need fixing.
