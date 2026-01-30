@@ -7,6 +7,8 @@ agent: technical-editor
 
 Use the following documents as **binding editorial context** for this technical editing session:
 
+**Note**: These files should be copies of templates from `.github/skills/book-intake/templates/`, customized for your specific project.
+
 ## Book Global Context
 ```
 [Paste content from book-intake.md here]

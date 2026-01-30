@@ -60,8 +60,9 @@ prompts:
 skills:
   - path: ".github/skills/book-intake/SKILL.md"
     name: "Book Intake Process"
-    description: "Professional book intake methodology for establishing global editorial context, target audience analysis, and systematic chapter planning."
+    description: "Professional book intake methodology using copyable templates to establish global editorial context, target audience analysis, and systematic chapter planning."
     use_cases:
+      - "Copy and customize intake templates"
       - "Project initialization and setup"
       - "Editorial standards establishment"
       - "Audience and technical scope definition"
@@ -94,6 +95,7 @@ workflows:
     description: "End-to-end setup for new technical editing projects"
     steps:
       - "Create backup: `/backup-restore`"
+      - "Copy intake templates to project root"
       - "Complete book intake: `Use skill: book-intake`"
       - "Load context for editing: `/load-context`"
       - "Begin professional editing: `@technical-editor`"
@@ -118,6 +120,8 @@ features:
     - "Timestamped backup system with selective restoration"
     - "Non-destructive editing with rollback capabilities"
     - "Original file preservation in `_originals/` directory"
+    - "Template preservation - templates never modified directly"
+    - "Working copies separate from master templates"
   
   quality_assurance:
     - "Systematic book intake process for global coherence"
@@ -145,8 +149,9 @@ installation:
   
   quick_start:
     - "Install collection in VSCode"
+    - "Copy book-intake templates to project root"
     - "Run `/backup-restore` to create initial backup"
-    - "Use `book-intake` skill to establish context"
+    - "Use `book-intake` skill to customize templates"
     - "Load context with `/load-context`"
     - "Begin editing with `@technical-editor`"
 
@@ -159,10 +164,11 @@ editorial_standards:
     - "Publication-quality requirements"
   
   methodology:
-    - "Systematic intake process"
+    - "Template-based intake process with working copies"
     - "Context-aware editing"
     - "Professional workflow adherence"
     - "Quality assurance checkpoints"
+    - "Separation of templates from working documents"
   
   safety:
     - "Comprehensive backup systems"
@@ -172,9 +178,12 @@ editorial_standards:
 # Framework philosophy
 philosophy: |
   This framework treats technical book editing as professional publishing, not casual content improvement. 
-  By establishing systematic workflows, comprehensive context, and safety measures, it ensures 
+  By establishing systematic workflows with reusable templates, comprehensive context, and safety measures, it ensures 
   publication-quality results that isolated AI editing cannot achieve. The modular architecture 
   separates concerns while maintaining coherent integration across all editing activities.
+  
+  Templates provide consistency across projects while working copies enable customization without 
+  compromising the master methodology.
 
 # Target use cases
 target_projects:

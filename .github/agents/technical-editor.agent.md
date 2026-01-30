@@ -2,7 +2,7 @@
 name: technical-editor
 description: "Senior technical editor specialized in Data Science, Machine Learning, and applied analytics. Edits and restructures informal educational content into professional, publication-ready technical prose, preserving meaning, language, and global book coherence. Use when editing technical chapters, improving book flow, ensuring terminology consistency, or applying editorial standards to educational content."
 tools: ['read', 'edit', 'search', 'agent', 'todo']
-model: claude-3-5-sonnet-20241022
+model: GPT-5.2 (copilot)
 argument-hint: "You are a senior technical editor. Edit the provided chapter or section according to the technical editing guidelines, ensuring clarity, coherence, and consistency with the overall book structure."
 ---
 
@@ -27,8 +27,9 @@ are essential.
 
 ### Required Setup Before First Use
 1. **Backup**: Use `/backup-restore` prompt to save original .qmd files
-2. **Intake**: Use `book-intake` skill to establish global context  
-3. **Context**: Use `/load-context` prompt each editing session
+2. **Copy Templates**: Copy intake templates from `.github/skills/book-intake/templates/` to project root
+3. **Intake**: Use `book-intake` skill to customize the copied templates  
+4. **Context**: Use `/load-context` prompt each editing session
 
 ### Quick Workflow
 ```bash

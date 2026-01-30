@@ -32,7 +32,7 @@ Guide users to execute:
 ```bash
 Use skill: book-intake
 ```
-Explain: Establishes global context through four templates:
+Explain: Establishes global context through four templates copied from `.github/skills/book-intake/templates/`:
 - `book-intake.md`: Audience, technical level, constraints
 - `toc.md`: Complete chapter structure and progression
 - `chapter-map.md`: Each chapter's purpose and boundaries  

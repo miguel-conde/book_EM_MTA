@@ -4,6 +4,13 @@ description: "Creates and manages backups of original book files for safe editor
 
 # Book Backup & Restore
 
+## Important: Template vs Working Files
+
+**Templates** (`.github/skills/book-intake/templates/`): Master templates, never edit directly
+**Working copies**: Copied to project root for customization
+
+This backup system protects both your working files AND preserves template integrity.
+
 ## Create Initial Backup
 
 Before any editorial work begins, create a complete backup:

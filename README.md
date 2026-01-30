@@ -20,10 +20,11 @@ This repository contains a complete **agentic framework** for professional techn
 ├── 🧠 skills/
 │   ├── book-intake/                   # Global context establishment  
 │   │   ├── SKILL.md                   # Intake workflow
-│   │   ├── book-intake.md             # Book context template
-│   │   ├── toc.md                     # Table of contents
-│   │   ├── chapter-map.md             # Chapter roles & scope
-│   │   └── glossary.md                # Terminology standards
+│   │   └── templates/                 # Master templates (copy to project root)
+│   │       ├── book-intake.md         # Book context template
+│   │       ├── toc.md                 # Table of contents template
+│   │       ├── chapter-map.md         # Chapter roles template
+│   │       └── glossary.md            # Terminology template
 │   └── em-mta-methodology/            # Domain expertise
 │       └── SKILL.md                   # EM/MTA technical knowledge
 ├── 📝 prompts/
@@ -62,16 +63,24 @@ Before any editorial work, create a complete backup of original files:
 
 Before any editorial work, establish the global book context:
 
-1. **Activate the book-intake skill** in Copilot Chat:
+1. **Copy intake templates to your project root**:
+   ```bash
+   # Copy templates from framework to working directory
+   cp .github/skills/book-intake/templates/* .
+   ```
+
+2. **Activate the book-intake skill** in Copilot Chat:
    ```
    @copilot Use the book-intake skill to set up editorial context
    ```
 
-2. **Complete the intake documents** (templates in `.github/skills/book-intake/`):
+3. **Complete the copied intake documents** (now in your project root):
    - `book-intake.md`: Target audience, technical level, editorial constraints
    - `toc.md`: Complete table of contents and chapter structure
    - `chapter-map.md`: Purpose and scope for each chapter
    - `glossary.md`: Canonical terminology and definitions
+
+> **Important**: Never edit the template files directly in `.github/skills/book-intake/templates/`. Always work with copies in your project root.
 
 ### Step 2: Load Context for Editing Session
 
@@ -117,6 +126,7 @@ Complete this **once per book project**:
 ```
 Book Intake Checklist:
 - [ ] Create backup of all original files (_originals/ directory)
+- [ ] Copy intake templates from .github/skills/book-intake/templates/ to project root
 - [ ] Define target audience and technical level (book-intake.md)
 - [ ] Map complete chapter structure (toc.md)  
 - [ ] Specify each chapter's role and boundaries (chapter-map.md)
@@ -169,12 +179,15 @@ Editorial Session Checklist:
 /backup-restore
 # Run the backup script to create _originals/ directory
 
-# 1. Complete book intake
+# 1. Copy intake templates
+cp .github/skills/book-intake/templates/* .
+
+# 2. Complete book intake
 @copilot Use book-intake skill to establish editorial context
 
-# 2. Fill out all intake templates in .github/skills/book-intake/
+# 3. Fill out all copied intake templates in project root
 
-# 3. Start editing first chapter
+# 4. Start editing first chapter
 /load-context
 # (Fill template with intake content)
 
@@ -269,16 +282,18 @@ The framework includes multiple validation layers:
 ### For Optimal Results
 
 1. **Always backup first**: Never edit without original files safely stored
-2. **Complete intake thoroughly**: Don't skip the context establishment
-3. **Load context every session**: Copilot doesn't retain memory between sessions
-4. **Edit systematically**: Follow the checklist workflows
-5. **Validate frequently**: Check consistency across chapters
-6. **Update intake iteratively**: Refine context as book evolves
-7. **Create checkpoint backups**: Before major editorial changes
+2. **Copy templates, don't edit them**: Work with copies in project root, preserve master templates
+3. **Complete intake thoroughly**: Don't skip the context establishment
+4. **Load context every session**: Copilot doesn't retain memory between sessions
+5. **Edit systematically**: Follow the checklist workflows
+6. **Validate frequently**: Check consistency across chapters
+7. **Update intake iteratively**: Refine context as book evolves
+8. **Create checkpoint backups**: Before major editorial changes
 
 ### Common Pitfalls to Avoid
 
 - **No backup strategy**: Risk losing original work forever
+- **Editing templates directly**: Corrupts master templates for future projects
 - **Skipping book intake**: Results in inconsistent chapters
 - **Editing without context**: Loses global coherence
 - **Incomplete glossaries**: Leads to terminology drift

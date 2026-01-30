@@ -28,7 +28,7 @@ Create comprehensive backup before any editorial work:
 
 **Step 1: Global Context Assessment**
 
-Complete [book-intake.md](book-intake.md) with:
+Complete [book-intake.md](templates/book-intake.md) with:
 - Target audience and technical level
 - Book objectives and scope boundaries
 - Editorial tone and positioning
@@ -36,14 +36,14 @@ Complete [book-intake.md](book-intake.md) with:
 
 **Step 2: Canonical Structure**
 
-Build [toc.md](toc.md) showing:
+Build [toc.md](templates/toc.md) showing:
 - Complete table of contents
 - Part/chapter organization
 - Editorial scope notes
 
 **Step 3: Chapter Role Mapping**
 
-Create [chapter-map.md](chapter-map.md) defining:
+Create [chapter-map.md](templates/chapter-map.md) defining:
 - Purpose and scope for each chapter
 - Concepts introduced vs assumed
 - Technical depth level
@@ -51,7 +51,7 @@ Create [chapter-map.md](chapter-map.md) defining:
 
 **Step 4: Terminology Foundation**
 
-Establish [glossary.md](glossary.md) with:
+Establish [glossary.md](templates/glossary.md) with:
 - Canonical terms and definitions
 - Language specifications
 - Synonym avoidance rules
