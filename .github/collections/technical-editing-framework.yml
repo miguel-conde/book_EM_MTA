@@ -55,6 +55,16 @@ prompts:
       - "Technical content clarity enhancement"
       - "Mathematical notation consistency"
       - "Professional writing standards application"
+  
+  - path: ".github/prompts/edit-chapter.prompt.md"
+    name: "Edit Chapter"
+    description: "Edit a single chapter with professional technical editing standards, optionally loading book context for consistency."
+    use_cases:
+      - "Focused single chapter editing"
+      - "Standalone chapter improvements"
+      - "Context-aware chapter editing"
+      - "Streamlined editing workflow"
+      - "Publication-ready chapter preparation"
 
 # Domain expertise and workflow guidance
 skills:

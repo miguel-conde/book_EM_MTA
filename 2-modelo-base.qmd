@@ -12,7 +12,7 @@ En unidades, el caso Poisson permite escribir una *likelihood observada* cerrada
 
 Usaremos dos índices principales. El índice $h=1,\dots,H$ recorre HCPs y el índice $b=1,\dots,B$ recorre bricks. Denotamos por $\mathcal{H}_b\subset\{1,\dots,H\}$ el conjunto de HCPs que pertenecen al brick $b$.
 
-Las variables observadas son $y_b\in\mathbb{R}^+$, las ventas totales del brick $b$, y $w_{h,b}\ge 0$, la exposición (u oportunidad) del HCP $h$ en el brick $b$; por ahora puede ser 1 si hay pertenencia y 0 si no.
+Las variables observadas son $y_b\in\mathbb{R}^+$, las ventas totales del brick $b$, y $w_{h,b}\ge 0$, la exposición (u oportunidad) del HCP $h$ en el brick $b$; por ahora puede ser 1 si hay pertenencia y 0 si no. En algunas secciones también se usa la notación $\omega_{b,h}$ para este mismo término de exposición; véase el [Apéndice 93](93-ap-3-exposure.qmd) para la nomenclatura técnica (exposure/offset) y su interpretación.
 
 Los parámetros del modelo (a estimar) representan productividad latente por HCP. En el capítulo usaremos notación genérica $\theta_h$ y, en el caso Poisson de unidades, escribiremos $\lambda_h$.
 

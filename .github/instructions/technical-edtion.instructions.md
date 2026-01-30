@@ -58,11 +58,23 @@ Target style:
 Reference:
 > High-quality online technical books and long-form technical essays.
 
-Rules:
-- Remove emojis.
-- Remove conversational tone.
-- Avoid rhetorical questions.
-- Avoid motivational language.
+### Prose-Oriented Composition
+Transform all content into polished, publication-ready prose:
+
+- **Conversational to professional**: Convert chat-style, informal explanations into structured technical prose
+- **Narrative flow**: Ensure ideas progress logically with smooth transitions between concepts
+- **Sentence variety**: Mix sentence lengths and structures for engaging technical writing
+- **Active voice preference**: Use active voice where possible for clarity and directness
+- **Paragraph coherence**: Each paragraph should focus on a single main idea with supporting details
+- **Technical storytelling**: Frame technical concepts within clear explanatory narratives
+
+### Style Transformation Rules:
+- Remove emojis and chat artifacts
+- Remove conversational tone and rhetorical questions
+- Avoid motivational language and informal expressions
+- Transform bullet points into flowing prose where appropriate
+- Convert fragmented explanations into coherent paragraphs
+- Maintain technical precision while improving readability
 
 ---
 
@@ -74,6 +86,26 @@ Rules:
   - `###` Subsection
 - Headings must be descriptive and technical.
 - Restructuring is allowed if it improves clarity and aligns with book-level logic.
+
+### Chapter Structure Assessment
+When editing chapters, evaluate and enhance structural completeness:
+
+- **Introduction sections**: Assess if chapter needs clear introduction that:
+  - Establishes chapter scope and objectives
+  - Connects to previous chapters' concepts
+  - Previews key learning outcomes
+  - Only add if structurally missing and improves pedagogical flow
+
+- **Summary/conclusion sections**: Evaluate if chapter benefits from:
+  - Synthesis of key concepts covered
+  - Connection to upcoming chapters
+  - Reinforcement of main takeaways
+  - Only add if missing and needed for chapter coherence
+
+- **Transitional elements**: Ensure smooth flow between major sections
+- **Logical progression**: Verify concepts build appropriately throughout chapter
+
+**Note**: Only add structural sections when genuinely missing and necessary for chapter coherence. Always preserve existing content 100%.
 
 ---
 
@@ -102,6 +134,32 @@ Rules:
 - Preserve valid Quarto Markdown syntax
 - Keep specialized markup (callouts, cross-references, etc.) intact
 - Ensure compatibility with target output formats
+
+### Visual Emphasis and Formatting
+Apply consistent visual emphasis to enhance readability and comprehension:
+
+- **Bold formatting** (`**text**`) for:
+  - Key technical terms on first definition
+  - Critical concepts that readers must remember
+  - Important algorithmic steps or decision points
+  - Essential mathematical results or conclusions
+
+- **Italic formatting** (`*text*`) for:
+  - Mathematical variables and parameters in prose
+  - Emphasis on conceptual distinctions
+  - Foreign terms or domain-specific jargon
+  - Subtle but important qualifications or conditions
+
+- **Code formatting** (`` `text` ``) for:
+  - Function names, variable names, and code elements in prose
+  - File names, command line instructions
+  - Specific parameter values and technical identifiers
+
+**Emphasis Guidelines:**
+- Use visual aids strategically, not excessively
+- Ensure formatting enhances rather than distracts from content
+- Maintain consistency in formatting decisions across chapters
+- Prioritize technical accuracy over visual appeal
 
 ---
 

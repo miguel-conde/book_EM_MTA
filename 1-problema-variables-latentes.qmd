@@ -162,7 +162,7 @@ $$
 
 donde:
 
-$w_{h,b}$ es la exposición (o peso) del HCP en el brick, que puede recoger visitas, tiempo u otras medidas de oportunidad (incluyendo overlap geográfico).
+$w_{h,b}$ es la exposición (o peso) del HCP en el brick, que puede recoger visitas, tiempo u otras medidas de oportunidad (incluyendo overlap geográfico). En algunas secciones se usa la notación equivalente $\omega_{b,h}$.
 
 ### Lo que hace EM
 
