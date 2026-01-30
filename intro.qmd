@@ -1,74 +1,41 @@
 # Introducción
 
-Este libro parte de una situación muy común en empresas:
-
-- Tenemos un **agregado observado** (p. ej., ventas por brick $y_b$, o contribución incremental por canal $C_{m,t,g}^{inc}$).
-- Queremos asignar ese total a unidades más finas (HCPs, campañas, creatividades) de forma que:
-
-	- conserve masa (sume exactamente al total),
-	- sea estable/reproducible,
-	- sea interpretable y auditable.
+Este libro parte de una situación muy común en empresas: existe un **agregado observado** (por ejemplo, ventas por brick $y_b$, o contribución incremental por canal $C_{m,t,g}^{inc}$) y, sin embargo, la decisión operativa exige bajar a un nivel más fino (HCPs, campañas, creatividades). El objetivo no es “repartir por repartir”, sino construir un reparto que **conserve masa** (sume exactamente al total), sea **estable y reproducible**, y resulte **interpretable y auditable**.
 
 La clave es reconocer que la atribución que buscamos es una **inferencia** sobre variables que no observamos.
 
 ## El patrón general (HCP–Brick y MMM→MTA son el mismo problema)
 
-En todo el libro usamos la misma estructura conceptual:
+En todo el libro usamos la misma estructura conceptual. Primero, hay una variable **observada**: un total por “grupo” $b$. En HCP–brick ese total es $y_b$ (ventas o unidades por brick). En MMM→MTA, el análogo es $C_{m,t,g}$ o $C_{m,t,g}^{inc}$ (contribución por medio $m$, tiempo $t$ y geo $g$).
 
-- **Observado**: un total por “grupo” $b$.
+Segundo, existe una capa **latente**: contribuciones individuales que, al agregarse, recuperan exactamente el total observado. En HCP–brick denotamos estas contribuciones por $z_{h,b}$; en MMM→MTA, por $z_{m,k,t,g}$.
 
-	- En HCP–Brick: $y_b$ (ventas/unidades por brick).
-	- En MMM→MTA: $C_{m,t,g}$ o $C_{m,t,g}^{inc}$ (contribución por medio, tiempo y geo).
+Tercero, el reparto está controlado por una noción de **productividad/eficiencia**, un parámetro positivo que determina cómo se distribuye el total entre unidades: $\lambda_h$ para HCPs o $\lambda_{m,k}$ para campañas dentro de un medio. En modelos más realistas, esa productividad se parametriza como $\lambda=\exp(X\beta)$ para compartir información y controlar overfitting.
 
-- **Latente**: contribuciones individuales que suman al total.
-
-	- En HCP–Brick: $z_{h,b}$.
-	- En MMM→MTA: $z_{m,k,t,g}$.
-
-- **Productividad / eficiencia**: un parámetro positivo que controla el reparto.
-
-	- $\lambda_h$ (HCP) o $\lambda_{m,k}$ (campaña dentro de medio).
-	- En modelos realistas: $\lambda=\exp(X\beta)$ para compartir información y controlar overfitting.
-
-- **Exposición / oportunidad**: un término conocido que modula el volumen esperable.
-
-	- $\omega_{b,h}$ o $w_{h,b}$ en HCP–Brick.
-	- $w_{m,k,t,g}$ en MMM→MTA (p. ej. spend/impresiones), potencialmente transformado con adstock + saturación.
+Por último, el modelo incorpora un término de **exposición/oportunidad**, conocido, que modula el volumen esperable. En HCP–brick lo representamos como $w_{h,b}$ (o, si se prefiere, $\omega_{b,h}$); en MMM→MTA aparece como $w_{m,k,t,g}$ (por ejemplo spend/impresiones), potencialmente transformado mediante adstock y saturación.
 
 En forma canónica (para unidades), el modelo típico es:
 
 $$
-z_{i,b} \sim \text{Poisson}(\lambda_i\,\omega_{b,i})
+z_{h,b} \sim \text{Poisson}(\lambda_h\,w_{h,b})
 \quad\text{y}\quad
-y_b = \sum_i z_{i,b}.
+y_b = \sum_h z_{h,b}.
 $$
 
 Para euros (continuo), usamos variantes tipo Gamma (y discutimos riesgos con Lognormal).
 
 ## Qué hace EM en este libro
 
-EM alterna dos pasos:
+EM alterna dos pasos. En el **E-step**, con la productividad fija, calcula el reparto esperado dentro de cada grupo (shares), garantizando por construcción la conservación de masa, es decir, $\sum_h \hat z_{h,b}=y_b$. En el **M-step**, con $\hat z$ fijo, actualiza la productividad (o los coeficientes $\beta$ si hay covariables), típicamente como un GLM con offset y regularización.
 
-- **E-step**: con $\lambda$ fijo, calcula el reparto esperado dentro de cada grupo (shares), garantizando $\sum_i \hat z_{i,b}=y_b$.
-- **M-step**: con $\hat z$ fijo, actualiza $\lambda$ (o $\beta$ si hay covariables), típicamente como un GLM con offset y regularización.
-
-El output útil en producción suele ser:
-
-- $\hat z$ (atribución esperada)
-- $\hat\lambda$ (ranking/eficiencia relativa; a veces normalizada)
-- checks de estabilidad y de identificabilidad (si no son razonables, el output no es defendible).
+En producción, el output útil suele ser la atribución esperada $\hat z$ y una estimación de productividad $\hat\lambda$ (útil como ranking o eficiencia relativa, a veces normalizada). Además, siempre acompañamos el resultado con checks de estabilidad e identificabilidad: si esos checks no son razonables, el output no es defendible.
 
 ## Nota importante sobre causalidad
 
 Este marco es principalmente **credit allocation model-based**.
 
-- Si el total observado proviene de un MMM incremental/causal, entonces el **total** es incremental.
-- El reparto intra-canal (campañas/creatividades) no es automáticamente causal: necesita identificación adicional (features fuertes, experimentos, restricciones, priors jerárquicos, etc.).
+Si el total observado proviene de un MMM incremental/causal, entonces el **total** es incremental. El reparto intra-canal (campañas/creatividades), en cambio, no es automáticamente causal: necesita identificación adicional (features fuertes, experimentos, restricciones, priors jerárquicos, etc.).
 
 ## Qué encontrarás más adelante
 
-- Un recorrido desde el caso base (sin covariables) hasta un modelo realista con GLM + regularización.
-- Un generador de datos mock para evaluar recuperación y stress testing.
-- Implementación práctica en Python.
-- Un caso de uso MMM→MTA y un notebook donde la exposición efectiva incorpora adstock + saturación.
-- Capítulos de criterio senior: pitfalls, cómo explicarlo a negocio, y alternativa bayesiana.
+El recorrido empieza con el caso base (sin covariables) y progresa hacia un modelo realista con GLM y regularización. A lo largo del camino se introduce un generador de datos mock para evaluar recuperación y hacer *stress testing*, una implementación práctica en Python, y un caso de uso MMM→MTA (incluyendo un notebook donde la exposición efectiva incorpora adstock y saturación). El tramo final está dedicado a criterio de producción: pitfalls, cómo explicarlo a negocio y una alternativa bayesiana.
