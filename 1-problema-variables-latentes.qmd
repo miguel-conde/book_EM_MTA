@@ -1,10 +1,16 @@
 # El problema como modelo de variables latentes
 
+## Introducción
+
+Este capítulo traduce el problema operativo “ventas agregadas por brick, pero decisión a nivel HCP” a un lenguaje estadístico preciso. La idea central es que existe una descomposición que no observamos: las contribuciones individuales $z_{h,b}$ que, al agregarse, recuperan exactamente el total observado $y_b$. A partir de esa formulación, veremos por qué enfoques directos (regresión sobre el agregado o attribution post-hoc) no capturan bien la estructura del problema, y por qué EM aparece como el algoritmo natural para alternar entre reparto esperado (*E-step*) y actualización de productividad (*M-step*).
+
 ## Reformulación del business problem (de negocio → estadística)
 
 ### Formulación de negocio
 
 El punto de partida es una situación recurrente: tenemos **HCPs** distribuidos en **bricks**, y cada brick reporta **ventas totales agregadas**. Sin embargo, no observamos ventas a nivel HCP. Aun así, el objetivo operativo suele ser asignar ese total a HCPs individuales de forma defendible. Para hacerlo, normalmente contamos con **features por HCP** (por ejemplo, especialidad, visitas o demografía).
+
+En este libro, **HCP** significa *Health Care Professional* (profesional sanitario) y **brick** es la unidad de agregación territorial/comercial en la que se reporta el total (una “zona” o “segmento” operativo).
 
 ### Reformulación estadística
 
@@ -57,8 +63,8 @@ Si conociéramos $z_{h,b}$, podríamos estimar con facilidad la productividad de
 
 ### EM en una frase (en este contexto)
 
-> EM alterna entre **atribuir probabilísticamente ventas a HCPs** (E-step)\
-> y **actualizar el modelo de productividad de HCPs** (M-step)
+> EM alterna entre **atribuir probabilísticamente ventas a HCPs** (*E-step*)\
+> y **actualizar el modelo de productividad de HCPs** (*M-step*)
 
 ## Relación con modelos conocidos
 
@@ -103,7 +109,7 @@ p(y_b\mid \theta)=
 \left[\pi_{h,b}^{z_{h,b}}\, p(z_{h,b}\mid \theta_h)\right].
 $$
 
-En este contexto, las responsabilidades aparecen en el E-step como:
+En este contexto, las responsabilidades aparecen en el *E-step* como:
 
 $$
 \gamma_{h,b} \equiv \mathbb{E}[z_{h,b}\mid y_b,\theta].
@@ -135,7 +141,7 @@ Este es el **modelo conceptual que usaremos**:
 Cada HCP tiene una **productividad latente**:
 
 $$
-	heta_h = f(X_h; \beta)
+\theta_h = f(X_h; \beta)
 $$
 
 En el caso de unidades, típicamente $\theta_h=\lambda_h$ (Poisson). En el caso de euros, $\theta_h$ representa una parametrización análoga (por ejemplo, la media) bajo una Gamma o una Lognormal.
@@ -160,13 +166,13 @@ $w_{h,b}$ es la exposición (o peso) del HCP en el brick, que puede recoger visi
 
 ### Lo que hace EM
 
-Con esta formulación, EM se expresa como dos pasos alternos. En el **E-step**, con $\theta$ fijo, se calcula la atribución esperada dentro de cada brick:
+Con esta formulación, EM se expresa como dos pasos alternos. En el *E-step*, con $\theta$ fijo, se calcula la atribución esperada dentro de cada brick:
 
 $$
 \mathbb{E}[z_{h,b} \mid y_b, \theta].
 $$
 
-En el **M-step**, con $\mathbb{E}[z]$ fijo, se actualizan los parámetros (por ejemplo $\beta$) resolviendo:
+En el *M-step*, con $\mathbb{E}[z]$ fijo, se actualizan los parámetros (por ejemplo $\beta$) resolviendo:
 
 $$
 \arg\max_\beta \sum_{h,b} \mathbb{E}[z_{h,b}] \log p(z_{h,b} \mid X_h).
@@ -188,3 +194,11 @@ La analogía con el caso HCP–brick es directa:
 | Attribution   | $z_{h,b}$          |
 
 Conceptualmente es el mismo patrón “agregado → desagregado”; cambia la semántica del dominio.
+
+## Resumen
+
+- El dato observado es **agregado** ($y_b$), pero el objetivo es inferir una **descomposición no observada** a nivel HCP ($z_{h,b}$).
+- La variable latente $z_{h,b}$ está sujeta a una restricción estructural: **conservación de masa** ($\sum_{h\in b} z_{h,b}=y_b$).
+- No es una regresión directa: sin un mecanismo “agregado como suma de contribuciones” no aparece una likelihood ni un reparto que sume exactamente a $y_b$.
+- EM alterna entre calcular atribución esperada dentro de cada brick (*E-step*) y actualizar productividad/coeficientes (*M-step*).
+- Este patrón “agregado → desagregado” es el mismo que en *credit attribution* (y conecta de forma directa con MTA).

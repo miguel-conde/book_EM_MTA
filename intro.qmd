@@ -26,7 +26,7 @@ Para euros (continuo), usamos variantes tipo Gamma (y discutimos riesgos con Log
 
 ## Qué hace EM en este libro
 
-EM alterna dos pasos. En el **E-step**, con la productividad fija, calcula el reparto esperado dentro de cada grupo (shares), garantizando por construcción la conservación de masa, es decir, $\sum_h \hat z_{h,b}=y_b$. En el **M-step**, con $\hat z$ fijo, actualiza la productividad (o los coeficientes $\beta$ si hay covariables), típicamente como un GLM con offset y regularización.
+EM alterna dos pasos. En el *E-step*, con la productividad fija, calcula el reparto esperado dentro de cada grupo (shares), garantizando por construcción la conservación de masa, es decir, $\sum_h \hat z_{h,b}=y_b$. En el *M-step*, con $\hat z$ fijo, actualiza la productividad (o los coeficientes $\beta$ si hay covariables), típicamente como un GLM con offset y regularización.
 
 En producción, el output útil suele ser la atribución esperada $\hat z$ y una estimación de productividad $\hat\lambda$ (útil como ranking o eficiencia relativa, a veces normalizada). Además, siempre acompañamos el resultado con checks de estabilidad e identificabilidad: si esos checks no son razonables, el output no es defendible.
 

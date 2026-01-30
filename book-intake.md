@@ -47,12 +47,34 @@ Repartir un total agregado (ventas por brick, contribución incremental por cana
 ---
 
 ## Editorial Tone and Positioning
+
+### Nivel técnico
 - Technical level: intermediate (pragmático, end-to-end, orientado a producción)
-- Style reference:
-  - Profesional
-  - Didáctico
-  - Practitioner-oriented
+
+### Tono
+- Profesional
+- Didáctico
+- Practitioner-oriented
 - No es paper académico, ni blog casual.
+
+### Composición (estilo de redacción)
+
+Este libro tiene objetivos tutoriales y pedagógicos. Por tanto, la composición prioriza prosa técnica clara y guiada por encima de esquemas.
+
+- Prosa primero: explicar en párrafos completos antes de enumerar.
+- Menos listas: usar viñetas solo cuando estructuren material ya explicado (checklists, enumeraciones cortas, comparativas).
+- Transiciones explícitas: conectar secciones con frases puente que aclaren por qué se pasa de un concepto al siguiente.
+- Densidad legible: mantener contenido técnico, pero con ritmo de lectura fluido (definir términos al introducirlos y recordar brevemente notación cuando reaparece).
+- Coherencia de notación: preferir una notación canónica estable a lo largo del libro (p. ej., índices y símbolos consistentes entre capítulos).
+
+### Recursos visuales (negritas y cursivas)
+
+Se permite usar **negritas** y *cursivas* como ayudas visuales, con un criterio consistente y moderado.
+
+- **Negrita**: reservar para anclas conceptuales (p. ej., observado vs latente; conservación de masa; objetivo/modelo/inferencia) y para resaltar el término clave de un párrafo. Evitar negrita en frases completas y limitar a 1–3 resaltados por párrafo.
+- *Cursiva*: reservar para etiquetas técnicas y nombres cortos dentro de la prosa (p. ej., *likelihood observada*, *likelihood completa*, *E-step*, *M-step*, *stress testing*). Mantener el mismo término siempre en el mismo estilo.
+- No mezclar estilos para “subir volumen” (evitar ***negrita+cursiva*** salvo casos excepcionales).
+- No usar subrayado; mantener las expresiones matemáticas sin énfasis tipográfico (la notación se controla con LaTeX).
 
 ---
 
@@ -60,3 +82,7 @@ Repartir un total agregado (ventas por brick, contribución incremental por cana
 - Preservar el contenido 100% (ideas, argumentos y conclusiones)
 - Preservar el/los idioma(s) original(es)
 - Cambios permitidos: edición (claridad, estructura, fluidez, consistencia)
+
+### Criterio práctico
+
+Cuando haya tensión entre “resumir” y “enseñar”, se prioriza enseñar: reescritura a prosa más guiada, manteniendo las mismas ideas, supuestos y resultados.
