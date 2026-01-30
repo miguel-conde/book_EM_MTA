@@ -1,0 +1,176 @@
+# Why Multitouch Attribution Fails — and How to Fix It Without Losing Incrementality
+
+*By design, Multitouch Attribution promises clarity.
+In practice, it often delivers confusion.*
+
+For years, marketing leaders have been told that Multitouch Attribution (MTA) would finally explain *what really drives performance*. Yet many organizations still struggle to trust their attribution results—or worse, make decisions that later prove misleading.
+
+The issue is not that MTA is useless.
+The issue is that **MTA is often asked to solve the wrong problem**.
+
+---
+
+## **The core tension: granularity vs truth**
+
+CMOs face two very different needs:
+
+1. **Strategic truth**
+
+   * How much impact does marketing truly generate?
+   * Which channels are incrementally effective?
+
+2. **Executional clarity**
+
+   * Which campaigns work better?
+   * Which creatives should be scaled or paused?
+
+Most attribution debates arise when these two needs are mixed.
+
+---
+
+## **Why traditional MTA often disappoints**
+
+Classic MTA approaches typically:
+
+* operate at user or touchpoint level
+* allocate credit based on observed journeys
+* assume exposure equals influence
+
+The problem?
+
+> **Exposure is not causation.**
+
+A campaign that appears frequently in conversion paths is not necessarily incremental. It may simply be well-targeted, always-on, or correlated with demand.
+
+This is why organizations relying solely on MTA often:
+
+* over-invest in lower-funnel tactics
+* penalize upper-funnel activity
+* see performance collapse when budgets shift
+
+---
+
+## **Where Marketing Mix Models (MMM) change the picture**
+
+Marketing Mix Models solve a different—and crucial—problem.
+
+MMM answers:
+
+* *How much impact did each channel generate incrementally?*
+* *What would have happened without this spend?*
+
+In other words:
+
+> **MMM provides causal grounding at the channel level.**
+
+But MMM alone is not enough.
+It tells you *where to invest*, not *how to execute inside the channel*.
+
+---
+
+## **The missing link: connecting MMM and MTA**
+
+The real opportunity is not choosing between MMM and MTA, but **connecting them properly**.
+
+A robust measurement framework follows a simple logic:
+
+1. **MMM establishes the incremental truth**
+   Channel-level impact is estimated using causal, counterfactual methods.
+
+2. **MTA distributes that truth internally**
+   Campaigns and creatives receive credit *only within the incremental total already validated by MMM*.
+
+This avoids the most common attribution failure:
+
+> inventing performance that does not exist.
+
+---
+
+## **MTA as a credit allocation problem**
+
+Seen this way, MTA is not a prediction problem.
+It is a **credit allocation problem**.
+
+* We observe a total (incremental impact from MMM)
+* We observe delivery patterns (impressions, timing, geography)
+* We allocate credit internally, without changing the total
+
+This reframing matters because it:
+
+* enforces discipline
+* preserves financial consistency
+* aligns analytics with business reality
+
+---
+
+## **Why Expectation–Maximization (EM) fits naturally**
+
+Expectation–Maximization is a well-established statistical approach designed exactly for this situation:
+
+* part of the data is observed
+* part is latent
+* totals must be conserved
+
+In an MMM-connected MTA setup, EM ensures that:
+
+* no revenue or conversions are created or destroyed
+* attribution remains stable over time
+* assumptions are explicit and auditable
+
+For CMOs, the key takeaway is simple:
+
+> **EM does not change what marketing achieved.
+> It only explains how that achievement can be distributed internally.**
+
+---
+
+## **What this approach does—and does not—claim**
+
+### What it *does*
+
+* Enables reliable intra-channel optimization
+* Supports creative and campaign prioritization
+* Aligns analytics, finance, and marketing around a single source of truth
+
+### What it *does not*
+
+* Claim causality at the creative level
+* Replace experimentation
+* Eliminate the need for judgment
+
+This distinction is essential for governance and credibility.
+
+---
+
+## **A more mature view of attribution**
+
+The most advanced organizations no longer ask:
+
+> “Which attribution model is best?”
+
+They ask:
+
+> “Which measurement problem are we trying to solve?”
+
+* **MMM** for strategic investment decisions
+* **MTA (properly constrained)** for execution optimization
+* **Experiments** to validate and learn
+
+Each plays a different role.
+
+---
+
+## **The bottom line for CMOs**
+
+Multitouch Attribution is not broken.
+It is often **misapplied**.
+
+When grounded in MMM and treated as a disciplined credit allocation problem, MTA becomes:
+
+* more trustworthy
+* more stable
+* more useful for real decisions
+
+> **MMM decides where to invest.
+> MTA helps you execute better—without losing the truth.**
+

@@ -1,0 +1,320 @@
+Antes de continuar, que sw a disposicion publica permite hacer todo esto? Que recomiendas?
+
+****
+
+Muy buena pregunta, porque aquí hay **mucho marketing y poca claridad** en el ecosistema. Te doy una respuesta **honesta y accionable**, separando **qué existe**, **qué sirve realmente para lo que tú quieres**, y **qué recomiendo según madurez**.
+
+---
+
+# Software público para MMM → MTA con adstock + saturación + EM
+
+## TL;DR (ejecutivo)
+
+* **No existe** un software open-source que haga *todo* lo que hemos modelado (MMM incremental + EM intra-canal con adstock/saturación).
+* Lo que sí existe:
+
+  * herramientas **muy buenas de MMM**
+  * herramientas **de MTA heurístico o probabilístico**
+* **El puente MMM → MTA vía EM** es hoy **custom / research-grade**.
+* Mi recomendación: **stack híbrido** (MMM OSS + capa EM propia).
+
+Ahora vamos con detalle.
+
+---
+
+## 1️⃣ Software de MMM (adstock + saturación, incremental)
+
+Estos **sí están bien resueltos** en open source.
+
+### 🔹 **Meta — Robyn**
+
+* GitHub: facebookexperimental/Robyn
+* Lenguaje: R
+* Qué hace muy bien:
+
+  * Adstock (geométrico, Weibull)
+  * Saturación (Hill)
+  * MMM incremental con regularización
+  * Decomposition por canal y por tiempo
+* Qué **no** hace:
+
+  * No baja a campañas/creas
+  * No hace MTA intra-canal
+
+📌 **Estado**: estándar de facto open-source para MMM.
+
+---
+
+### 🔹 **Google — LightweightMMM**
+
+* Lenguaje: Python (JAX)
+* Muy bueno para:
+
+  * MMM bayesiano
+  * Incertidumbre
+* Limitaciones:
+
+  * Menos flexible en descomposición avanzada
+  * No MTA
+
+📌 Bueno si tu equipo es Python-heavy y Bayesian-friendly.
+
+---
+
+### 🔹 **Uber — Orbit**
+
+* Time-series causal / structural
+* No es MMM puro, pero:
+
+  * útil para incrementalidad y counterfactuals
+* No resuelve MTA
+
+---
+
+## 2️⃣ Software de MTA (pero **no** MMM-consistente)
+
+Aquí hay mucha confusión.
+
+### 🔹 Plataformas MTA clásicas (rule-based / probabilísticas)
+
+Ejemplos:
+
+* Adobe Attribution IQ
+* Google Attribution (deprecated / absorbed)
+* AppsFlyer / Adjust (mobile)
+
+Problemas para tu caso:
+
+* ❌ No usan MMM incremental
+* ❌ No respetan adstock/saturación
+* ❌ Operan a nivel touchpoint, no a nivel contribución causal
+
+📌 No compatibles con tu planteamiento.
+
+---
+
+## 3️⃣ ¿Existe software open-source que haga EM para attribution?
+
+### 🔹 **Spotify — Luigi attribution models**
+
+* Algunos repos internos/papers con EM y Poisson
+* No producto mantenido
+* No MMM-aware
+
+### 🔹 Paquetes genéricos
+
+* `pomegranate` (Python): EM para mixtures
+* `hmmlearn`: HMM
+* `pyro`, `numpyro`: inferencia probabilística
+
+👉 **Ninguno** viene con:
+
+* adstock
+* saturación
+* conservación de masa sobre contribuciones MMM
+
+---
+
+## 4️⃣ Entonces… ¿qué hacen las empresas “serias”?
+
+### 🧱 Stack realista (industry best practice)
+
+#### Capa 1 — MMM (off-the-shelf)
+
+* Robyn o LightweightMMM
+* Output:
+
+  * $C_{m,t,g}^{inc}$
+  * parámetros adstock/sat por canal
+
+#### Capa 2 — EM intra-canal (custom)
+
+* Exactamente lo que hemos construido:
+
+  * EM Poisson/Gamma
+  * exposición = Hill(Adstock(imps))
+  * reparto top-down
+
+#### Capa 3 — Downscaling temporal (opcional)
+
+* perfiles horarios
+* conservation of mass
+
+📌 **Esto no está empaquetado en ningún OSS hoy**.
+
+---
+
+## 5️⃣ Recomendación clara (según objetivo)
+
+### 🔹 Si quieres **algo que funcione mañana**
+
+* MMM: **Robyn**
+* MTA: heurístico simple (share de imps adstockeadas)
+* ❌ Pierdes rigor probabilístico
+
+---
+
+### 🔹 Si quieres **rigor + control (tu caso)**
+
+👉 **Build propio**:
+
+* MMM: Robyn / LightweightMMM
+* MTA: **EM como el notebook que ya tienes**
+* Regularización + covariables
+
+Esto es exactamente lo que hacen:
+
+* big tech
+* marketplaces
+* empresas con equipos de econometría/causal inference
+
+---
+
+### 🔹 Si quieres **Bayesian end-to-end**
+
+* MMM bayesiano
+* Attribution bayesiana jerárquica
+* Tools: `numpyro` / `pyro`
+
+⚠️ Mucho más caro computacionalmente y difícil de explicar a negocio.
+
+---
+
+## 6️⃣ Por qué no hay “producto” que haga esto
+
+Honestamente:
+
+* cada empresa tiene:
+
+  * distinta definición de incremental
+  * distinto MMM
+  * distinta granularidad
+  * distintas restricciones legales (privacy)
+* la atribución intra-canal **no es identificable sin supuestos**
+* vendors evitan exponer supuestos “opinables”
+
+👉 Resultado: **custom pipelines**.
+
+---
+
+## 7️⃣ Mi recomendación concreta para ti
+
+Dado tu nivel (senior) y lo que ya has hecho:
+
+> **Usa Robyn para MMM + mantén una capa EM propia como librería interna.**
+
+Ventajas:
+
+* transparencia
+* control metodológico
+* extensible a nuevos casos (HCPs, MTA, geo, retail…)
+
+Si quieres, el siguiente paso puede ser:
+
+* **convertir el notebook EM en una mini-lib Python**
+* o diseñar la **API conceptual** (inputs/outputs) para integrarlo con Robyn
+
+Dime cómo quieres seguir:
+
+1. **Arquitectura end-to-end MMM → MTA**
+2. **EM + covariables (GLM) en el notebook**
+3. **Versión bayesiana conceptual**
+4. **Checklist de riesgos / governance para producción**
+
+
+***
+
+EM intra-canal (custom): no hay un sklearn o similar para esto?
+
+***
+
+No en el sentido “**lo enchufas y ya**”, como `sklearn.GaussianMixture`.
+
+### Por qué no existe un `sklearn` para tu EM intra-canal
+
+Tu problema tiene dos cosas muy específicas que `sklearn` no cubre:
+
+1. **Restricción de conservación de masa por grupo**
+  $$
+  \sum_k z_{m,k,t,g} = C_{m,t,g}
+  $$
+   Esto no es el setup típico de supervised learning ni de clustering estándar.
+
+2. **E-step “custom”** con responsabilidades condicionadas al **total agregado** (el “brick” aquí es $(m,t,g)$).
+   Es más cercano a “data augmentation / latent allocation with constraints” que a un estimator estándar.
+
+`sklearn` está pensado para:
+
+* estimadores genéricos (regresión, clasificación)
+* mixtures clásicos (GaussianMixture) donde observas puntos individuales $x_i$, no totales agregados con suma fija.
+
+---
+
+## Qué puedes reutilizar “estilo sklearn” (sin reinventar todo)
+
+### ✅ 1) Usar `statsmodels` para el **M-step (GLM)**
+
+Si haces la versión:
+$$
+\lambda_{m,k}=\exp(X_{m,k}\beta_m)
+$$
+entonces el M-step es un **Poisson/Gamma GLM con offset**, y ahí sí puedes usar:
+
+* `statsmodels.api.GLM(..., family=Poisson())`
+* `statsmodels.api.GLM(..., family=Gamma(link=log))`
+
+Eso te evita implementar IRLS a mano y te da:
+
+* SEs, diagnósticos, etc.
+
+El **E-step** seguirá siendo tuyo (pero es 20 líneas vectorizadas).
+
+### ✅ 2) Optimización genérica para M-step
+
+Si no quieres `statsmodels`:
+
+* `scipy.optimize.minimize` con penalización ridge/lasso
+* y mantienes E-step vectorizado
+
+### ✅ 3) Probabilistic programming (si quieres Bayes)
+
+* `PyMC`, `Pyro`, `NumPyro`
+  pero aquí no es “EM”: es inference (NUTS/VI). Potente, más coste/complexidad.
+
+---
+
+## Librerías EM existentes (pero **no encajan** del todo)
+
+* `sklearn.mixture.GaussianMixture`: EM, pero para Gaussian mixtures sobre datos individuales (no sumas agregadas).
+* `pomegranate`: mixtures/HMM con EM, pero no trae tu restricción $\sum z = C$.
+* `hmmlearn`: HMM EM, irrelevante salvo que modeles temporalidad latente.
+
+Puedes inspirarte en su estructura (fit/predict_proba), pero no te resuelven el core.
+
+---
+
+## Recomendación práctica (lo que suele funcionar en equipos DS)
+
+Construir un estimator “sklearn-like” pequeñito:
+
+* `fit(C_df, x_df, campaign_features_df)`
+* `predict_allocation()` → devuelve $\hat z_{m,k,t,g}$
+* `get_params()` → devuelve $\hat\lambda$ o $\hat\beta$
+* Internamente:
+
+  * E-step: numpy vectorizado
+  * M-step: `statsmodels.GLM` o IRLS propio + ridge
+
+Esto te da:
+
+* reproducibilidad
+* tests (mass conservation, monotonicity, stability)
+* integración fácil con tu pipeline MMM
+
+---
+
+Si quieres, el siguiente paso lo puedo hacer directamente: convertir el notebook MMM→MTA en una **clase tipo sklearn** (`MMM2MTAEM`) con `fit`/`transform`, soportando:
+
+* exposición efectiva = adstock+saturación
+* modo “closed form” (sin covariables)
+* modo “GLM” (con covariables + regularización)

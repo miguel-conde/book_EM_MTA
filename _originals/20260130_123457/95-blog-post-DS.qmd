@@ -1,0 +1,545 @@
+# Multitouch Attribution as a Latent Variable Problem: A Data Science Perspective
+
+*Attribution debates often fail not because models are wrong,
+but because the problem is framed incorrectly.*
+
+For data science teams, Multitouch Attribution (MTA) is frequently presented as a modeling choice: rules vs machine learning, heuristics vs deep learning, paths vs graphs.
+
+In reality, **the most important decision is not the algorithm**, but how the attribution problem itself is formulated.
+
+---
+
+## **From prediction to allocation**
+
+Most attribution systems implicitly treat MTA as a **prediction task**:
+
+* predict conversions
+* explain outcomes
+* optimize a loss function
+
+This framing quickly runs into problems:
+
+* totals do not reconcile with finance
+* incremental impact is unclear
+* model outputs are unstable under policy changes
+
+A more robust formulation views MTA as a **latent variable allocation problem**.
+
+---
+
+## **The core structure of the problem**
+
+Across domains, the structure is always the same:
+
+* We observe **aggregated outcomes** (conversions, revenue, incremental contribution)
+* We observe **granular exposure signals** (campaigns, creatives, timing, geography)
+* We do **not** observe individual contributions
+* The sum of latent contributions must equal the observed total
+
+This is not a machine learning problem in the classical sense.
+It is a **constrained inference problem**.
+
+---
+
+## **Why MMM matters for MTA**
+
+Without an incremental baseline, attribution models operate in a vacuum.
+
+User-level MTA systems implicitly assume:
+
+* exposure is exogenous
+* observed paths reflect causal influence
+
+These assumptions rarely hold in practice.
+
+Marketing Mix Models (MMM), when properly specified, provide:
+
+* counterfactual reasoning
+* causal estimates at an aggregated level
+* a defensible “total impact” to allocate
+
+From a data science perspective, MMM acts as a **structural prior** on what attribution is allowed to explain.
+
+---
+
+## **Expectation–Maximization as a natural solution**
+
+Once MTA is framed as a latent allocation problem, Expectation–Maximization (EM) emerges almost automatically.
+
+EM is designed for situations where:
+
+* part of the data is latent
+* part is observed
+* constraints link the two
+
+In MTA:
+
+* latent variables represent campaign- or creative-level contributions
+* observed variables are MMM incremental totals
+* exposure acts as a known intensity modifier
+
+The E-step computes expected allocations under current parameters.
+The M-step updates relative efficiencies.
+
+Crucially:
+
+> **EM preserves mass by construction.**
+
+This single property eliminates many reconciliation issues common in attribution systems.
+
+---
+
+## **What EM is—and what it is not**
+
+### What EM provides
+
+* Stable point estimates
+* Scalable inference
+* Transparent assumptions
+* Deterministic reconciliation with MMM
+
+### What EM does not provide
+
+* Uncertainty quantification
+* Automatic handling of cold start
+* Guarantees of identifiability
+
+These limitations are not bugs—they are properties of maximum likelihood estimation under partial observability.
+
+---
+
+## **The real pitfalls (beyond textbooks)**
+
+### Identifiability
+
+If exposure patterns are collinear, parameters are not identifiable.
+EM will converge—but to an arbitrary solution.
+
+### Silent overfitting
+
+Likelihood improvement does not imply meaningful attribution.
+Regularization and stability checks are mandatory.
+
+### Exposure design
+
+Raw impressions are rarely appropriate.
+Adstock and saturation are not optional modeling details; they define the signal.
+
+---
+
+## **Why Bayesian hierarchical models change the game**
+
+Bayesian approaches address many of EM’s weaknesses by design.
+
+Hierarchical priors:
+
+* induce partial pooling
+* stabilize sparse entities
+* encode domain knowledge explicitly
+
+Instead of estimating:
+$$
+\hat{\lambda}_i
+$$
+we infer:
+$$
+p(\lambda_i \mid \mathrm{data})
+$$
+
+This allows:
+
+* uncertainty-aware decision making
+* principled cold start handling
+* multi-level hierarchies (channel → campaign → creative)
+
+---
+
+## **Why Bayesian does not automatically win**
+
+From a production standpoint, Bayesian inference introduces real costs:
+
+* model complexity
+* inference time
+* explainability challenges
+* operational overhead
+
+Variational Inference (VI) mitigates some of these issues, but:
+
+* approximation error must be managed
+* diagnostics are harder than EM convergence checks
+
+In practice, Bayesian models are best viewed as:
+
+> **extensions, not replacements, of EM-based baselines**
+
+---
+
+## **A pragmatic modeling stack**
+
+Mature teams often converge to a layered approach:
+
+1. **MMM** for causal, incremental grounding
+2. **EM-based MTA** for scalable, stable allocation
+3. **Bayesian extensions** where uncertainty or sparsity dominate
+4. **Experiments** to validate and recalibrate assumptions
+
+Each layer solves a different problem.
+
+---
+
+## **What this framing buys you as a data scientist**
+
+* Clear separation between causality and attribution
+* Fewer reconciliation battles with finance
+* More stable outputs under policy changes
+* Models that fail gracefully instead of spectacularly
+
+Most importantly, it reframes attribution from:
+
+> “Which model performs best?”
+
+to:
+
+> “Which assumptions are we willing to defend?”
+
+---
+
+## **Final thought**
+
+Multitouch Attribution is not a single technique.
+It is a class of inference problems under constraints.
+
+Expectation–Maximization provides a strong, interpretable baseline.
+Bayesian hierarchical models extend it when uncertainty matters.
+
+The key is not choosing the “best” algorithm—but **choosing the right formulation**.
+
+## Technical Appendix
+
+Below is a **Technical Appendix** you can attach to the whitepaper or link as a separate document.
+It is written for **Heads of Data Science / senior DS**, with **formal equations** and **implementation-ready pseudo-code**, but still scoped to be readable and defensible.
+
+---
+
+# Technical Appendix
+
+## Multitouch Attribution as a Latent Variable Allocation Problem
+
+---
+
+## A. Problem setup and notation
+
+We define a **generic formulation** that applies equally to:
+
+* HCP–Brick attribution
+* MMM → MTA (campaigns / creatives)
+
+### Indices
+
+* $b \in \{1,\dots,B\}$: aggregation unit
+
+  * brick or (medium, time, geo)
+* $i \in \{1,\dots,K_b\}$: granular entities within $b$
+
+  * HCPs, campaigns, or creatives
+
+---
+
+### Observed variables
+
+* $y_b \ge 0$: observed total outcome for unit $b$
+  (units, conversions, or incremental contribution from MMM)
+* $\omega_{b,i} \ge 0$: known exposure term
+  (visits, impressions, adstocked & saturated exposure)
+
+---
+
+### Latent variables
+
+* $z_{b,i} \ge 0$: contribution of entity $i$ to aggregate $b$
+
+Constraint:
+$$
+\sum_{i=1}^{K_b} z_{b,i} = y_b
+$$
+
+---
+
+### Parameters
+
+* $\lambda_i > 0$: productivity / efficiency parameter for entity $i$
+
+---
+
+## B. Generative model (Poisson case)
+
+The canonical formulation for **unit-based attribution**:
+
+### Latent contribution model
+
+$$
+z_{b,i} \sim \operatorname{Poisson}(\lambda_i \, \omega_{b,i})
+$$
+
+### Aggregation
+
+$$
+y_b = \sum_{i=1}^{K_b} z_{b,i}
+$$
+
+Using additivity of Poisson variables:
+$$
+y_b \sim \operatorname{Poisson}\left(\sum_i \lambda_i \, \omega_{b,i}\right)
+$$
+
+---
+
+## C. Likelihood
+
+### Complete-data likelihood
+
+$$
+\mathcal{L}_c(\lambda)
+=
+\prod_{b=1}^B
+\prod_{i=1}^{K_b}
+\frac{(\lambda_i \, \omega_{b,i})^{z_{b,i}} e^{-\lambda_i \, \omega_{b,i}}}{z_{b,i}!}
+$$
+
+### Marginal likelihood (observed data only)
+
+$$
+\mathcal{L}(\lambda)
+=
+\prod_{b=1}^B
+\frac{\left(\sum_i \lambda_i \, \omega_{b,i}\right)^{y_b} e^{-\sum_i \lambda_i \, \omega_{b,i}}}{y_b!}
+$$
+
+---
+
+## D. Expectation–Maximization (EM)
+
+Because $z_{b,i}$ is unobserved, we use EM.
+
+---
+
+### E-step: expected latent contributions
+
+Conditional on $y_b$, the latent vector
+$(z_{b,1}, \dots, z_{b,K_b})$ follows a **Multinomial** distribution:
+
+$$
+(z_{b,1},\dots,z_{b,K_b})
+\mid y_b
+\sim
+\operatorname{Multinomial}\left(
+y_b,\ (p_{b,1},\dots,p_{b,K_b})
+\right)
+$$
+
+with:
+$$
+p_{b,i}
+=
+\frac{\lambda_i \, \omega_{b,i}}{\sum_j \lambda_j \, \omega_{b,j}}
+$$
+
+Therefore:
+$$
+\mathbb{E}[z_{b,i}]
+=
+y_b
+\cdot
+\frac{\lambda_i \, \omega_{b,i}}{\sum_j \lambda_j \, \omega_{b,j}}
+$$
+
+---
+
+### M-step: update productivity parameters
+
+Maximizing the expected complete log-likelihood yields:
+
+$$
+\lambda_i^{(\mathrm{new})}
+=
+\frac{\sum_b \mathbb{E}[z_{b,i}]}{\sum_b \omega_{b,i}}
+$$
+
+This update has:
+
+* a closed form
+* guaranteed non-negativity
+* intuitive interpretation as “contribution per unit exposure”
+
+---
+
+### Scale normalization (recommended)
+
+Because the model is scale-invariant, enforce:
+$$
+\frac{1}{K} \sum_i \lambda_i = 1
+$$
+
+to improve numerical stability and interpretability.
+
+---
+
+## E. Euros / continuous outcomes (Gamma case)
+
+For monetary outcomes:
+
+$$
+z_{b,i} \sim \operatorname{Gamma}(k,\ \theta_i \, \omega_{b,i})
+\quad
+\mathrm{with}
+\quad
+\mathbb{E}[z_{b,i}] = k \, \theta_i \, \omega_{b,i}
+$$
+
+Key differences:
+
+* No closed-form M-step
+* Requires GLM or numerical optimization
+* More sensitive to outliers
+
+In practice:
+
+* shape $k$ is fixed or estimated globally
+* $\theta_i$ replaces $\lambda_i$
+
+---
+
+## F. EM with covariates (GLM M-step)
+
+Instead of free $\lambda_i$, define:
+$$
+\lambda_i = \exp(X_i \beta)
+$$
+
+### E-step
+
+Same as before.
+
+### M-step
+
+Solve:
+$$
+\max_\beta
+\sum_i
+\left(
+\widetilde{z}_i \log \lambda_i
+-
+\lambda_i  \widetilde{\omega}_i
+\right)
+$$
+
+where:
+$$
+\widetilde{z}_i = \sum_b \mathbb{E}[z_{b,i}],
+\quad
+\widetilde{\omega}_i = \sum_b \omega_{b,i}
+$$
+
+This is equivalent to a **Poisson GLM with log link and offset**:
+$$
+\log \mathbb{E}[\widetilde{z}_i]
+=
+X_i \beta + \log \widetilde{\omega}_i
+$$
+
+Regularization (ridge / lasso) is strongly recommended.
+
+---
+
+## G. Bayesian hierarchical extension (conceptual)
+
+### Hierarchical prior
+
+$$
+\lambda_i \sim \operatorname{LogNormal}(\mu_{g(i)},\ \sigma_g)
+$$
+$$
+\mu_g \sim \mathcal{N}(\mu_0,\ \sigma_0)
+$$
+
+### Likelihood
+
+$$
+y_b \sim \operatorname{Poisson}\left(\sum_i \lambda_i \, \omega_{b,i}\right)
+$$
+
+Inference via:
+
+* MCMC (small scale)
+* Variational Inference (production)
+
+Latent $z_{b,i}$ is typically **integrated out**, not sampled.
+
+---
+
+## H. Pseudo-code: EM for MMM → MTA
+
+```text
+INPUT:
+  y_b           # aggregated outcomes (from MMM)
+  omega_bi      # exposure matrix
+  max_iter
+  tol
+
+INITIALIZE:
+  lambda_i ← 1 for all i
+  normalize(lambda)
+
+REPEAT until convergence:
+  
+  # E-step
+  for each b:
+    denom_b ← sum_i lambda_i * omega_bi[b,i]
+    for each i in b:
+      z_hat[b,i] ← y_b * (lambda_i * omega_bi[b,i]) / denom_b
+
+  # M-step
+  for each i:
+    lambda_i ← sum_b z_hat[b,i] / sum_b omega_bi[b,i]
+
+  normalize(lambda)
+  check convergence
+
+OUTPUT:
+  lambda_i
+  z_hat[b,i]
+```
+
+---
+
+## I. Key modeling assumptions (explicit)
+
+1. Exposure $\omega$ is **known and non-negative**
+2. Contributions add linearly to totals
+3. Productivity is time-invariant (unless extended)
+4. Allocation is **not causal at granular level**
+
+---
+
+## J. Diagnostics and validation
+
+Recommended checks:
+
+* Mass conservation: $\sum_i z_{b,i} = y_b$
+* Stability across random initialization
+* Sensitivity to exposure scaling
+* Temporal holdout consistency
+* Rank robustness
+
+---
+
+## K. Summary
+
+This appendix formalizes MTA as:
+
+* a constrained latent variable model
+* naturally solved via EM
+* extendable via GLMs and Bayesian hierarchies
+
+The key design choice is **problem formulation**, not algorithmic complexity.
+

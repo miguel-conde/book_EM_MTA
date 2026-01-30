@@ -1,0 +1,43 @@
+project:
+  type: book
+
+book:
+  title: "Algoritmo Expectation–Maximization (EM)"
+  subtitle: "Aplicado a atribución de ventas HCP y Multi-touch Attribution (MTA)"
+  author: "Miguel Conde"
+  date: "1/29/2026"
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - 1-problema-variables-latentes.qmd
+    - 2-modelo-base.qmd
+    - 3-EM-paso-a-paso.qmd
+    - 4-ejemplo-a-mano.qmd
+    - 5-modelo-realista.qmd
+    - 6-mock-data.qmd
+    - 7-implementacion-python.qmd
+    - 8-caso-de-uso-MTA.qmd
+    - 9-unidades-y-euros.qmd
+    - 10-pitfalls-y-extensiones.qmd
+    - 11-explicar-a-negocio.qmd
+    - 12-enfoque-bayesiano.qmd
+    - 90-apendices.qmd
+    - 91-ap-1-sw-para-MTA.qmd
+    - 92-ap-2-doc-CXOs.qmd
+    - 93-ap-3-exposure.qmd
+    - 94-blog_post_CMO.qmd
+    - 95-blog-post-DS.qmd
+    - 99-biblio-anotada.qmd
+    - references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+
+
+
+

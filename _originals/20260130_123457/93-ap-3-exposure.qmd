@@ -1,0 +1,210 @@
+cual es el nombre tecnico de $\omega_{bh}$?
+
+***
+
+Muy buena pregunta — y muy pertinente, porque **ponerle nombre técnico correcto** a $\omega_{b,h}$ evita muchísimos malentendidos.
+
+La respuesta corta es: **no tiene un único nombre universal**, pero **sí tiene nombres técnicos aceptados según la tradición estadística** en la que te sitúes.
+
+Voy de **más formal a más aplicado**, y te digo **cuál usar en cada contexto**.
+
+---
+
+## Respuesta corta (para uso práctico)
+
+En tu contexto (EM, Poisson/Gamma, HCP–Brick, MMM–MTA), el nombre técnico **más correcto y defendible** es:
+
+> **Exposure** (o **Exposure term**)
+
+Y, más precisamente:
+
+> **Known exposure / offset / intensity modifier**
+
+---
+
+## 1️⃣ En estadística clásica (Poisson / GLM)
+
+### Nombre técnico
+
+### 🔹 **Exposure**
+
+Modelo típico:
+$$
+z \sim \operatorname{Poisson}(\lambda \cdot \omega)
+$$
+
+Aquí:
+
+* $\lambda$ = rate (tasa)
+* $\omega$ = **exposure** (tiempo, área, población, impresiones, etc.)
+
+Ejemplos canónicos:
+
+* accidentes por km → km = exposure
+* llamadas por hora → horas = exposure
+* ventas por visitas → visitas = exposure
+
+📌 **Este es el paralelismo exacto con tu modelo.**
+
+---
+
+### En forma log-lineal
+
+$$
+\log \mathbb{E}[z] = \log \omega + \log \lambda
+$$
+
+Aquí $\log \omega$ se llama:
+
+> **Offset**
+
+📌 En GLM:
+
+* $\omega$ = exposure
+* $\log \omega$ = offset
+
+---
+
+## 2️⃣ En modelos de conteo jerárquicos / epidemiología
+
+### Nombres usados
+
+* **Exposure**
+* **Risk set size**
+* **At-risk population**
+* **Opportunity**
+
+Ejemplo:
+
+* nº de infecciones ~ población expuesta
+* nº de eventos ~ personas “en riesgo”
+
+📌 En HCP–Brick:
+
+> HCP “en riesgo” de generar ventas en ese brick.
+
+---
+
+## 3️⃣ En mixture models / EM allocation
+
+Aquí el término cambia ligeramente de sabor.
+
+### Nombres comunes
+
+* **Mixing weight (known)**
+* **Eligibility**
+* **Allocation weight**
+* **Structural weight**
+
+Pero ojo:
+
+* *mixing weight* suele reservarse para parámetros que suman 1
+* en tu caso **NO** suma 1
+
+📌 Por eso **no es el mejor nombre técnico**, aunque algunos papers lo usen.
+
+---
+
+## 4️⃣ En econometría / marketing analytics (MMM / MTA)
+
+Aquí el naming es más “business-oriented”.
+
+### Términos usados en la práctica
+
+* **Effective exposure**
+* **Effective media pressure**
+* **Adstocked exposure**
+* **Saturated exposure**
+* **Delivered opportunity**
+
+Ejemplo típico:
+$$
+\omega_{m,k,t,g} = \operatorname{Hill}(\operatorname{Adstock}(\text{Impressions}))
+$$
+
+📌 Aquí **“effective exposure”** es el término más limpio.
+
+---
+
+## 5️⃣ En causal inference (con cuidado)
+
+A veces verás:
+
+* **Dose**
+* **Treatment intensity**
+
+⚠️ **No recomendado** en tu caso, porque:
+
+* induce lectura causal fuerte
+* tu $\omega$ no es exógena necesariamente
+
+---
+
+## 6️⃣ Qué **NO** es (y cómo NO llamarlo)
+
+❌ **Probability**
+❌ **Share**
+❌ **Mixing proportion** (sin aclarar)
+❌ **Weight** (sin contexto)
+
+Estos nombres inducen errores conceptuales.
+
+---
+
+## 7️⃣ Recomendación concreta según audiencia
+
+### Para documentos técnicos
+
+> **Exposure term ($\omega_{b,h}$)**
+
+o
+
+> **Known exposure (offset in the log-link)**
+
+---
+
+### Para negocio
+
+> **Exposición efectiva**
+> “cuánta oportunidad tiene X de generar impacto”
+
+---
+
+### Para código
+
+```python
+exposure
+# o
+w
+# o
+effective_exposure
+```
+
+---
+
+## 8️⃣ Frase formal que puedes usar sin riesgo
+
+> “$\omega_{b,h}$ es el **término de exposición conocido** que escala la intensidad del proceso generativo; en un GLM con link log entra como **offset**.”
+
+Esa frase es **100% correcta** en estadística.
+
+---
+
+## 9️⃣ Resumen final (para fijarlo)
+
+| Contexto      | Nombre técnico          |
+| ------------- | ----------------------- |
+| Poisson / GLM | **Exposure**            |
+| Log-link      | **Offset**              |
+| MMM / MTA     | **Effective exposure**  |
+| EM allocation | **Known exposure term** |
+
+---
+
+Si quieres, el siguiente paso puede ser:
+
+* ver **cómo cambia el modelo si $\omega$ se trata como latente**
+* o ver **papers de referencia donde aparece exactamente este término**
+* o ayudarte a **redactar la sección metodológica** con el naming correcto
+
+Tú decides.

@@ -1,0 +1,86 @@
+## Annotated Bibliography
+
+### **Dempster, Laird & Rubin (1977)** [@dempster1977em]
+
+**Topic(s):** Expectation–Maximization algorithm, latent variable models
+Esta referencia es la publicación original del algoritmo **EM**, base teórica para las aproximaciones de MTA como un *latent allocation problem*. Es esencial para entender cómo EM infiere parámetros con datos parcialmente observados.
+
+---
+
+### **Neal & Hinton (1998)** [@neal1998em]
+
+**Topic(s):** EM conceptual overview, relation to inference methods
+Explica el EM en el contexto de modelos probabilísticos y su relación con métodos iterativos y aproximaciones. Útil para situar EM frente a otras técnicas como variational methods.
+
+---
+
+### **Gelman et al. (2013)** [@gelman2013bayesian]
+
+**Topic(s):** Bayesian hierarchical models, partial pooling
+Texto canónico para cualquier discusión bayesiana. Soporta secciones sobre jerarquías, *shrinkage*, incertidumbre y cuando pasar de MLE a inferencia bayesiana.
+
+---
+
+### **Wang (2017)** [@wang2017hierarchical]
+
+**Topic(s):** Bayesian MMM
+Ejemplo aplicado de MMM con jerarquías, mostrando cómo integrar parámetros de carryover y saturación en un enfoque bayesiano, lo que complementa el EM en contextos con datos escasos.
+
+---
+
+### **Jin et al. (2017)** [@jin2017bayesian_adstock_saturation]
+
+**Topic(s):** Adstock, Saturation, Bayesian MMM
+Referencia directa a modelos de MMM que incorporan transformaciones de adstock y saturación (p.ej., Hill curves) en un marco bayesiano — relevante para la sección de exposición efectiva.
+
+---
+
+### **Adstock (Wikipedia)** [@adstock_wikipedia]
+
+**Topic(s):** Advertising carryover, adstock theory
+Explica el concepto de *adstock*, cómo el impacto de publicidad persiste y decae, y por qué es crítico en MMM y en señales de exposición para MTA. ([Wikipedia][1])
+
+---
+
+### **Uplift Modelling (Wikipedia)** [@uplift_wikipedia]
+
+**Topic(s):** Uplift / incremental modelling
+Definición y alcance de *uplift modeling*, que enlaza con discusiones sobre causal inference, experimentos y medición de incrementality frente a meras correlaciones. ([Wikipedia][2])
+
+---
+
+### **Chen & Au (2019)** [@chen2019robust_geo]
+
+**Topic(s):** Geo-experiments, causal inference, marketing incrementality
+Articulo que formaliza métodos para estimar *incremental return on ad spend* con geo-experiments, una parte crucial de la evidencia experimental que sustenta mediciones causales. ([arXiv][3])
+
+---
+
+### **Gubela et al. (2019)** [@gubela2019revenue_uplift]
+
+**Topic(s):** Uplift modeling for revenue, causal ML
+Una obra sobre modelos uplift aplicados a revenue y decisiones de marketing que refuerza la conexión entre causal uplift y medición de incrementality, útil para la sección de métodos causales aplicados. ([arXiv][4])
+
+---
+
+### **CausalMMM (Gong et al., 2024)** [@gong2024causalmmm]
+
+**Topic(s):** Causal structure learning, MMM
+Modelo moderno que intenta aprender estructuras causales dentro de MMM, integrando respuesta saturación y carryover. Relevante para ampliar la discusión metodológica sobre causalidad en MMM y MTA. ([arXiv][5])
+
+---
+
+### **EM Algorithm (Wikipedia)** [@em_wikipedia]
+
+**Topic(s):** EM overview, latent variable explanation
+Referencia general y accesible para introducir EM en tu texto y explicar pasos E/M sin requerir una sola fórmula complicada. ([Wikipedia][2])
+
+---
+
+
+
+[1]: https://en.wikipedia.org/wiki/Advertising_adstock?utm_source=chatgpt.com "Advertising adstock"
+[2]: https://en.wikipedia.org/wiki/Uplift_modelling?utm_source=chatgpt.com "Uplift modelling"
+[3]: https://arxiv.org/abs/1908.02922?utm_source=chatgpt.com "Robust Causal Inference for Incremental Return on Ad Spend with Randomized Paired Geo Experiments"
+[4]: https://arxiv.org/abs/1911.08729?utm_source=chatgpt.com "Response Transformation and Profit Decomposition for Revenue Uplift Modeling"
+[5]: https://arxiv.org/abs/2406.16728?utm_source=chatgpt.com "CausalMMM: Learning Causal Structure for Marketing Mix Modeling"

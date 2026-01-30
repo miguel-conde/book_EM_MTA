@@ -1,0 +1,618 @@
+# Modelo probabilístico base (sin covariables)
+
+## 1️⃣ Notación formal (dejamos esto fijo para todo el curso)
+
+### Índices
+
+-   $h = 1,\dots,H$ → HCPs
+
+-   $b = 1,\dots,B$ → Bricks
+
+### Conjuntos
+
+-   $\mathcal{H}_b \subset \{1,\dots,H\}$: HCPs que pertenecen al brick $b$
+
+### Variables observadas
+
+-   $y_b \in \mathbb{R}^+$: ventas totales del brick $b$
+
+-   $w_{h,b} \ge 0$: exposición del HCP $h$ en el brick $b$  
+    (por ahora puede ser 1 si hay pertenencia)
+
+### Parámetros (a estimar)
+
+-   $\theta_h$: productividad latente del HCP $h$
+
+## 2️⃣ Variable latente clave
+
+Definimos:
+
+$$
+z_{h,b} \equiv \text{ventas atribuibles al HCP } h \text{ en el brick } b
+$$
+
+con la **restricción estructural**:
+
+$$
+\sum_{h \in \mathcal{H}_b} z_{h,b} = y_b
+$$
+
+📌 Esta restricción es lo que hace el problema **no trivial**.
+
+## 3️⃣ Caso A — Ventas en **unidades** (Poisson)
+
+### 🔹 Supuesto generativo
+
+Cada HCP genera ventas de forma independiente:
+
+$$
+z_{h,b} \sim \text{Poisson}(\lambda_h w_{h,b})
+$$
+
+donde:
+
+-   $\lambda_h > 0$: tasa base del HCP
+
+-   $w_{h,b}$: exposición en el brick
+
+### 🔹 Propiedad clave (aditividad)
+
+La suma de Poisson independientes es Poisson:
+
+$$
+y_b = \sum_{h \in b} z_{h,b}
+\quad \Rightarrow \quad
+y_b \sim \text{Poisson}\left(\sum_{h \in b} \lambda_h w_{h,b}\right)
+$$
+
+📌 Esta propiedad **justifica EM** y simplifica enormemente el E-step.
+
+### 🔹 Likelihood marginal (observada)
+
+$$
+\mathcal{L}_{\text{obs}}(\lambda)=
+\prod_{b=1}^B
+	ext{Poisson}\left(y_b \,\Big|\, \sum_{h \in b} \lambda_h w_{h,b}\right)
+$$
+
+### 🔹 Likelihood completa (con latentes)
+
+$$
+\mathcal{L}_{\text{comp}}(\lambda)=
+\prod_{b=1}^B
+\prod_{h \in b}
+	ext{Poisson}\left(z_{h,b} \,\big|\, \lambda_h w_{h,b}\right)
+$$
+
+📌 EM optimiza la **esperanza del log** de esta expresión.
+
+## 4️⃣ Caso B — Ventas en **euros** (continuas)
+
+Aquí ya no podemos usar Poisson. Dos opciones realistas:
+
+### 🔹 Opción 1: **Gamma** (mi favorita en este contexto)
+
+#### Supuesto
+
+$$
+z_{h,b} \sim \text{Gamma}(k, \theta_h w_{h,b})
+$$
+
+-   Media: $\mathbb{E}[z_{h,b}] = k \theta_h w_{h,b}$
+
+-   Varianza proporcional a la media
+
+-   Soporta asimetría
+
+📌 Muy usada en revenue modeling.
+
+#### Suma
+
+Si todos los ( k ) son iguales:
+
+$$
+y_b = \sum_{h \in b} z_{h,b}
+\sim \text{Gamma}\left(k|\mathcal{H}_b|,\, \sum_{h \in b} \theta_h w_{h,b}\right)
+$$
+
+### 🔹 Opción 2: **Lognormal** (más frágil)
+
+
+$$
+\log z_{h,b} \sim \mathcal{N}(\mu_h + \log w_{h,b}, \sigma^2)
+$$
+
+Problemas:
+
+-   La suma no es lognormal
+
+-   EM requiere aproximaciones
+
+-   Sensible a outliers
+
+📌 Útil si hay colas muy pesadas, pero más compleja.
+
+## 5️⃣ Likelihood completa vs marginal (el corazón de EM)
+
+### 🔹 Likelihood completa
+
+La que *queremos* maximizar:
+
+$$
+\log p(\{y_b, z_{h,b}\} \mid \theta)
+= \sum_{b,h} \log p(z_{h,b} \mid \theta_h)
+$$
+
+pero **no podemos** porque $z_{h,b}$ no se observa.
+
+### 🔹 Likelihood marginal (observada)
+
+$$
+\log p(\{y_b\} \mid \theta)
+= \sum_b \log
+\int
+\prod_{h \in b} p(z_{h,b} \mid \theta_h)
+\,\delta\Big(\sum_{h \in b} z_{h,b} - y_b\Big)
+\,dz
+$$
+
+📌 Integral intratable → EM.
+
+## 6️⃣ Qué hará EM exactamente (preview)
+
+-   **E-step**\
+    Calcula:\
+    $$
+    \mathbb{E}[z_{h,b} \mid y_b, \theta^{(t)}]
+    $$
+
+-   **M-step**\
+    Actualiza:
+    $$
+    	heta_h^{(t+1)} =
+    \arg\max_{\theta_h}
+    \sum_b \mathbb{E}[z_{h,b}]\, \log p(z_{h,b} \mid \theta_h)
+    $$
+
+## 7️⃣ ✔️ SALIDA — Likelihood formal del problema
+
+### 🔹 Unidades (Poisson)
+
+$$
+\boxed{y_b \sim \text{Poisson}\left(\sum_{h \in b} \lambda_h w_{h,b}\right)}
+$$
+
+con latentes:\
+$$
+z_{h,b} \sim \text{Poisson}(\lambda_h w_{h,b})
+$$
+
+### 🔹 Euros (Gamma)
+
+$$
+\boxed{y_b \sim \text{Gamma}\left(k|\mathcal{H}_b|,\, \sum_{h \in b} \theta_h w_{h,b}\right)}
+$$
+
+------------------------------------------------------------------------
+
+Cuando has dicho "Si conociéramos 𝑧 ℎ , 𝑏 z h,b ​
+
+:
+
+Podríamos estimar fácilmente productividad de HCPs" y "Si conociéramos la productividad de HCPs:" -\> qué estás entendiendo como productividad?
+
+------------------------------------------------------------------------
+
+Excelente pregunta — y muy importante aclararla ahora, porque **“productividad” puede significar cosas muy distintas** según el nivel del modelo. Vamos a dejarla **formal, precisa y sin ambigüedad**.
+
+## 🔑 Qué significa “productividad” en ESTE curso
+
+Cuando digo **productividad del HCP**, **NO** me refiero a:
+
+-   performance comercial “real”
+
+-   causal uplift
+
+-   impacto incremental puro
+
+-   eficiencia del visitador
+
+👉 Me refiero **estrictamente** a un **parámetro del modelo generativo**.
+
+## 1️⃣ Definición formal (modelo base sin covariables)
+
+### 🔹 Caso unidades (Poisson)
+
+La **productividad del HCP ( h )** es:
+
+$$
+\boxed{\lambda_h = \mathbb{E}[\text{unidades generadas por } h \text{ por unidad de exposición}]}
+$$
+
+y el modelo dice:
+
+$$
+z_{h,b} \sim \text{Poisson}(\lambda_h w_{h,b})
+$$
+
+Interpretación:
+
+-   A igualdad de exposición $w_{h,b}$
+
+-   Un HCP con mayor $\lambda_h$
+
+-   “genera” más unidades **en promedio**
+
+📌 Es **una tasa**, no un efecto causal.
+
+### 🔹 Caso euros (Gamma)
+
+Aquí la productividad es:
+
+$$
+\boxed{\theta_h = \mathbb{E}[\text{€ generados por } h \text{ por unidad de exposición}]}
+$$
+
+con:
+
+$$
+z_{h,b} \sim \text{Gamma}(k, \theta_h w_{h,b})
+$$
+
+📌 Es el **nivel medio de revenue** atribuible al HCP.
+
+## 2️⃣ “Si conociéramos $z_{h,b}$, podríamos estimar productividad”
+
+Ahora sí, con precisión:
+
+### 🔹 Supón que $z_{h,b}$ es observado
+
+Entonces para Poisson:
+
+$$
+\hat{\lambda}_h = \frac{\sum_b z_{h,b}}{\sum_b w_{h,b}}
+$$
+
+Es el **MLE cerrado** del Poisson.
+
+👉 No hay EM, no hay dificultad, no hay ambigüedad.
+
+## 3️⃣ “Si conociéramos la productividad, podríamos repartir ventas”
+
+Supón ahora que conocemos ( \\lambda_h ).
+
+Entonces, para un brick ( b ):
+
+$$
+\mathbb{E}[z_{h,b} \mid y_b]
+= y_b\cdot
+\frac{\lambda_h w_{h,b}}{\sum_{h' \in b} \lambda_{h'} w_{h',b}}
+$$
+
+📌 Esta es la **regla de atribución** del E-step.
+
+Interpretación:
+
+-   No decimos “el HCP h vendió exactamente X”
+
+-   Decimos “dado su nivel esperado, le corresponde esta fracción”
+
+## 4️⃣ Importante: lo que *NO* es productividad
+
+Muy importante para evitar malinterpretaciones posteriores:
+
+❌ No es:
+
+-   efecto incremental causal
+
+-   lift por visita
+
+-   ROI del visitador
+
+-   impacto neto frente a control
+
+✔️ Sí es:
+
+-   un **parámetro latente**
+
+-   coherente con los datos agregados
+
+-   interpretable *dentro del modelo*
+
+Si mañana cambiamos el modelo (por ejemplo, jerárquico bayesiano), **la productividad cambia de significado**.
+
+## 5️⃣ Cuando añadamos covariables (preview)
+
+En el **Capítulo 5**, redefiniremos:
+
+$$
+\lambda_h = \exp(X_h \beta)
+$$
+
+Aquí la productividad:
+
+-   ya no es un parámetro libre
+
+-   es una **función de features**
+
+-   permite generalizar a HCPs nuevos
+
+Pero la interpretación base **no cambia**:
+
+> “nivel esperado de generación de ventas por exposición”
+
+## ✅ Checkpoint conceptual
+
+Dime si esta definición te parece:
+
+-   ✔️ clara
+
+-   ✔️ defendible ante negocio
+
+-   ✔️ compatible con tu intuición
+
+Si estás OK, en el siguiente mensaje arrancamos **Capítulo 3 — EM paso a paso (E-step y M-step explícitos)**, ya con fórmulas cerradas.
+
+------------------------------------------------------------------------
+
+no he entendido bien. Qué hace credit attribution y en que se diferencia de em?
+
+------------------------------------------------------------------------
+
+Muy bien que pares aquí: esta confusión es **normal incluso en equipos senior**, porque *credit attribution* y *EM* se usan muchas veces como si fueran lo mismo… y **no lo son**.\
+Voy a explicarlo **conceptualmente**, sin matemáticas innecesarias.
+
+# 🔍 Credit Attribution vs EM
+
+### Qué hace cada uno y en qué se diferencian
+
+## 1️⃣ ¿Qué es **Credit Attribution**?
+
+### 👉 Es un **objetivo**, no un algoritmo
+
+**Credit attribution** significa:
+
+> *Asignar una fracción de un resultado agregado (venta, revenue, conversión) a varios agentes que han participado.*
+
+Ejemplos:
+
+-   Marketing: repartir una conversión entre canales
+
+-   Tu caso: repartir ventas del brick entre HCPs
+
+-   Finanzas: repartir P&L entre desks
+
+📌 **No dice cómo hacerlo**, solo **qué quieres obtener**.
+
+### 🔹 Resultado típico
+
+Algo como:
+
+| Brick | HCP | Crédito asignado |
+|-------|-----|------------------|
+| B1    | H1  | 30%              |
+| B1    | H2  | 50%              |
+| B1    | H3  | 20%              |
+
+Eso **es credit attribution**.
+
+## 2️⃣ ¿Qué NO es credit attribution?
+
+-   ❌ No es necesariamente estadístico
+
+-   ❌ No implica likelihood
+
+-   ❌ No implica variables latentes
+
+-   ❌ No implica inferencia
+
+Ejemplos de *credit attribution* **no estadístico**:
+
+-   Repartir ventas proporcionalmente al nº de visitas
+
+-   Repartir ventas a partes iguales
+
+-   Reglas de negocio (“el más senior se lleva más”)
+
+👉 Todos hacen attribution, **ninguno usa EM**.
+
+## 3️⃣ Entonces, ¿qué es **EM**?
+
+### 👉 EM es un **algoritmo de inferencia estadística**
+
+EM responde a:
+
+> *Dado un modelo probabilístico con variables latentes, ¿cómo estimo sus parámetros?*
+
+EM:
+
+-   Maximiza una **likelihood**
+
+-   Asume un **modelo generativo**
+
+-   Produce estimaciones consistentes (bajo supuestos)
+
+📌 EM **no tiene como objetivo principal repartir créditos**,\
+eso es una **consecuencia** del E-step.
+
+## 4️⃣ Relación exacta entre ambos (la clave)
+
+### 🔑 En tu problema:
+
+-   **Credit attribution** =\
+    “¿Cuánto de la venta del brick corresponde a cada HCP?”
+
+-   **EM** =\
+    “¿Qué valores de productividad y contribuciones latentes explican mejor los datos agregados?”
+
+### 🔁 Conexión
+
+En EM:
+
+-   El **E-step** calcula:\
+    $$
+    \mathbb{E}[z_{h,b} \mid y_b]
+    $$
+
+-   Eso **es una attribution probabilística**
+
+👉 Pero:
+
+-   La attribution **no es el objetivo**
+
+-   Es un **subproducto necesario** para aprender el modelo
+
+## 5️⃣ Diferencia en una tabla clara
+
+| Aspecto             | Credit Attribution | EM              |
+|---------------------|--------------------|-----------------|
+| Qué es              | Objetivo           | Algoritmo       |
+| Define              | Qué se reparte     | Cómo se infiere |
+| Requiere modelo     | No                 | Sí              |
+| Usa likelihood      | No                 | Sí              |
+| Produce parámetros  | No                 | Sí              |
+| Produce attribution | Sí                 | Indirectamente  |
+
+## 6️⃣ Analogía muy clara (mental model)
+
+### 🎂 Repartir una tarta
+
+-   **Credit attribution**:\
+    “¿Cómo repartimos la tarta entre 5 personas?”
+
+-   **EM**:\
+    “Asumimos que cada persona tiene un apetito distinto (latente).\
+    Observamos cuánto se comió el grupo en total.\
+    Inferimos los apetitos y, como consecuencia, cuánto comió cada uno.”
+
+👉 EM **explica** el reparto, no lo decide arbitrariamente.
+
+## 7️⃣ Resumen en una frase (para que te quede)
+
+> **Credit attribution es el *qué***\
+> **EM es el *cómo*, bajo un modelo estadístico explícito**
+
+## ✅ Checkpoint
+
+Dime si ahora ves clara esta separación:
+
+-   ¿Te queda claro que **EM no es un método de attribution**, sino un método de inferencia?
+
+-   ¿Ves por qué *muchos* sistemas de attribution **no necesitan EM**, pero el tuyo sí?
+
+Si estás OK, en el siguiente paso entramos de lleno en **Capítulo 3 — EM paso a paso**, donde verás cómo la attribution sale *automáticamente* del E-step.
+
+------------------------------------------------------------------------
+
+es decir, que EM es una de las posibles maneras de CÓMO hacer credit attribution (el QUÉ). Otras maneras son mixture models y bayesian inference. Es así?
+
+------------------------------------------------------------------------
+
+Casi perfecto 👍 — solo hace falta **un pequeño ajuste conceptual** para que quede *exactamente correcto*.\
+Voy a dejarlo cristalino y cerramos esta parte.
+
+## ✅ La forma correcta de pensarlo
+
+### ✔️ Lo que **sí** es correcto
+
+-   **Credit attribution** es el **QUÉ**\
+    → repartir un resultado agregado entre agentes
+
+-   Existen **muchas maneras** de hacer credit attribution
+
+### ❗ El ajuste importante
+
+**Mixture models NO son una alternativa a EM**\
+**Bayesian inference NO es una alternativa a EM**
+
+👉 Están en **niveles distintos del stack conceptual**.
+
+## 🧱 Stack correcto (de arriba a abajo)
+
+### 1️⃣ **QUÉ** — Credit attribution
+
+> El problema de negocio
+
+Ejemplo:
+
+-   Repartir ventas del brick entre HCPs
+
+### 2️⃣ **MODELO** — Mixture / Latent variable model
+
+> Cómo supones que se generan los datos
+
+Ejemplos:
+
+-   Mixture model
+
+-   Latent additive model
+
+-   Hierarchical model
+
+📌 Aquí decides **qué es $z_{h,b}$** y cómo se genera.
+
+### 3️⃣ **CÓMO INFERIR** — EM / Bayesian / VI
+
+> Cómo estimas los parámetros del modelo
+
+Ejemplos:
+
+-   **EM** → Maximum Likelihood con latentes
+
+-   **Bayesian inference** → posterior completo
+
+-   **Variational inference** → aproximación
+
+## 📊 Dónde encaja EM exactamente
+
+EM es:
+
+> **Una forma de inferir parámetros en modelos con variables latentes**
+
+No es:
+
+-   ni el problema
+
+-   ni el modelo
+
+## 🔁 Reescribiendo tu frase (100% correcta)
+
+Tu frase:
+
+> *“EM es una de las posibles maneras de CÓMO hacer credit attribution (el QUÉ). Otras maneras son mixture models y bayesian inference.”*
+
+La versión **exacta** sería:
+
+> **“Credit attribution es el QUÉ.\
+> Definimos un modelo latente (por ejemplo, un mixture model).\
+> EM es una de las maneras de inferir ese modelo; la inferencia bayesiana es otra.”**
+
+## 🧠 Ejemplo concreto (tu caso)
+
+-   QUÉ:\
+    Repartir ventas del brick entre HCPs
+
+-   MODELO:\
+    $z_{h,b} \sim \text{Poisson}(\lambda_h w_{h,b})$
+
+-   CÓMO (opción A):\
+    EM → MLE de $\lambda_h$
+
+-   CÓMO (opción B):\
+    Bayes → $p(\lambda_h \mid y)$
+
+Ambos producen:
+
+-   una attribution
+
+-   pero con propiedades distintas
+
+## 📌 Regla mental útil (para siempre)
+
+> **Model ≠ Inference ≠ Business objective**
+
+Si confundes uno con otro:
+
+-   los modelos se vuelven “religión”
+
+-   las discusiones con negocio se rompen

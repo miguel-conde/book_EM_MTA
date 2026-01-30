@@ -1,0 +1,1026 @@
+
+antes de pasar  al capítulo 8 me gustaría aplicar EM a otro caso de uso: 
+
+- Tenemos un MMM en granularidad tiempo (semanal, diaria) o tiempo (semanal, diaria) x geo
+- Por lo tanto, tenemos por medio la evolucion tiempo o tiempo x geo de su contribución
+- Queremos repartir las contribuciones a niveles inferiores: por ejemplo campañas o creatividades o los que tú quieras considerar. O sea, queremos hacer Multi Touch Attribution (MTA)
+- A resolver: aplicar EM para repartir como hemos dicho las contribuciones de los medios
+- Para más adelante: en MTA suelen quererse las atribuciones con granularidades temporales mucho mayores (horarias, por ejemplo). Quedaría ver cómo resolver eso
+
+Necesitas algo más antes de empezar? Podría ser un nuevo capítulo que se proponga como ejercicio a resolver aunque se proporcionesn las soluciones
+
+***
+
+No necesito nada más para empezar — tu planteamiento es suficientemente concreto. Sí: lo podemos tratar como un **capítulo extra / ejercicio guiado** (con solución), porque es el mismo patrón “agregado → desagregado” pero ahora en **tiempo (y quizá geo)** y con “componentes” tipo **campaña/creatividad**.
+
+A continuación te propongo el **Capítulo 8 (alternativo)** como ejercicio resuelto: **EM para desagregar contribuciones de MMM a MTA**.
+
+---
+
+# Capítulo extra — EM para repartir contribuciones de MMM a campañas/creatividades (MTA)
+
+## 0) Qué es observado y qué es latente
+
+### Observado (sale del MMM)
+
+Tienes para cada periodo (y opcionalmente geo):
+
+* $t \in \{1,\dots,T\}$ (semana/día)
+* $g \in \{1,\dots,G\}$ (geo) opcional
+
+Y del MMM obtienes contribuciones por canal/medio:
+
+* $C_{m,t}$ o $C_{m,t,g}$: contribución del **medio/canal** $m$ en ese corte.
+
+> Nota: esto puede ser “incremental contribution” del MMM o “attributed contribution” según el modelo. EM solo lo toma como “total a repartir”.
+
+### Objetivo
+
+Repartir esa contribución de cada medio (m) hacia unidades inferiores:
+
+* campañas (k), creatividades, adsets, publishers… (lo que definas)
+
+### Latente
+
+* $z_{m,k,t}$ (o $z_{m,k,t,g}$): contribución del medio $m$ en $t$ asignada a campaña/crea $k$
+
+Restricción dura:
+$$
+\sum_{k\in \mathcal{K}_m} z_{m,k,t} = C_{m,t}
+\quad (\text{o } \sum_k z_{m,k,t,g}=C_{m,t,g})
+$$
+
+---
+
+## 1) Modelo generativo base (análogamente al HCP–Brick)
+
+La analogía es directa:
+
+| HCP–Brick            | MMM→MTA                                                   |
+| -------------------- | --------------------------------------------------------- |
+| Brick                | medio $m$, tiempo $t$, geo $g$                             |
+| HCP                  | campaña/creatividad $k$ dentro del medio                  |
+| ventas $y_b$         | contribución $C_{m,t,g}$                                  |
+| exposición $w_{h,b}$ | señales a nivel campaña: spend, impressions, clicks, etc. |
+
+### Exposición / evidencia por campaña
+
+Define features o exposición para cada campaña:
+
+* $w_{m,k,t,g}$ = spend (o impresiones) de la campaña $k$ del medio $m$ en $(t,g)$
+* y opcionalmente features $X_{m,k}$ (tipo campaña, objetivo, formato…)
+
+### Productividad latente por campaña dentro del medio
+
+Caso simple (sin covariables aún):
+
+* $\lambda_{m,k} > 0$ (tasa/productividad relativa de campaña $(k)$ dentro de medio $(m)$)
+
+Modelo Poisson (para “unidades de contribución”):
+$$
+z_{m,k,t,g} \sim \operatorname{Poisson}(\lambda_{m,k} \cdot w_{m,k,t,g})
+$$
+y observamos:
+$$
+C_{m,t,g}=\sum_k z_{m,k,t,g}
+$$
+
+Si $C$ es continua (euros), puedes usar Gamma (más abajo).
+
+---
+
+## 2) EM explícito en este contexto (solución)
+
+### E-step: repartir $C_{m,t,g}$ dentro de cada $(m,t,g)$
+
+Define:
+$$
+\mu_{m,k,t,g}^{(r)} = \lambda_{m,k}^{(r)} \cdot w_{m,k,t,g}
+$$
+$$
+p_{m,k,t,g}^{(r)}=
+\frac{\mu_{m,k,t,g}^{(r)}}{\sum_{k'}\mu_{m,k',t,g}^{(r)}}
+$$
+
+Entonces:
+$$
+\boxed{
+\mathbb{E}[z_{m,k,t,g}\mid C_{m,t,g},\lambda^{(r)}]
+=
+C_{m,t,g} \cdot p_{m,k,t,g}^{(r)}
+}
+$$
+
+Interpretación:
+
+* dentro de cada medio-tiempo-geo, la campaña se lleva más contribución si tiene:
+
+  * más exposición (w) y/o
+  * más productividad ($\lambda$).
+
+### M-step: actualizar $\lambda_{m,k}$
+
+Acumulas:
+$$
+\tilde z_{m,k}=\sum_{t,g}\mathbb{E}[z_{m,k,t,g}]
+\quad,\quad
+\tilde w_{m,k}=\sum_{t,g} w_{m,k,t,g}
+$$
+
+MLE tipo Poisson:
+$$
+\boxed{
+\lambda_{m,k}^{(r+1)} = \frac{\tilde z_{m,k}}{\tilde w_{m,k}}
+}
+$$
+
+Eso ya es EM completo (sin covariables).
+
+---
+
+## 3) Versión “realista”: covariables + regularización
+
+Como antes:
+$$
+\lambda_{m,k}=\exp(X_{m,k}\beta_m)
+$$
+
+* $\beta_m$ puede ser por medio, o compartido
+
+M-step se vuelve un **Poisson GLM con offset**:
+
+* response: $\tilde z_{m,k}$
+* offset: $\log \tilde w_{m,k}$
+* regularización ridge/lasso para estabilidad
+
+---
+
+## 4) Caso euros (contribuciones continuas)
+
+Si $C_{m,t,g}$ es continua (moneda), Gamma suele funcionar bien:
+
+$$
+z_{m,k,t,g} \sim \operatorname{Gamma}(k,\ \theta_{m,k} w_{m,k,t,g})
+$$
+con $\theta_{m,k}=\exp(X\beta)$
+
+En muchas parametrizaciones razonables, el reparto del E-step queda (muy similar):
+$$
+\mathbb{E}[z_{m,k,t,g}\mid C_{m,t,g}]
+\approx
+C_{m,t,g}\cdot
+\frac{\theta_{m,k} w_{m,k,t,g}}{\sum_{k'}\theta_{m,k'} w_{m,k',t,g}}
+$$
+y el M-step es Gamma-GLM (log link) + regularización.
+
+---
+
+## 5) Qué estás aprendiendo realmente (y límites)
+
+Este EM aprende **productividad relativa intra-medio** de campañas/creas **consistente con**:
+
+* la serie temporal (y geo) de contribución total del MMM
+* el patrón de exposición de campañas (spend/imp/clicks)
+
+**No** está recuperando “verdad causal por campaña” si:
+
+* el MMM no está bien identificado por canal
+* hay campañas altamente colineales dentro del medio
+* falta señal (w) (o está muy ruidosa)
+
+Pero como “desagregador coherente” del MMM, funciona muy bien.
+
+---
+
+## 6) Lo de “granularidad horaria” en MTA (para más adelante)
+
+Tu comentario es clave: MMM suele estar en semanal/día; MTA a veces se quiere a hora/minuto.
+
+Hay 3 rutas típicas:
+
+1. **Downscaling con modelo de intensidad**
+  Aprendes un “perfil intradía” $q(h \mid k,g)$ con logs de delivery (imp/click/spend horario) y repartes:
+  $$
+  z_{m,k,t,g,h} = z_{m,k,t,g}\cdot q(h\mid k,g)
+  $$
+   Esto es determinista o con EM a dos niveles.
+
+2. **Estado-espacio / smoothing temporal**
+  Tratas $\lambda_{m,k,t}$ como proceso (random walk) y haces inferencia (Kalman/VI).
+   Útil si quieres que productividades varíen por hora.
+
+3. **Modelo unificado a alta frecuencia**
+   Solo si tienes outcomes y gasto a esa frecuencia (caro y con mucho ruido).
+
+---
+
+# Ejercicio propuesto (con solución)
+
+**Ejercicio:** Implementa EM para un solo medio (m) con:
+
+* $C_t$ semanal
+* campañas (k=1..K)
+* exposición $w_{k,t}$ = spend
+  y estima $\lambda_k$ + $z_{k,t}$.
+
+**Solución:** las ecuaciones de arriba (E-step/M-step) y luego extender a covariables con GLM.
+
+---
+
+## ¿Quieres que lo aterricemos ya en código?
+
+Puedo darte un notebook muy parecido al del HCP–Brick pero con:
+
+* input: `C_{m,t,g}` (del MMM) + `w_{m,k,t,g}` (spend/imp/click)
+* output: `zhat_{m,k,t,g}` y productividades por campaña
+
+Y con dos modos:
+
+* “sin covariables” (updates cerrados)
+* “con covariables” (M-step con IRLS + ridge)
+
+Si lo hacemos, asumiré por defecto:
+
+* contribución $C$ continua pero **no negativa**
+* exposición = spend (>=0), con smoothing cuando hay ceros
+
+Dime solo si quieres que empecemos por:
+
+1. **1 medio, sin geo** (más simple), o
+2. **1 medio, con geo**, o
+3. **multi-medio** (mismo framework, un loop por medio).
+
+***
+
+de acuerdo. pero como exposición no quiero spend sino impresiones, grps o similares. Como suponemos que vienen de un mmm incremental (causal), debemos reflejar también el uso de transformaciones adstock + saturación. Antes de empezar a generar el notebook:
+
+1) Si el mmm es incremental (causal) el reparto MTA ¿también lo es?
+2) Propón como insertar en la solucion el tema de las transformaciones
+
+***
+
+Genial: si quieres usar **impresiones/GRPs** y además respetar **adstock + saturación** (como en MMM), eso cambia el “qué significa exposición” en el EM, pero el framework encaja muy bien.
+
+Voy por tus 2 preguntas.
+
+---
+
+## 1) Si el MMM es incremental (causal), ¿el reparto MTA también lo es?
+
+**Depende de qué entiendas por “causal” a nivel campaña**, pero la respuesta operativa es:
+
+* **El total que repartes (por canal/medio y por (t), (g)) sí es incremental/causal** *si tu MMM lo es*.
+* **El reparto dentro del canal (campañas/creas)** **no es automáticamente causal** a menos que tengas **identificación causal intra-canal**.
+
+### Por qué
+
+El MMM “incremental” te identifica algo como:
+$$
+C_{m,t,g}^{inc} = f(\text{inputs del canal }m) - f(\text{contrafactual sin canal }m)
+$$
+Eso es causal a nivel canal (bajo supuestos).
+
+Pero cuando lo repartes entre campañas, normalmente estás usando:
+
+* señales de delivery (impresiones/GRPs, targeting, timing)
+* y un modelo de “propensión” / “intensidad”
+  para decidir shares.
+
+Eso da una atribución **coherente** con el incremental del canal, pero **no demuestra** que “esa campaña” sea incremental vs otra, porque dentro del canal puede haber:
+
+* colinealidad fuerte (campañas corren a la vez)
+* selección/endogeneidad (las campañas se activan cuando se espera demanda)
+* distinta mezcla de audiencias
+
+### Cómo sí hacerlo “más causal” intra-canal
+
+Necesitarías señal de identificación adicional, por ejemplo:
+
+* experimentos / geo-lift por campaña
+* cambios exógenos (holdouts, rotaciones creativas, shocks de supply)
+* instrumentos o reglas de asignación
+* o un modelo jerárquico que incorpore “priors causales” basados en pruebas
+
+📌 Conclusión clara:
+
+> **MTA por EM puede conservar el “incremental total” del MMM**, pero el **split intra-canal es principalmente model-based attribution**, no causal garantizado.
+
+---
+
+## 2) Cómo insertar adstock + saturación en la solución EM (con impresiones/GRPs)
+
+La forma limpia es: **no usar exposición cruda (w)**, sino la **exposición efectiva** tal y como MMM la usa para generar contribución.
+
+### En MMM típico
+
+Para una subentidad (k) (campaña/crea) del canal (m), tienes una señal “raw”:
+
+* $x_{m,k,t,g}$: impresiones / GRPs / TRPs (no spend)
+
+MMM aplica transformaciones:
+
+1. **Adstock** (carryover):
+   $$
+  a_{m,k,t,g} = \operatorname{Adstock}(x_{m,k,\cdot,g}; \theta_m)
+   $$
+   (p. ej. geométrico con decay $\theta_m$, o Weibull)
+
+2. **Saturación** (rendimientos decrecientes):
+   $$
+  s_{m,k,t,g} = \operatorname{Sat}(a_{m,k,t,g}; \phi_m)
+   $$
+   (p. ej. Hill / logistic)
+
+Y la contribución incremental del canal suele ser algo como:
+$$
+C_{m,t,g}^{inc} \approx \beta_m \sum_k s_{m,k,t,g}
+$$
+(si el MMM no tiene campañas explícitas, esto es una descomposición plausible)
+
+---
+
+### Cómo meter esto en EM (dos opciones)
+
+#### ✅ Opción A (recomendada): EM reparte usando **exposición efectiva MMM-consistente**
+
+Define la exposición del EM como:
+$$
+w_{m,k,t,g} := s_{m,k,t,g}
+$$
+(es decir, **ya adstockeada y saturada**)
+
+Entonces el E-step (shares) queda:
+$$
+\hat z_{m,k,t,g}
+=
+C_{m,t,g}^{inc}\cdot
+\frac{\lambda_{m,k} \cdot s_{m,k,t,g}}{\sum_{k'} \lambda_{m,k'} \cdot s_{m,k',t,g}}
+$$
+
+Ventajas:
+
+* Mantienes exactamente la lógica MMM (carryover + diminishing returns)
+* Evitas atribuir más a campañas solo por impresiones brutas si están saturadas
+* Muy estable y fácil de explicar
+
+Qué se aprende:
+
+* $\lambda_{m,k}$ = “eficiencia relativa” intra-canal (sobre señal efectiva)
+
+Dónde pones parámetros de adstock/sat:
+
+* Los tomas del MMM (fijos) o los fijas por canal.
+
+#### Opción B: EM también aprende algunos parámetros de transformación
+
+Puedes extender parámetros $\theta_m,\phi_m$ al set de parámetros y alternar:
+
+* E-step: imputar $z$
+* M-step: actualizar $\beta$ y quizás $\theta,\phi$
+
+Pero aquí hay un problema práctico:
+
+* adstock/saturación + shares suelen estar **muy no convexos**
+* identificabilidad débil (especialmente intra-canal)
+* entrenamiento más frágil (necesitarías constraints/priors fuertes)
+
+📌 Para empezar y para producción, casi siempre:
+
+> **usar $\theta_m,\phi_m$ del MMM (fijos) y aprender solo el reparto intra-canal**.
+
+---
+
+### ¿Y si el MMM está a nivel canal y no tienes series por campaña?
+
+Entonces haces “top-down”:
+
+* Construyes $s_{m,k,t,g}$ a partir de delivery de campaña (imps/GRPs) usando los mismos $\theta_m,\phi_m$
+* Y repartes $C_{m,t,g}^{inc}$ con la fórmula anterior
+
+Esto es exactamente lo que quieres.
+
+---
+
+## Recomendación final antes del notebook (sin pedirte datos extra)
+
+Para el notebook te propongo este diseño:
+
+* Inputs mock:
+
+  * $C_{t}$ o $C_{t,g}$: contrib incremental por canal (observado)
+  * $x_{k,t,g}$: impresiones/GRPs por campaña (observado)
+* Transformaciones:
+
+  * adstock geométrico por canal
+  * saturación Hill por canal
+* EM:
+
+  * E-step usando $w=s(x)$
+  * M-step estimando $\lambda_k$ (cerrado) o $\lambda_k=\exp(X_k\beta)$ (GLM)
+
+Y añadimos sección “más adelante”:
+
+* desagregación a horas via perfil intradía usando delivery horario + conservación de masa
+
+---
+
+## Checkpoint
+
+Si estás OK con esto:
+
+* **El total es causal (del MMM), el split intra-canal es attribution model-based**.
+* Usamos **adstock+saturación para construir $w$** y EM reparte sobre esa señal efectiva.
+
+Dime y genero el notebook del caso MMM→MTA con mock data (impresiones/GRPs + transforms).
+
+***
+
+adelante, genera el notebook
+
+***
+
+Listo — aquí tienes el notebook del caso **MMM incremental → MTA (campañas/creas)** usando **impresiones/GRPs** como exposición y respetando **adstock + saturación (Hill)** en el reparto con EM.
+
+[Download the notebook](sandbox:/mnt/data/em_mmm_to_mta_adstock_saturation.ipynb)
+
+Incluye:
+
+* mock data con **tiempo x geo**
+* transformaciones **adstock geométrico + Hill**
+* generación de **contribución incremental** por medio (como salida del MMM)
+* **EM cerrado** (sin covariables) para estimar productividades intra-medio $\lambda_{m,k}$ y atribuciones $\hat z_{m,k,t,g}$
+* checks: conservación de masa $\sum_k \hat z = C$ y evaluación vs ground truth
+
+Cuando lo ejecutes, si quieres, lo siguiente es extender el M-step a **$\lambda=\exp(X\beta)$** (regularización, pooling por tipo de campaña/crea), igual que en el HCP–Brick.
+
+***
+
+que covariables has usado (me interesan estos ejemplos para tener referencias
+
+***
+
+Muy buena pregunta — y además importante para usar esto como **referencia reusable** 👍
+Te explico **exactamente qué covariables he usado**, **dónde**, y **por qué**, y luego te propongo **sets de covariables típicos** que sí usarías en producción.
+
+---
+
+# Qué covariables he usado en el notebook (y para qué)
+
+## 1️⃣ Covariables **explícitas** en el notebook
+
+### ✅ **A nivel campaña (metadata)**
+
+En `campaign_df` he creado **metadata categórica**, pero **NO la he usado aún en el modelo EM** (está preparada para el siguiente paso):
+
+```python
+campaign_rows.append({
+    "medium": m,
+    "campaign": f"{m}_C{k+1}",
+    "creative_family": rng.choice(["A", "B", "C"]),
+    "objective": rng.choice(["Awareness", "Consideration", "Conversion"]),
+})
+```
+
+Estas columnas existen como **ejemplo de covariables potenciales**, pero en este notebook:
+
+* ❌ **no entran en $\lambda_{m,k}$**
+* ✔️ sirven como **plantilla conceptual** para el siguiente capítulo:
+  $$
+  \lambda_{m,k} = \exp(X_{m,k}\beta_m)
+  $$
+
+👉 Es decir: **las he definido, pero no las he activado todavía**.
+
+---
+
+### ✅ **A nivel tiempo y geo (implícitas, no paramétricas)**
+
+Estas no entran como regresores, pero **sí afectan al reparto vía la exposición efectiva**:
+
+#### a) **Tiempo (t)**
+
+* Estacionalidad:
+
+```python
+time_season = 1.0 + sinusoides(...)
+```
+
+* Adstock aplicado **a lo largo del tiempo**
+* Saturación dependiente del histórico
+
+📌 El tiempo entra **no como feature**, sino como **estructura dinámica** en `w_{m,k,t,g}`.
+
+---
+
+#### b) **Geo**
+
+* `geo_effect` multiplicativo
+* Variabilidad de delivery por geo
+
+📌 Geo tampoco entra como covariable paramétrica, pero **modula la exposición efectiva**.
+
+---
+
+## 2️⃣ La “covariable clave” realmente usada: exposición efectiva
+
+Aunque no parezca una covariable tradicional, **esto es lo más importante del notebook**:
+
+### 🔑 Exposición usada en EM
+
+$$
+w_{m,k,t,g} = s_{m,k,t,g}
+= \operatorname{Hill}(\operatorname{Adstock}(x_{m,k,t,g}))
+$$
+
+Donde:
+
+* (x): impresiones / GRPs
+* Adstock: memoria temporal
+* Saturación: rendimientos decrecientes
+
+📌 En la práctica:
+
+> **la mayor parte de la señal explicativa está en esta transformación**, no en (X\beta).
+
+---
+
+## 3️⃣ Qué **NO** he usado todavía (a propósito)
+
+No he usado aún:
+
+* ❌ Regresión Poisson / Gamma en el M-step
+* ❌ $\lambda_{m,k} = \exp(X\beta)$
+* ❌ Regularización
+* ❌ Pooling entre campañas similares
+
+Esto es deliberado:
+
+* primero dejar claro el **EM “puro”**
+* luego meter covariables como **extensión controlada**
+
+---
+
+# Sets de covariables recomendados (para referencia real)
+
+Ahora sí, lo que te interesa como **catálogo de ejemplos** 👇
+
+---
+
+## A) Covariables típicas **a nivel campaña / creatividad**
+
+Estas irían en $X_{m,k}$:
+
+### 🔹 Creatividad / formato
+
+* tipo de formato (video, display, search text)
+* duración (6s / 15s / 30s)
+* tamaño
+* orientación (vertical/horizontal)
+* family / concept creativo
+
+### 🔹 Objetivo
+
+* awareness / consideration / conversion
+* upper vs lower funnel
+* always-on vs tactical
+
+### 🔹 Audiencia / targeting
+
+* prospecting vs retargeting
+* broad vs custom
+* socio-demo bucket
+* lookalike depth
+
+👉 Uso típico:
+
+```text
+lambda_{m,k} = exp(
+  β0
++ β1 * is_video
++ β2 * is_conversion
++ β3 * retargeting
++ β4 * creative_family_B
+)
+```
+
+---
+
+## B) Covariables **de historial / madurez**
+
+(no dependientes de t)
+
+* antigüedad de la campaña
+* nº de flights pasados
+* frecuencia histórica media
+* % tiempo activa
+
+Sirven para:
+
+* regularizar campañas nuevas
+* evitar que EM sobre-asigne ruido
+
+---
+
+## C) Covariables **interacción con exposición**
+
+(avanzado, pero muy potente)
+
+Ejemplo:
+
+* creatividades saturan antes que otras
+* distintos decays por formato
+
+Puedes modelar:
+$$
+\lambda_{m,k} = \exp(X_k \beta)
+\quad\text{y/o}\quad
+\gamma_{m,k} = \exp(Z_k \delta)
+$$
+
+y usar $\gamma$ para **modular la saturación** (capítulo avanzado).
+
+---
+
+## D) Covariables **a nivel medio (shared priors)**
+
+Para evitar sobreajuste:
+
+* (\beta_m \sim \mathcal N(\beta_{global}, \Sigma))
+
+Esto es:
+
+* **pooling jerárquico**
+* muy útil cuando hay muchos medios con pocas campañas
+
+---
+
+# Cómo se vería el siguiente paso (conceptual)
+
+En el siguiente notebook, cambiaríamos solo el M-step:
+
+Antes:
+$$
+\lambda_{m,k} = \frac{\sum_{t,g} \hat z_{m,k,t,g}}{\sum_{t,g} w_{m,k,t,g}}
+$$
+
+Después:
+$$
+\lambda_{m,k} = \exp(X_{m,k}\beta_m)
+$$
+
+y el M-step sería:
+
+* **Poisson o Gamma GLM**
+* response: (\tilde z_{m,k})
+* offset: (\log \tilde w_{m,k})
+* ridge / lasso
+
+---
+
+## Resumen corto (para llevarte)
+
+* ✔️ **Usado realmente**:
+
+  * exposición efectiva = adstock + saturación
+  * tiempo y geo entran estructuralmente
+* ✔️ **Definido pero no usado aún**:
+
+  * `creative_family`, `objective` (ejemplos de $X$)
+* ❌ **Aún no**:
+
+  * GLM / regularización / pooling
+
+Si quieres, el próximo capítulo puede ser exactamente:
+
+> **“Capítulo siguiente — EM + covariables en MMM→MTA (GLM + regularización)”**
+
+y ahí usamos **esas covariables concretas** como referencia industrial.
+
+***
+
+Creo que no entiendo bien el concepto $\omega_{bh}$, exposición al brick $\{0,1\}$ o peso en el brick $[0,1]$
+
+
+***
+
+Muy buena pregunta — y es **clave** para entender todo el modelo.
+La confusión es totalmente normal porque **$\omega_{b,h}$** (o $w_{h,b}$) **no es una sola cosa**, sino un **concepto** que puede instanciarse de varias formas coherentes.
+
+Voy paso a paso y al final te dejo una **regla mental** para no perderte.
+
+---
+
+# Qué es realmente $\omega_{b,h}$
+
+En todos los ejemplos (HCP–Brick, MMM→MTA),
+$$
+\omega_{b,h} \quad \text{(o } w_{h,b}\text{)}
+$$
+significa:
+
+> **la intensidad de exposición / elegibilidad / oportunidad**
+> que tiene la unidad (h) para generar contribución dentro del agregado (b)
+
+No es “probabilidad”, no es “share” por sí sola, y **no tiene por qué sumar 1**.
+
+---
+
+# Las tres interpretaciones válidas de $\omega_{b,h}$
+
+## 1️⃣ Exposición binaria: $\{0,1\}$ (la más simple)
+
+### Definición
+
+$$
+\omega_{b,h} =
+\begin{cases}
+1 & \text{si } h \text{ pertenece al brick } b \\
+0 & \text{si no}
+\end{cases}
+$$
+
+### Ejemplo
+
+* HCP–Brick:
+
+  * el HCP trabaja en ese brick → 1
+  * no trabaja → 0
+
+### Qué implica el modelo
+
+$$
+z_{h,b} \sim \operatorname{Poisson}(\lambda_h)
+$$
+
+📌 Aquí **toda la diferenciación** viene de $\lambda_h$.
+
+### Cuándo usarlo
+
+* Ejemplo didáctico
+* No tienes info adicional
+* Quieres entender EM “en limpio”
+
+⚠️ Limitación: poco realista.
+
+---
+
+## 2️⃣ Exposición como **intensidad** $[0, +\infty)$ (la más habitual)
+
+### Definición
+
+$$
+\omega_{b,h} = \text{cantidad de oportunidad}
+$$
+
+Ejemplos:
+
+* nº de visitas del HCP al brick
+* nº de médicos en ese brick
+* impresiones / GRPs de una campaña en $(t,geo)$
+* spend (aunque tú ya has dicho que no quieres usarlo)
+
+### Modelo
+
+$$
+z_{h,b} \sim \operatorname{Poisson}(\lambda_h \cdot \omega_{b,h})
+$$
+
+📌 Interpretación:
+
+> a igual productividad $\lambda_h$, más exposición → más contribución esperada
+
+### Importante
+
+* $\omega$ **no tiene por qué estar normalizada**
+* no tiene por qué sumar 1 por brick
+* puede ser grande (1000 imps) o pequeña (0.2 GRPs)
+
+---
+
+## 3️⃣ Peso normalizado $[0,1]$ (caso especial, NO obligatorio)
+
+A veces se define:
+$$
+\tilde\omega_{b,h} = \frac{\omega_{b,h}}{\sum_{h'} \omega_{b,h'}}
+$$
+
+Esto **no cambia el E-step**, porque en el E-step siempre aparece el cociente:
+
+$$
+\frac{\lambda_h \omega_{b,h}}{\sum_{h'} \lambda_{h'} \omega_{b,h'}}
+$$
+
+Si multiplicas todos los $\omega$ por una constante, **se cancela**.
+
+### Entonces:
+
+* Normalizar o no normalizar **es irrelevante para el reparto**
+* Sí afecta a la escala de $\lambda_h$ (pero no a los shares)
+
+📌 Por eso verás implementaciones con $[0,1]$ y otras con valores brutos.
+
+---
+
+# Entonces… ¿qué es $\omega_{b,h}$ *en tu cabeza*?
+
+La forma correcta de pensarlo es:
+
+> $\omega_{b,h}$ = **“cuánto puede contribuir $h$ al brick $b$, antes de saber si es bueno o malo”**
+
+Luego:
+
+* $\lambda_h$ = *qué tan bueno es $h$*
+* $\omega_{b,h}$ = *cuánta oportunidad tiene*
+
+Y EM combina ambos.
+
+---
+
+# Por qué **NO** es una probabilidad
+
+Errores comunes:
+
+❌ “$\omega$ es el share dentro del brick”
+→ No. El share sale del **E-step**, no es input.
+
+❌ “$\omega$ debe sumar 1”
+→ No. Solo importa **relativamente** dentro del brick.
+
+❌ “$\omega$ es causal”
+→ No. Es una **señal de exposición**, no de efecto.
+
+---
+
+# Ejemplos concretos en tus dos casos
+
+## HCP–Brick
+
+| Interpretación | $\omega_{b,h}$               |
+| -------------- | ---------------------------- |
+| mínima         | 1 si está, 0 si no           |
+| realista       | nº visitas                   |
+| mejor          | visitas × tiempo × potencial |
+
+---
+
+## MMM → MTA
+
+| Señal           | $\omega_{m,k,t,g}$  |
+| --------------- | ------------------- |
+| cruda           | impresiones / GRPs  |
+| mejor           | adstock(imps)       |
+| MMM-consistente | Hill(adstock(imps)) |
+
+📌 En este último:
+
+> $\omega$ **ya incorpora** carryover y saturación.
+
+---
+
+# Regla mental (la más importante)
+
+> **Si quitas $\lambda_h$, $\omega_{b,h}$ debe seguir teniendo sentido como “oportunidad de generar contribución”**
+
+Si cumple eso, es una buena $\omega$.
+
+---
+
+## Cierre
+
+Tu duda es exactamente la correcta, porque:
+
+* muchos papers y códigos **mezclan** estos conceptos sin decirlo
+* y parece que $\omega$ “tiene que ser” una cosa concreta
+
+No:
+👉 **$\omega$ es una elección de modelado**, y lo importante es que sea:
+
+* no negativa
+* interpretable
+* coherente con el proceso real
+
+Si quieres, en el siguiente mensaje podemos:
+
+* dibujar el paralelismo exacto HCP–Brick ↔ MMM–MTA con una tabla formal
+* o ver qué pasa si eliges una $\omega$ “mala” (ejemplos de fallo del EM)
+
+
+***
+
+Si, dibuja el paralelismo exacto HCP–Brick ↔ MMM–MTA con una tabla formal
+
+***
+
+Perfecto. Vamos a hacerlo **formal, exacto y simétrico**, para que puedas usarlo como **referencia mental y técnica** en cualquier documento o discusión.
+
+---
+
+# Paralelismo exacto: **HCP–Brick ↔ MMM–MTA**
+
+Piensa que **es el mismo modelo** con nombres distintos.
+La siguiente tabla es **isomórfica**: cada fila es exactamente el mismo objeto estadístico.
+
+---
+
+## 🧩 Tabla formal de equivalencia
+
+| Concepto estadístico        | HCP–Brick                                         | MMM → MTA                                                     |
+| --------------------------- | ------------------------------------------------- | ------------------------------------------------------------- |
+| Unidad agregada (observada) | Brick $b$                                         | Medio $m$, tiempo $t$, geo $g$                                |
+| Unidad individual (latente) | HCP $h$                                           | Campaña / Creatividad $k$                                     |
+| Observación agregada        | Ventas del brick $y_b$                            | Contribución incremental $C_{m,t,g}$                          |
+| Variable latente            | $z_{h,b}$: ventas de $h$ en $b$                   | $z_{m,k,t,g}$: contribución de $k$                            |
+| Restricción dura            | $\sum_h z_{h,b} = y_b$                            | $\sum_k z_{m,k,t,g} = C_{m,t,g}$                              |
+| Productividad               | $\lambda_h$                                       | $\lambda_{m,k}$                                               |
+| Exposición                  | $\omega_{b,h}$                                    | $\omega_{m,k,t,g}$                                            |
+| Exposición cruda            | pertenencia / visitas                             | impresiones / GRPs                                            |
+| Exposición efectiva         | visitas ponderadas                                | Hill(Adstock(imps))                                           |
+| Modelo latente              | $z \sim \operatorname{Poisson}(\lambda\omega)$           | $z \sim \operatorname{Poisson}(\lambda\omega)$ (o $\operatorname{Gamma}$) |
+| E-step                      | reparto dentro del brick                          | reparto dentro de $(m,t,g)$                                   |
+| M-step (simple)             | $\lambda_h = \frac{\sum_b \hat z}{\sum_b \omega}$ | $\lambda_{m,k} = \frac{\sum_{t,g} \hat z}{\sum_{t,g} \omega}$ |
+| M-step (con features)       | $\lambda_h=\exp(X_h\beta)$                        | $\lambda_{m,k}=\exp(X_{m,k}\beta_m)$                          |
+| Interpretación del output   | atribución por HCP                                | atribución por campaña/crea                                   |
+| Naturaleza causal           | ❌ atribución                                      | ❌ intra-canal (total sí)                                      |
+
+---
+
+## 🔁 Misma ecuación central (cambiando nombres)
+
+### HCP–Brick
+
+$$
+\hat z_{h,b}
+=
+y_b \cdot
+\frac{\lambda_h \cdot \omega_{b,h}}{\sum_{h'} \lambda_{h'} \cdot \omega_{b,h'}}
+$$
+
+### MMM–MTA
+
+$$
+\hat z_{m,k,t,g}
+=
+C_{m,t,g} \cdot
+\frac{\lambda_{m,k} \cdot \omega_{m,k,t,g}}{\sum_{k'} \lambda_{m,k'} \cdot \omega_{m,k',t,g}}
+$$
+
+👉 **Es la misma ecuación**.
+
+---
+
+## 🎯 Interpretación semántica (muy importante)
+
+| Símbolo   | Significado universal                   |
+| --------- | --------------------------------------- |
+| $z$       | “Quién explica cuánto del total”        |
+| $y$ / $C$ | Total observado que **debe** explicarse |
+| $\lambda$ | Eficiencia / productividad relativa     |
+| $\omega$  | Oportunidad / intensidad de exposición  |
+| E-step    | reparto consistente                     |
+| M-step    | aprendizaje de productividades          |
+
+---
+
+## 🧠 Qué cambia *realmente* entre los casos
+
+### En HCP–Brick
+
+* $\omega_{b,h}$ suele ser **simple**
+
+  * 0/1
+  * visitas
+* el problema es **espacial**
+
+### En MMM–MTA
+
+* $\omega_{m,k,t,g}$ es **modelada**
+
+  * adstock
+  * saturación
+* el problema es **temporal + causal top-down**
+
+Pero matemáticamente:
+
+> **son el mismo problema de inferencia con variables latentes y suma fija**.
+
+---
+
+## ⚠️ Errores comunes que esta tabla evita
+
+❌ “En MMM–MTA es otro modelo”
+→ No: es el mismo EM con otra semántica.
+
+❌ “$\omega$ debe sumar 1”
+→ No en ninguno de los dos.
+
+❌ “Si MMM es causal, MTA también”
+→ El total sí; el reparto no necesariamente.
+
+---
+
+## 🧭 Regla de oro final
+
+> **Si sabes explicar HCP–Brick, sabes explicar MMM–MTA.
+> Solo cambia qué significa $\omega$ y qué significa el total observado.**
+
+
