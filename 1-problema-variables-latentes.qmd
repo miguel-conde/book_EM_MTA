@@ -2,19 +2,11 @@
 
 ## Reformulación del business problem (de negocio → estadística)
 
-### 🔹 Formulación de negocio
+### Formulación de negocio
 
--   Tenemos **HCPs** distribuidos en **bricks**
+El punto de partida es una situación recurrente: tenemos **HCPs** distribuidos en **bricks**, y cada brick reporta **ventas totales agregadas**. Sin embargo, no observamos ventas a nivel HCP. Aun así, el objetivo operativo suele ser asignar ese total a HCPs individuales de forma defendible. Para hacerlo, normalmente contamos con **features por HCP** (por ejemplo, especialidad, visitas o demografía).
 
--   Cada brick reporta **ventas totales agregadas**
-
--   No observamos ventas por HCP
-
--   Queremos **atribuir** esas ventas a HCPs individuales
-
--   Disponemos de **features por HCP** (especialidad, visitas, demografía…)
-
-### 🔹 Reformulación estadística
+### Reformulación estadística
 
 Esto no es un problema de predicción directa, sino de **inferir una descomposición no observada**.
 
@@ -22,40 +14,25 @@ Esto no es un problema de predicción directa, sino de **inferir una descomposic
 
 Formalmente:
 
--   Existe un **proceso generativo no observado**:
+Existe un **proceso generativo no observado**: cada HCP genera ventas, y parte de esas ventas se manifiestan en cada brick. El problema es que solo observamos el **resultado agregado**.
 
-    -   Cada HCP genera ventas
+Esto es exactamente un problema de **variables latentes** con **datos incompletos**.
 
-    -   Parte de esas ventas se manifiestan en cada brick
+## Qué está observado y qué es latente
 
--   Solo observamos el **resultado agregado**
+Llamamos $y_b$ a las ventas totales del brick $b$. Para cada HCP $h$ disponemos de covariables $X_h$. Además, representamos la pertenencia HCP–brick con $M_{h,b} \in \{0,1\}$ (o un peso si la pertenencia no es binaria).
 
-👉 Esto es exactamente un problema de **variables latentes + datos incompletos**.
+La variable que falta en los datos es precisamente la que queremos inferir: $z_{h,b}$, la contribución de ventas del HCP $h$ al brick $b$. Esta variable latente está sujeta a una restricción estructural:
 
-## 2️⃣ Qué está observado y qué es latente
-
-### 🔍 Observado (datos)
-
--   $y_b$: ventas totales del brick $b$
-
--   $X_h$: covariables del HCP $h$
-
--   $M_{h,b} \in \{0,1\}$: pertenencia HCP–brick\
-    (o peso si la pertenencia no es binaria)
-
-### 👻 Latente (no observado)
-
--   $z_{h,b}$: contribución de ventas del HCP $h$ al brick $b$
-
-con la restricción: $$
+$$
 \sum_{h \in b} z_{h,b} = y_b
 $$
 
-📌 Este $z_{h,b}$ es **la variable oculta clave**.
+Este $z_{h,b}$ es **la variable latente clave**.
 
-## 3️⃣ Por qué esto NO es una regresión directa
+## Por qué esto NO es una regresión directa
 
-### ❌ Regresión naïve
+### Regresión naïve
 
 Podrías intentar algo como:
 
@@ -63,270 +40,145 @@ $$
 y_b = \sum_{h \in b} f(X_h)
 $$
 
-Problemas:
+Esta idea falla por motivos estructurales. En primer lugar, no identifica contribuciones individuales: varias descomposiciones pueden encajar el mismo agregado. En segundo lugar, no hay una likelihood bien definida que capture el mecanismo “agregado como suma de contribuciones”. En tercer lugar, no aparece de manera natural un reparto que conserve masa (esto es, que “sume exactamente” a $y_b$ por construcción). En conjunto, es un planteamiento pobre para inferencia.
 
--   No puedes identificar contribuciones individuales
+### SHAP / Attribution post-hoc
 
--   No hay likelihood bien definida
+Otra tentación es usar atribución post-hoc (por ejemplo, SHAP). El problema es que SHAP está formulado para escenarios de **predicción individual** con una función objetivo conocida y observaciones independientes. Aquí ocurre lo contrario: el target es **agregado**, la unidad de decisión (HCP) no tiene label, y el problema es **estructuralmente inverso**.
 
--   No hay forma natural de repartir ( y_b )
-
--   Mal planteado para inferencia
-
-### ❌ SHAP / Attribution post-hoc
-
-SHAP asume:
-
--   Predicción individual
-
--   Función conocida
-
--   Observaciones independientes
-
-Aquí:
-
--   El target es **agregado**
-
--   La unidad de decisión (HCP) **no tiene label**
-
--   El problema es **estructuralmente inverso**
-
-👉 SHAP responde *“por qué el modelo predijo”*,\
+SHAP responde *“por qué el modelo predijo”*,\
 no *“cómo se generaron los datos”*.
 
-## 4️⃣ Por qué EM es el algoritmo natural
+## Por qué EM es el algoritmo natural
 
-### 🔑 Observación clave
+### Observación clave
 
-Si conociéramos $z_{h,b}$:
+Si conociéramos $z_{h,b}$, podríamos estimar con facilidad la productividad de los HCPs y ajustar un GLM estándar. Si, por el contrario, conociéramos la productividad de los HCPs, podríamos repartir las ventas esperadas entre ellos dentro de cada brick. EM alterna exactamente entre estas dos piezas.
 
--   Podríamos estimar fácilmente productividad de HCPs
-
--   Podríamos ajustar un GLM estándar
-
-Si conociéramos la productividad de HCPs:
-
--   Podríamos repartir las ventas esperadas entre ellos
-
-👉 **EM alterna exactamente entre estas dos cosas**.
-
-### 🧠 EM en una frase (en este contexto)
+### EM en una frase (en este contexto)
 
 > EM alterna entre **atribuir probabilísticamente ventas a HCPs** (E-step)\
 > y **actualizar el modelo de productividad de HCPs** (M-step)
 
-## 5️⃣ Relación con modelos conocidos
+## Relación con modelos conocidos
 
-### 🔹 Mixture Models
+### Mixture models
 
-Cada venta del brick proviene de un **“componente” HCP**:
+Cada venta (o unidad) del brick puede interpretarse como generada por un **componente** (un HCP). En un mixture model estándar:
 
 $$
-p(\text{venta} \mid b) = \sum_{h \in b} \pi_{h,b} \cdot p_h
+p(y) = \sum_{k=1}^K \pi_k\, p(y\mid \theta_k).
 $$
 
--   HCPs = componentes
+La variable latente asociada a la asignación a componentes es, típicamente:
 
--   $\pi_{h,b}$ = peso del HCP en el brick
+$$
+z_{ik} \in \{0,1\}, \quad \sum_k z_{ik}=1,
+$$
 
--   $z_{h,b}$ = responsabilidades
+y las responsabilidades son:
 
-📌 Es un **mixture model con labels parcialmente observados**.
+$$
+\gamma_{ik} = \mathbb{E}[z_{ik}\mid y_i].
+$$
 
-### 🔹 Ecological Inference
+En el problema HCP–brick, la variable latente relevante no es binaria, sino un **conteo latente**:
 
-Clásico problema:
+$$
+z_{h,b} \equiv \text{número de unidades del brick } b \text{ atribuibles al HCP } h,
+$$
 
--   Datos agregados
+con la restricción estructural:
 
--   Inferencia a nivel individual
+$$
+y_b = \sum_{h\in b} z_{h,b}.
+$$
 
--   Múltiples soluciones posibles
+Una forma canónica de expresar la marginal (datos agregados) es:
 
-EM:
+$$
+p(y_b\mid \theta)=
+\sum_{\{z_{h,b}\}:\,\sum z=y_b}
+\prod_{h\in b}
+\left[\pi_{h,b}^{z_{h,b}}\, p(z_{h,b}\mid \theta_h)\right].
+$$
 
--   Impone un **modelo generativo**
+En este contexto, las responsabilidades aparecen en el E-step como:
 
--   Regulariza vía covariables
+$$
+\gamma_{h,b} \equiv \mathbb{E}[z_{h,b}\mid y_b,\theta].
+$$
 
--   Evita soluciones arbitrarias
+Por ejemplo, en el caso Poisson (capítulos posteriores):
 
-### 🔹 Credit Attribution
+$$
+\gamma_{h,b}=y_b\cdot
+\frac{\lambda_h w_{h,b}}{\sum_{h'\in b} \lambda_{h'} w_{h',b}}.
+$$
 
-Muy similar a:
+En resumen: $p(\cdot\mid \theta_h)$ describe el componente, $z_{h,b}$ es la variable latente, y $\gamma_{h,b}=\mathbb{E}[z_{h,b}]$ son las responsabilidades.
 
--   Multi-touch attribution en marketing
+### Ecological inference
 
--   Reparto de revenue entre canales
+Este es también un caso clásico de *ecological inference*: se dispone de datos agregados, se desea inferir cantidades a nivel individual, y existen múltiples soluciones compatibles con el agregado. La diferencia es que aquí se impone un **modelo generativo**, y la regularización vía covariables ayuda a evitar soluciones arbitrarias.
 
-Diferencia clave:
+### Credit attribution
 
--   Aquí **las “touches” no se observan**
+El encuadre también es cercano a *credit attribution*: repartir un resultado final (venta o revenue) entre varios agentes. La versión marketing de este problema es el *multi-touch attribution* (MTA), donde se reparte contribución entre canales/campañas. La diferencia clave aquí es que las “touches” no se observan: solo vemos el resultado final agregado.
 
--   Solo vemos el revenue final agregado
-
-## 6️⃣ Definición clara del modelo generativo (SALIDA)
+## Definición clara del modelo generativo
 
 Este es el **modelo conceptual que usaremos**:
 
-### 🔹 Nivel HCP
+### Nivel HCP
 
-Cada HCP tiene una **productividad latente**: $$
-    \theta_h = f(X_h; \beta)
+Cada HCP tiene una **productividad latente**:
+
+$$
+	heta_h = f(X_h; \beta)
 $$
 
-Ejemplos:
+En el caso de unidades, típicamente $\theta_h=\lambda_h$ (Poisson). En el caso de euros, $\theta_h$ representa una parametrización análoga (por ejemplo, la media) bajo una Gamma o una Lognormal.
 
--   Unidades → $\theta_h = \lambda_h$ (Poisson)
+### Nivel brick
 
--   Euros → media Gamma / Lognormal
+Las ventas del brick se generan como:
 
-### 🔹 Nivel Brick
-
-Las ventas del brick se generan como: $$
+$$
 y_b = \sum_{h \in b} z_{h,b}
 $$
 
-con: $$
+con:
+
+$$
 z_{h,b} \sim \text{Distribución}(\theta_h, w_{h,b})
 $$
 
 donde:
 
--   $w_{h,b}$: exposición / peso del HCP en el brick\
-    (visitas, tiempo, overlap geográfico…)
+$w_{h,b}$ es la exposición (o peso) del HCP en el brick, que puede recoger visitas, tiempo u otras medidas de oportunidad (incluyendo overlap geográfico).
 
-### 🔹 Lo que hace EM
+### Lo que hace EM
 
--   **E-step**: $$
-    \mathbb{E}[z_{h,b} \mid y_b, \theta]
-    $$
-
--   **M-step**: $$
-    \arg\max_\beta \sum_{h,b} \mathbb{E}[z_{h,b}] \log p(z_{h,b} \mid X_h)
-    $$
-
-📌 Todo lo demás del curso es *implementar esto bien*.
-
-------------------------------------------------------------------------
-
-perfecto asi. tengo 2 preguntas: 1) En Mixture Models explicas $z_{h,b}$ = responsabilidades pero no aprece en la formula (aparece $p_h$) 2) En pocas lineas, dime sobre credit attribution y relacion con MTA en marketing - solo para entender, no entraremos mas en este curso
-
-------------------------------------------------------------------------
-
-Muy buenas preguntas — ambas van **al núcleo conceptual** del modelo. Las respondo con precisión y sin desviar el curso.
-
-## 1️⃣ Mixture Models: ¿dónde están exactamente las *responsabilidades* ($z_{h,b}$)?
-
-Tienes razón: **tal como estaba escrita**, la fórmula era **incompleta / implícita**. Vamos a corregirla y dejarla *canónica*.
-
-### 🔹 Mixture model estándar (recordatorio)
-
-En un mixture clásico: $$
-p(y) = \sum_{k=1}^K \pi_k \cdot p(y \mid \theta_k)
-$$
-
-y la **variable latente** es: $$
-z_{ik} \in \{0,1\}, \quad \sum_k z_{ik} = 1
-$$
-
-Las **responsabilidades** son: $$
-\gamma_{ik} = \mathbb{E}[z_{ik} \mid y_i]
-$$
-
-### 🔹 Mixture reinterpretado en tu problema HCP–Brick
-
-Aquí:
-
--   Un **brick** genera ventas
-
--   Cada **venta/unidad** proviene de *un* HCP
-
--   El HCP es el “componente” del mixture
-
-#### Variable latente correcta
+Con esta formulación, EM se expresa como dos pasos alternos. En el **E-step**, con $\theta$ fijo, se calcula la atribución esperada dentro de cada brick:
 
 $$
-z_{h,b} \equiv \text{número de unidades del brick } b \text{ atribuibles al HCP } h
+\mathbb{E}[z_{h,b} \mid y_b, \theta].
 $$
 
-No es binaria, es **conteo latente**.
+En el **M-step**, con $\mathbb{E}[z]$ fijo, se actualizan los parámetros (por ejemplo $\beta$) resolviendo:
 
-### 🔹 Modelo correctamente escrito
-
-Para un brick $b$: $$
-y_b = \sum_{h \in b} z_{h,b}
+$$
+\arg\max_\beta \sum_{h,b} \mathbb{E}[z_{h,b}] \log p(z_{h,b} \mid X_h).
 $$
 
-y la probabilidad marginal: $$
-p(y_b \mid \theta) =
-\sum_{\{z_{h,b}\}:\sum z = y_b}
-\prod_{h \in b}
-\left[
-\pi_{h,b}^{z_{h,b}} \cdot p(z_{h,b} \mid \theta_h)
-\right]
-$$
+Todo lo demás del curso es implementar esto bien.
 
-👉 Esto es un **mixture con datos agregados**.
+## Nota breve: relación con MTA (solo para situar el concepto)
 
-### 🔹 Responsabilidades (E-step real)
+El *credit attribution* es el problema de repartir un resultado final (venta, revenue) entre múltiples agentes cuando solo se observa el total. En marketing, la versión típica es *Multi-touch Attribution (MTA)*: repartir conversiones o contribución entre canales/campañas/creatividades a partir de señales de exposición.
 
-Las **responsabilidades** NO aparecen directamente en la likelihood, sino en el **E-step**: $$
-\gamma_{h,b} \equiv \mathbb{E}[z_{h,b} \mid y_b, \theta]
-$$
-
-Intuición:
-
--   $p_h$ describe **cómo genera ventas un HCP**
-
--   $\gamma_{h,b}$ dice **qué fracción del brick le pertenece**
-
-En Poisson, por ejemplo: $$
-\gamma_{h,b} = y_b \cdot
-\frac{\lambda_h w_{h,b}}{\sum_{h' \in b} \lambda_{h'} w_{h',b}}
-$$
-
-📌 **Conclusión**
-
--   $p_h$ = distribución del componente
-
--   $z_{h,b}$ = variable latente
-
--   $\gamma_{h,b} = \mathbb{E}[z_{h,b}]$ = responsabilidades
-
-Gracias por señalarlo: es una distinción crítica.
-
-## 2️⃣ Credit attribution y relación con MTA (en pocas líneas)
-
-### 🔹 Credit attribution (idea general)
-
-Problema:
-
-> Un resultado final (venta, revenue) es consecuencia de **múltiples agentes**, pero solo observamos el total.
-
-Objetivo:
-
--   Repartir el crédito entre agentes de forma consistente y explicable.
-
-### 🔹 Multi-Touch Attribution (Marketing)
-
-En marketing digital:
-
--   Agentes = canales (Search, Display, Email…)
-
--   Observado = conversión final
-
--   Latente = contribución de cada touch
-
-Modelos MTA modernos:
-
--   Usan **mixture models**
-
--   Usan **EM o Bayesian inference**
-
--   Estiman *responsabilidades* por canal
-
-### 🔹 Analogía exacta con tu problema
+La analogía con el caso HCP–brick es directa:
 
 | Marketing MTA | HCP–Brick          |
 |---------------|--------------------|
@@ -335,4 +187,4 @@ Modelos MTA modernos:
 | Conversión    | Ventas del brick   |
 | Attribution   | $z_{h,b}$          |
 
-📌 Conceptualmente **idéntico**, solo cambia la semántica del dominio.
+Conceptualmente es el mismo patrón “agregado → desagregado”; cambia la semántica del dominio.
