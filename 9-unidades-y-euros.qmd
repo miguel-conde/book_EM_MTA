@@ -284,14 +284,3 @@ En la práctica, equipos maduros hacen:
 | Dudas                    | Poisson + conversión     |
 | Producción crítica       | Poisson + regularización |
 
----
-
-## Checkpoint
-
-¿Te encaja esta guía con lo que has visto en datos reales?
-
-El siguiente capítulo natural sería:
-
-* **Capítulo 9 — Regularización, pooling y priors (cómo evitar que EM se rompa)**
-  o, si prefieres,
-* **Capítulo 9 — Cómo explicar todo esto a negocio sin ecuaciones**

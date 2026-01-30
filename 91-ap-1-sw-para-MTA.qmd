@@ -124,7 +124,7 @@ Problemas para tu caso:
 * Robyn o LightweightMMM
 * Output:
 
-  * (C_{m,t,g}^{inc})
+  * $C_{m,t,g}^{inc}$
   * parámetros adstock/sat por canal
 
 #### Capa 2 — EM intra-canal (custom)
@@ -235,18 +235,18 @@ No en el sentido “**lo enchufas y ya**”, como `sklearn.GaussianMixture`.
 Tu problema tiene dos cosas muy específicas que `sklearn` no cubre:
 
 1. **Restricción de conservación de masa por grupo**
-   [
-   \sum_k z_{m,k,t,g} = C_{m,t,g}
-   ]
+  $$
+  \sum_k z_{m,k,t,g} = C_{m,t,g}
+  $$
    Esto no es el setup típico de supervised learning ni de clustering estándar.
 
-2. **E-step “custom”** con responsabilidades condicionadas al **total agregado** (el “brick” aquí es ((m,t,g))).
+2. **E-step “custom”** con responsabilidades condicionadas al **total agregado** (el “brick” aquí es $(m,t,g)$).
    Es más cercano a “data augmentation / latent allocation with constraints” que a un estimator estándar.
 
 `sklearn` está pensado para:
 
 * estimadores genéricos (regresión, clasificación)
-* mixtures clásicos (GaussianMixture) donde observas puntos individuales (x_i), no totales agregados con suma fija.
+* mixtures clásicos (GaussianMixture) donde observas puntos individuales $x_i$, no totales agregados con suma fija.
 
 ---
 
@@ -255,9 +255,9 @@ Tu problema tiene dos cosas muy específicas que `sklearn` no cubre:
 ### ✅ 1) Usar `statsmodels` para el **M-step (GLM)**
 
 Si haces la versión:
-[
+$$
 \lambda_{m,k}=\exp(X_{m,k}\beta_m)
-]
+$$
 entonces el M-step es un **Poisson/Gamma GLM con offset**, y ahí sí puedes usar:
 
 * `statsmodels.api.GLM(..., family=Poisson())`
@@ -286,7 +286,7 @@ Si no quieres `statsmodels`:
 ## Librerías EM existentes (pero **no encajan** del todo)
 
 * `sklearn.mixture.GaussianMixture`: EM, pero para Gaussian mixtures sobre datos individuales (no sumas agregadas).
-* `pomegranate`: mixtures/HMM con EM, pero no trae tu restricción (\sum z = C).
+* `pomegranate`: mixtures/HMM con EM, pero no trae tu restricción $\sum z = C$.
 * `hmmlearn`: HMM EM, irrelevante salvo que modeles temporalidad latente.
 
 Puedes inspirarte en su estructura (fit/predict_proba), pero no te resuelven el core.
@@ -298,8 +298,8 @@ Puedes inspirarte en su estructura (fit/predict_proba), pero no te resuelven el 
 Construir un estimator “sklearn-like” pequeñito:
 
 * `fit(C_df, x_df, campaign_features_df)`
-* `predict_allocation()` → devuelve (\hat z_{m,k,t,g})
-* `get_params()` → devuelve (\hat\lambda) o (\hat\beta)
+* `predict_allocation()` → devuelve $\hat z_{m,k,t,g}$
+* `get_params()` → devuelve $\hat\lambda$ o $\hat\beta$
 * Internamente:
 
   * E-step: numpy vectorizado

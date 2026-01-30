@@ -15,18 +15,18 @@ Perfecto. Este es **el capítulo que diferencia a alguien que “sabe EM” de a
 Un modelo es identificable si **los datos contienen suficiente información** para distinguir los parámetros.
 
 En EM intra-canal / HCP–Brick:
-[
+$$
 y_b = \sum_h z_{h,b},\quad
 z_{h,b} \sim f(\lambda_h \omega_{b,h})
-]
+$$
 
-👉 **No todo (\lambda) es identificable**.
+👉 **No todo $\lambda$ es identificable**.
 
 ---
 
 ### 🚨 Casos típicos de no-identificabilidad
 
-#### a) Colinealidad perfecta en (\omega)
+#### a) Colinealidad perfecta en $\omega$
 
 Ejemplo:
 
@@ -35,9 +35,9 @@ Ejemplo:
 * mismas impresiones adstockeadas
 
 Entonces:
-[
+$$
 \lambda_1 \omega_1 + \lambda_2 \omega_2
-]
+$$
 no se puede separar.
 
 📌 **EM “elige” arbitrariamente**.
@@ -48,22 +48,22 @@ no se puede separar.
 
 Si multiplicas:
 
-* (\lambda_h \leftarrow c\lambda_h)
-* (\omega_{b,h} \leftarrow \omega_{b,h}/c)
+* $\lambda_h \leftarrow c\lambda_h$
+* $\omega_{b,h} \leftarrow \omega_{b,h}/c$
 
 👉 El likelihood no cambia.
 
 📌 Solución:
 
-* fijar escala de (\omega)
-* normalizar (\lambda) (media = 1)
+* fijar escala de $\omega$
+* normalizar $\lambda$ (media = 1)
 * usar offsets explícitos
 
 ---
 
 ### 🧠 Criterio senior
 
-> **Si dos entidades no se diferencian en (\omega) a lo largo del dataset, no esperes que EM las diferencie.**
+> **Si dos entidades no se diferencian en $\omega$ a lo largo del dataset, no esperes que EM las diferencie.**
 
 ---
 
@@ -78,13 +78,13 @@ Si multiplicas:
 Pero:
 
 * el modelo está explicando **ruido**
-* los (\lambda) son inestables entre runs
+* los $\lambda$ son inestables entre runs
 
 ---
 
 ### Síntomas típicos
 
-* (\lambda) con varianza enorme
+* $\lambda$ con varianza enorme
 * rankings que cambian por seed
 * campañas nuevas “ganan” sin evidencia
 * extrema sensibilidad a un brick
@@ -100,9 +100,9 @@ Pero:
 
 #### ✅ Pooling jerárquico
 
-[
-\lambda_h \sim \text{LogNormal}(\mu_{\text{group}}, \sigma)
-]
+$$
+\lambda_h \sim \operatorname{LogNormal}(\mu_{\text{group}}, \sigma)
+$$
 
 #### ✅ Tests de estabilidad
 
@@ -119,7 +119,7 @@ Pero:
 
 Un HCP o campaña con:
 
-* poca (\omega)
+* poca $\omega$
 * pocos bricks
 * datos recientes
 
@@ -134,22 +134,22 @@ Un HCP o campaña con:
 
 #### 🟢 Nivel 1 — Heurística
 
-* floor en (\omega)
+* floor en $\omega$
 * shrinkage manual
 
 #### 🟡 Nivel 2 — Covariables
 
-[
+$$
 \lambda_h = \exp(X_h \beta)
-]
+$$
 
 Comparte señal entre entidades similares.
 
 #### 🔵 Nivel 3 — Jerárquico
 
-[
-\beta_h \sim \mathcal N(\beta_{\text{group}}, \Sigma)
-]
+$$
+\beta_h \sim \mathcal{N}(\beta_{\text{group}}, \Sigma)
+$$
 
 ---
 
@@ -163,7 +163,7 @@ Comparte señal entre entidades similares.
 
 ### Qué hace EM realmente
 
-* estima **puntos** ((\hat\lambda))
+* estima **puntos** ($\hat\lambda$)
 * asume máxima verosimilitud
 * no propaga incertidumbre
 
@@ -256,7 +256,7 @@ EM se vuelve un Frankenstein.
 
 Antes de poner EM en prod, pregúntate:
 
-* [ ] ¿(\omega) distingue realmente a las entidades?
+* [ ] ¿$\omega$ distingue realmente a las entidades?
 * [ ] ¿He fijado la escala?
 * [ ] ¿Hay regularización explícita?
 * [ ] ¿He probado estabilidad temporal?
@@ -280,7 +280,7 @@ Si fallas 2 o más → **no está listo**.
 * Usa EM cuando:
 
   * el problema es “repartir un total”
-  * tienes buena señal en (\omega)
+  * tienes buena señal en $\omega$
   * necesitas algo estable y explicable
 
 * Pásate a jerárquico / VI cuando:

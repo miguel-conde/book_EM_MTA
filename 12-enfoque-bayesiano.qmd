@@ -35,15 +35,15 @@ Vamos por partes.
 ### EM (lo que ya conoces)
 
 * Asume un modelo generativo
-* Trata (z) como latente
+* Trata $z$ como latente
 * Optimiza:
-  [
+  $$
   \hat\theta = \arg\max_\theta p(y \mid \theta)
-  ]
+  $$
 * Resultado:
 
-  * estimaciones puntuales ((\hat\lambda), (\hat\beta))
-  * asignación esperada (\mathbb E[z \mid y, \hat\theta])
+  * estimaciones puntuales ($\hat\lambda$, $\hat\beta$)
+  * asignación esperada $\mathbb{E}[z \mid y, \hat\theta]$
 
 👉 **No hay incertidumbre explícita**.
 
@@ -56,11 +56,11 @@ Vamos por partes.
 
   * productividades
   * coeficientes
-  * (a veces) los propios (z)
+  * (a veces) los propios $z$
 * Infiere:
-  [
+  $$
   p(\theta, z \mid y)
-  ]
+  $$
 
 👉 Resultado:
 
@@ -78,35 +78,35 @@ Voy a escribirlo en forma **canónica**, válida tanto para HCP–Brick como MMM
 ### Observado
 
 * Agregado:
-  [
+  $$
   y_b \quad \text{o} \quad C_{m,t,g}
-  ]
+  $$
 
 ### Latente
 
 * Contribuciones individuales:
-  [
+  $$
   z_{i,b} \ge 0,\quad \sum_i z_{i,b} = y_b
-  ]
+  $$
 
 ---
 
 ### Nivel 1 — Likelihood (idéntico conceptualmente a EM)
 
 Ejemplo Poisson (unidades):
-[
-z_{i,b} \sim \text{Poisson}(\lambda_i \omega_{b,i})
-]
+$$
+z_{i,b} \sim \operatorname{Poisson}(\lambda_i \omega_{b,i})
+$$
 
 o Gamma (euros):
-[
-z_{i,b} \sim \text{Gamma}(k,\ \theta_i \omega_{b,i})
-]
+$$
+z_{i,b} \sim \operatorname{Gamma}(k,\ \theta_i \omega_{b,i})
+$$
 
 Y:
-[
+$$
 y_b = \sum_i z_{i,b}
-]
+$$
 
 📌 **Hasta aquí no hay diferencia conceptual con EM.**
 
@@ -117,22 +117,22 @@ y_b = \sum_i z_{i,b}
 ### Nivel 2 — Productividades jerárquicas
 
 En lugar de:
-[
+$$
 \lambda_i = \exp(X_i \beta)
-]
+$$
 
 defines:
-[
+$$
 \begin{aligned}
-\beta &\sim \mathcal N(0, \sigma_\beta^2) \
-\lambda_i &\sim \text{LogNormal}(X_i \beta,\ \sigma_\lambda^2)
+\beta &\sim \mathcal{N}(0, \sigma_\beta^2) \\
+\lambda_i &\sim \operatorname{LogNormal}(X_i \beta,\ \sigma_\lambda^2)
 \end{aligned}
-]
+$$
 
 o, por grupos:
-[
-\lambda_{i,g} \sim \text{LogNormal}(\mu_g,\ \sigma_g)
-]
+$$
+\lambda_{i,g} \sim \operatorname{LogNormal}(\mu_g,\ \sigma_g)
+$$
 
 👉 Esto introduce:
 
@@ -144,25 +144,25 @@ o, por grupos:
 
 ### Nivel 3 — Hyperpriors
 
-[
-\mu_g \sim \mathcal N(0, 1)
+$$
+\mu_g \sim \mathcal{N}(0, 1)
 \quad
-\sigma_g \sim \text{HalfNormal}(0.5)
-]
+\sigma_g \sim \operatorname{HalfNormal}(0.5)
+$$
 
 📌 Esto evita que el modelo “explote”.
 
 ---
 
-## 4️⃣ ¿Qué pasa con las variables latentes (z)?
+## 4️⃣ ¿Qué pasa con las variables latentes $z$?
 
 Aquí hay **dos estrategias**.
 
 ---
 
-### 🔵 Opción A — Integrar (z) (más común)
+### 🔵 Opción A — Integrar $z$ (más común)
 
-No muestreas (z) explícitamente.
+No muestreas $z$ explícitamente.
 
 Usas la propiedad:
 
@@ -170,9 +170,9 @@ Usas la propiedad:
 * suma de Gamma → Gamma
 
 Ejemplo:
-[
-y_b \sim \text{Poisson}\Big(\sum_i \lambda_i \omega_{b,i}\Big)
-]
+$$
+y_b \sim \operatorname{Poisson}\Big(\sum_i \lambda_i \omega_{b,i}\Big)
+$$
 
 📌 Ventajas:
 
@@ -182,20 +182,20 @@ y_b \sim \text{Poisson}\Big(\sum_i \lambda_i \omega_{b,i}\Big)
 
 📌 Desventaja:
 
-* (z) se recupera **a posteriori** como expectativa
+* $z$ se recupera **a posteriori** como expectativa
 
 ---
 
-### 🔵 Opción B — Muestrear (z) explícitamente (más literal)
+### 🔵 Opción B — Muestrear $z$ explícitamente (más literal)
 
 Defines:
-[
-(z_{1,b}, \dots, z_{K,b}) \sim \text{Multinomial}\big(y_b,\ p_{i,b}\big)
-]
+$$
+(z_{1,b}, \dots, z_{K,b}) \sim \operatorname{Multinomial}\big(y_b,\ p_{i,b}\big)
+$$
 con:
-[
+$$
 p_{i,b} \propto \lambda_i \omega_{b,i}
-]
+$$
 
 📌 Ventajas:
 
@@ -268,18 +268,18 @@ Aquí está el gran cambio respecto a EM.
 
 ### En EM
 
-* (\hat\lambda_i)
-* (\hat z_{i,b})
+* $\hat\lambda_i$
+* $\hat z_{i,b}$
 
 ---
 
 ### En Bayesiano
 
-* Posterior de (\lambda_i)
+* Posterior de $\lambda_i$
 
   * media
   * intervalos creíbles
-* Posterior predictivo de (z_{i,b})
+* Posterior predictivo de $z_{i,b}$
 * Incertidumbre por:
 
   * campaña
@@ -373,9 +373,9 @@ En un BHM, un **grupo** es un conjunto de entidades para las cuales creemos que:
 > *sus productividades no son iguales, pero tampoco completamente independientes*
 
 Matemáticamente:
-[
-\lambda_i \sim \text{LogNormal}(\mu_{\text{grupo}(i)},\ \sigma_{\text{grupo}(i)})
-]
+$$
+\lambda_i \sim \operatorname{LogNormal}(\mu_{\text{grupo}(i)},\ \sigma_{\text{grupo}(i)})
+$$
 
 ---
 
@@ -400,12 +400,12 @@ Matemáticamente:
 
 ### Modelo
 
-[
+$$
 \begin{aligned}
-\lambda_h &\sim \text{LogNormal}(\mu_{\text{spec}*h}, \sigma*{\text{spec}}) \
-\mu_{\text{spec}} &\sim \mathcal N(\mu_0, \sigma_0)
+\lambda_h &\sim \operatorname{LogNormal}(\mu_{\text{spec}(h)},\ \sigma_{\text{spec}}) \\
+\mu_{\text{spec}} &\sim \mathcal{N}(\mu_0,\ \sigma_0)
 \end{aligned}
-]
+$$
 
 👉 **Cold start resuelto automáticamente**
 
@@ -467,9 +467,9 @@ Aquí es donde más se usan.
 
 ### Modelo
 
-[
-\lambda_{m,k} \sim \text{LogNormal}(\mu_{\text{objective}*k}, \sigma*{\text{objective}})
-]
+$$
+\lambda_{m,k} \sim \operatorname{LogNormal}(\mu_{\text{objective}(k)},\ \sigma_{\text{objective}})
+$$
 
 ---
 
@@ -537,13 +537,10 @@ Canal
 ```
 
 Modelo conceptual:
-[
+$$
 \lambda_{\text{crea}}
-\sim \text{LogNormal}(
-\mu_{\text{campaña}},
-\sigma_{\text{crea}}
-)
-]
+\sim \operatorname{LogNormal}(\mu_{\text{campaña}},\ \sigma_{\text{crea}})
+$$
 
 y así sucesivamente hacia arriba.
 
@@ -653,9 +650,9 @@ Voy a explicarlo en **3 capas**:
 ### **Respuesta corta**
 
 👉 **Sí**: el modelo puede producir
-[
-\hat z_{\text{creatividad},,t,g}
-]
+$$
+\hat z_{\text{creatividad},t,g}
+$$
 es decir, **atribución directa por creatividad**.
 
 Pero:
@@ -680,22 +677,22 @@ Canal (m)
 ### Productividad a nivel creatividad
 
 Definimos:
-[
-\lambda_c \sim \text{LogNormal}(\mu_k, \sigma_c)
-]
+$$
+\lambda_c \sim \operatorname{LogNormal}(\mu_k,\ \sigma_c)
+$$
 
 y recursivamente:
-[
-\mu_k \sim \text{LogNormal}(\mu_f, \sigma_k)
-]
-[
-\mu_f \sim \text{LogNormal}(\mu_p, \sigma_f)
-]
-[
-\mu_p \sim \text{LogNormal}(\mu_m, \sigma_p)
-]
+$$
+\mu_k \sim \operatorname{LogNormal}(\mu_f,\ \sigma_k)
+$$
+$$
+\mu_f \sim \operatorname{LogNormal}(\mu_p,\ \sigma_f)
+$$
+$$
+\mu_p \sim \operatorname{LogNormal}(\mu_m,\ \sigma_p)
+$$
 
-👉 **Cada creatividad tiene su propio (\lambda_c)**
+👉 **Cada creatividad tiene su propio $\lambda_c$**
 pero:
 
 * si tiene pocos datos → se “pega” a su campaña
@@ -707,21 +704,20 @@ Eso es **partial pooling**.
 
 ## 3️⃣ Cómo se calcula la atribución final
 
-En el E-step (o posterior predictivo bayesiano), para cada unidad agregada ((m,t,g)):
+En el E-step (o posterior predictivo bayesiano), para cada unidad agregada $(m,t,g)$:
 
-[
+$$
 \hat z_{c,t,g}
-==============
-
+=
 C_{m,t,g}
 \cdot
-\frac{\lambda_c, \omega_{c,t,g}}
-{\sum_{c' \in m} \lambda_{c'}, \omega_{c',t,g}}
-]
+\frac{\lambda_c \cdot \omega_{c,t,g}}
+{\sum_{c' \in m} \lambda_{c'} \cdot \omega_{c',t,g}}
+$$
 
 👉 Sí, **la unidad final de atribución es la creatividad**.
 
-Pero la **estimación de (\lambda_c)**:
+Pero la **estimación de $\lambda_c$**:
 
 * no es independiente
 * hereda información de toda la jerarquía
@@ -734,7 +730,8 @@ Pero la **estimación de (\lambda_c)**:
 
 * que cada creatividad tenga identificación causal propia
 * que puedas comparar creatividades de canales distintos “en bruto”
-* que una creatividad nueva tenga un (\lambda) libre
+* que una creatividad nueva tenga un $\lambda$ libre
+* que una creatividad nueva tenga un $\lambda$ libre
 
 ### ✔️ Sí significa:
 
@@ -794,4 +791,4 @@ Si quieres, el siguiente paso natural es:
 * o escribir **pseudo-código PyMC / NumPyro** del modelo canal→creatividad
 * o discutir **cuándo NO conviene bajar hasta creatividad**
 
-Dime cómo seguimos.
+

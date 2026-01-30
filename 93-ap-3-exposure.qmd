@@ -2,7 +2,7 @@ cual es el nombre tecnico de $\omega_{bh}$?
 
 ***
 
-Muy buena pregunta — y muy pertinente, porque **ponerle nombre técnico correcto** a (\omega_{b,h}) evita muchísimos malentendidos.
+Muy buena pregunta — y muy pertinente, porque **ponerle nombre técnico correcto** a $\omega_{b,h}$ evita muchísimos malentendidos.
 
 La respuesta corta es: **no tiene un único nombre universal**, pero **sí tiene nombres técnicos aceptados según la tradición estadística** en la que te sitúes.
 
@@ -29,14 +29,14 @@ Y, más precisamente:
 ### 🔹 **Exposure**
 
 Modelo típico:
-[
-z \sim \text{Poisson}(\lambda \cdot \omega)
-]
+$$
+z \sim \operatorname{Poisson}(\lambda \cdot \omega)
+$$
 
 Aquí:
 
-* (\lambda) = rate (tasa)
-* (\omega) = **exposure** (tiempo, área, población, impresiones, etc.)
+* $\lambda$ = rate (tasa)
+* $\omega$ = **exposure** (tiempo, área, población, impresiones, etc.)
 
 Ejemplos canónicos:
 
@@ -50,18 +50,18 @@ Ejemplos canónicos:
 
 ### En forma log-lineal
 
-[
-\log \mathbb E[z] = \log \omega + \log \lambda
-]
+$$
+\log \mathbb{E}[z] = \log \omega + \log \lambda
+$$
 
-Aquí (\log \omega) se llama:
+Aquí $\log \omega$ se llama:
 
 > **Offset**
 
 📌 En GLM:
 
-* (\omega) = exposure
-* (\log \omega) = offset
+* $\omega$ = exposure
+* $\log \omega$ = offset
 
 ---
 
@@ -118,12 +118,9 @@ Aquí el naming es más “business-oriented”.
 * **Delivered opportunity**
 
 Ejemplo típico:
-[
-\omega_{m,k,t,g}
-================
-
-\text{Hill}(\text{Adstock}(\text{Impressions}))
-]
+$$
+\omega_{m,k,t,g} = \operatorname{Hill}(\operatorname{Adstock}(\text{Impressions}))
+$$
 
 📌 Aquí **“effective exposure”** es el término más limpio.
 
@@ -139,7 +136,7 @@ A veces verás:
 ⚠️ **No recomendado** en tu caso, porque:
 
 * induce lectura causal fuerte
-* tu (\omega) no es exógena necesariamente
+* tu $\omega$ no es exógena necesariamente
 
 ---
 
@@ -158,7 +155,7 @@ Estos nombres inducen errores conceptuales.
 
 ### Para documentos técnicos
 
-> **Exposure term (\omega_{b,h})**
+> **Exposure term ($\omega_{b,h}$)**
 
 o
 
@@ -187,7 +184,7 @@ effective_exposure
 
 ## 8️⃣ Frase formal que puedes usar sin riesgo
 
-> “(\omega_{b,h}) es el **término de exposición conocido** que escala la intensidad del proceso generativo; en un GLM con link log entra como **offset**.”
+> “$\omega_{b,h}$ es el **término de exposición conocido** que escala la intensidad del proceso generativo; en un GLM con link log entra como **offset**.”
 
 Esa frase es **100% correcta** en estadística.
 
@@ -206,7 +203,7 @@ Esa frase es **100% correcta** en estadística.
 
 Si quieres, el siguiente paso puede ser:
 
-* ver **cómo cambia el modelo si (\omega) se trata como latente**
+* ver **cómo cambia el modelo si $\omega$ se trata como latente**
 * o ver **papers de referencia donde aparece exactamente este término**
 * o ayudarte a **redactar la sección metodológica** con el naming correcto
 
