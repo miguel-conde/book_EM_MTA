@@ -1,73 +1,68 @@
 # Ejemplo numérico pequeño (a mano)
 
-Vamos a hacerlo **mínimo pero completo**: 2 bricks, 4 HCPs, ventas agregadas por brick, y veremos 2–3 iteraciones de EM para que la mecánica quede grabada.
+## Introducción
 
-Trabajamos con **unidades** y el modelo **Poisson** del Capítulo 3, con pesos simples.
+Este capítulo desarrolla un ejemplo **mínimo pero completo**: 2 bricks, 4 HCPs y ventas agregadas por brick. El objetivo no es optimizar nada, sino hacer visible —con números— qué hace EM cuando solo observamos el agregado $y_b$ y queremos inferir contribuciones latentes $z_{h,b}$.
 
-## 1️⃣ Setup del ejemplo
+Trabajamos con **unidades** y el modelo **Poisson** del Capítulo 3, usando una exposición binaria sencilla. En cada iteración se repiten dos pasos: (i) repartir el total observado dentro de cada brick (*E-step*) y (ii) recalibrar productividades por HCP (*M-step*). Se recorren 2–3 iteraciones para ver la estabilidad.
+
+## Preparación del ejemplo
 
 ### Bricks y ventas observadas
 
--   Brick A: $y_A = 100$
+Fijamos dos bricks con ventas observadas:
 
+-   Brick A: $y_A = 100$
 -   Brick B: $y_B = 60$
 
 ### HCPs y pertenencia (overlap)
 
--   En Brick A están: H1, H2, H3
+Para introducir *overlap*, hacemos que dos HCPs aparezcan en ambos bricks:
 
+-   En Brick A están: H1, H2, H3
 -   En Brick B están: H2, H3, H4
 
 ### Exposición (para simplificar)
 
-Tomamos $w_{h,b}=1$ si el HCP pertenece al brick, $0$ si no.
+Tomamos $w_{h,b}=1$ si el HCP pertenece al brick y $w_{h,b}=0$ si no. Con esta codificación, dentro de cada brick el reparto del *E-step* depende únicamente de las productividades actuales $\lambda_h$.
 
-## 2️⃣ Inicialización (iteración 0)
+## Inicialización (iteración 0)
 
-Inicializamos productividades (tasas) arbitrarias, todas positivas:
+Inicializamos productividades (tasas) arbitrarias, todas positivas. Esto fija el punto de partida desde el que EM empezará a redistribuir masa dentro de cada brick:
 
 $$
 \lambda^{(0)} = (\lambda_1,\lambda_2,\lambda_3,\lambda_4) = (1.0,\ 1.0,\ 1.0,\ 1.0)
 $$
 
-## 3️⃣ Iteración 0 → 1
+## Iteración 0 → 1
 
-### ✅ E-step (reparto dentro de cada brick)
+### E-step (reparto dentro de cada brick)
 
-**Brick A (H1,H2,H3):** suma de tasas = (1+1+1=3)
+En el *E-step* calculamos los *shares* (responsabilidades) dentro de cada brick. Dado que $w_{h,b}=1$ para pertenencia, los *shares* son proporcionales a $\lambda_h$ y se normalizan para sumar 1 dentro del brick.
 
-Shares:
+**Brick A (H1,H2,H3):** la suma de tasas es $1+1+1=3$, por lo que el reparto es uniforme.
 
--   (p\_{1,A}=1/3)
 -   $p_{1,A}=1/3$
-
 -   $p_{2,A}=1/3$
-
 -   $p_{3,A}=1/3$
 
-Atribuciones esperadas:
+Las atribuciones esperadas se obtienen multiplicando el total observado por el *share* correspondiente:
 
--   (\\hat z\_{1,A}=100\\cdot 1/3=33.33)
 -   $\hat z_{1,A}=100\cdot 1/3=33.33$
-
 -   $\hat z_{2,A}=33.33$
-
 -   $\hat z_{3,A}=33.33$
 
-**Brick B (H2,H3,H4):** suma = (1+1+1=3)
+**Brick B (H2,H3,H4):** de nuevo, la suma de tasas es $1+1+1=3$, así que el reparto también es uniforme y las atribuciones esperadas son:
 
-Atribuciones esperadas:
-
--   (\\hat z\_{2,B}=60\\cdot 1/3=20)
 -   $\hat z_{2,B}=60\cdot 1/3=20$
-
 -   $\hat z_{3,B}=20$
-
 -   $\hat z_{4,B}=20$
 
-### ✅ M-step (actualización de $\lambda$)
+### M-step (actualización de $\lambda$)
 
-Usamos:
+En el *M-step* actualizamos $\lambda_h$ como “ventas esperadas / exposición”. En este ejemplo, la exposición de cada HCP es el número de bricks en los que aparece.
+
+La actualización es:
 
 $$
 \lambda_h^{(1)}=\frac{\sum_b \hat z_{h,b}}{\sum_b w_{h,b}}
@@ -76,173 +71,132 @@ $$
 Exposiciones (número de bricks en los que está cada HCP):
 
 -   H1: 1 (solo A)
-
 -   H2: 2 (A y B)
-
 -   H3: 2 (A y B)
-
 -   H4: 1 (solo B)
 
-Entonces:
+Sustituyendo las atribuciones estimadas del *E-step*:
 
 -   $\lambda_1^{(1)} = 33.33/1 = 33.33$
-
 -   $\lambda_2^{(1)} = (33.33+20)/2 = 26.67$
-
 -   $\lambda_3^{(1)} = (33.33+20)/2 = 26.67$
-
 -   $\lambda_4^{(1)} = 20/1 = 20$
 
-📌 Ya ves algo: **H1 sube mucho** porque tiene que explicar parte de un brick grande y no está “penalizado” por aparecer en varios bricks.
+Esta primera actualización ya sugiere una dinámica importante: **H1 sube mucho** porque debe explicar parte de un brick grande y, al aparecer solo en un brick, no queda “penalizado” por dividirse entre varios.
 
-## 4️⃣ Iteración 1 → 2
+## Iteración 1 → 2
 
-### ✅ E-step
+### E-step
 
-**Brick A:** tasas (H1,H2,H3) = (33.33, 26.67, 26.67), suma = 86.67
+Con las nuevas productividades, el *E-step* deja de ser uniforme. Dentro de cada brick, el *share* de cada HCP es su tasa relativa respecto de la suma de tasas del brick.
 
-Shares:
+**Brick A:** tasas (H1,H2,H3) = (33.33, 26.67, 26.67), con suma 86.67. Los *shares* quedan:
 
--   (p\_{1,A} = 33.33/86.67 \\approx 0.3846)
 -   $p_{1,A} = 33.33/86.67 \approx 0.3846$
-
 -   $p_{2,A} = 26.67/86.67 \approx 0.3077$
-
 -   $p_{3,A} = 26.67/86.67 \approx 0.3077$
 
-Atribuciones:
+Por tanto, las atribuciones esperadas en el brick A son:
 
--   (\\hat z\_{1,A}=100\\cdot 0.3846=38.46)
 -   $\hat z_{1,A}=100\cdot 0.3846=38.46$
-
 -   $\hat z_{2,A}=30.77$
-
 -   $\hat z_{3,A}=30.77$
 
-**Brick B:** tasas (H2,H3,H4) = (26.67, 26.67, 20), suma = 73.34
+**Brick B:** tasas (H2,H3,H4) = (26.67, 26.67, 20), con suma 73.34. Los *shares* quedan:
 
-Shares:
-
--   (p\_{2,B}=26.67/73.34\\approx 0.3636)
 -   $p_{2,B}=26.67/73.34\approx 0.3636$
-
 -   $p_{3,B}\approx 0.3636$
-
 -   $p_{4,B}=20/73.34\approx 0.2727$
 
-Atribuciones:
+y las atribuciones esperadas son:
 
--   (\\hat z\_{2,B}=60\\cdot 0.3636=21.82)
 -   $\hat z_{2,B}=60\cdot 0.3636=21.82$
-
 -   $\hat z_{3,B}=21.82$
-
 -   $\hat z_{4,B}=16.36$
 
-### ✅ M-step
+### M-step
 
--   (\\lambda_1\^{(2)} = 38.46/1 = 38.46)
+Reaplicamos la regla “ventas esperadas / exposición” con las exposiciones (conteo de bricks) fijas:
+
 -   $\lambda_1^{(2)} = 38.46/1 = 38.46$
-
 -   $\lambda_2^{(2)} = (30.77+21.82)/2 = 26.30$
-
 -   $\lambda_3^{(2)} = (30.77+21.82)/2 = 26.30$
-
 -   $\lambda_4^{(2)} = 16.36/1 = 16.36$
 
-Observa:
+En esta iteración se ve con claridad el patrón:
 
 -   H1 sigue subiendo (absorbe más del brick A)
-
 -   H4 baja (ahora comparte con H2/H3 más fuertes)
-
 -   H2 y H3 se estabilizan
 
-## 5️⃣ Iteración 2 → 3 (una más para ver estabilidad)
+## Iteración 2 → 3 (una más para ver estabilidad)
 
-### ✅ E-step (rápido)
+### E-step (resumen)
 
-**Brick A:** $(38.46, 26.30, 26.30)$, suma = $91.06$
-Shares:
+En la tercera iteración el reparto ya cambia poco. Para compactar, listamos directamente *shares* y atribuciones.
+
+**Brick A:** $(38.46, 26.30, 26.30)$, suma = $91.06$. *Shares* y atribuciones:
 
 -   H1: 0.4224 → $\hat z_{1,A}=42.24$
-
 -   H2: 0.2888 → $\hat z_{2,A}=28.88$
-
 -   H3: 0.2888 → $\hat z_{3,A}=28.88$
 
-**Brick B:** $(26.30, 26.30, 16.36)$, suma = $68.96$
-Shares:
+**Brick B:** $(26.30, 26.30, 16.36)$, suma = $68.96$. *Shares* y atribuciones:
 
 -   H2: 0.3814 → $\hat z_{2,B}=22.88$
-
 -   H3: 0.3814 → $\hat z_{3,B}=22.88$
-
 -   H4: 0.2372 → $\hat z_{4,B}=14.23$
 
-### ✅ M-step
+### M-step
 
--   (\\lambda_1\^{(3)} = 42.24)
 -   $\lambda_1^{(3)} = 42.24$
-
 -   $\lambda_2^{(3)} = (28.88+22.88)/2 = 25.88$
-
 -   $\lambda_3^{(3)} = (28.88+22.88)/2 = 25.88$
-
 -   $\lambda_4^{(3)} = 14.23$
 
-Ya está **casi convergido** (cambios pequeños).
+Las actualizaciones son ya pequeñas: el procedimiento está **casi convergido**.
 
-## 6️⃣ ¿Qué aprende EM “realmente” aquí?
+## Qué aprende EM en este ejemplo
 
-### ✅ 1) Aprende productividades relativas coherentes con *todas* las ecuaciones de suma
+### 1) Aprende productividades relativas coherentes con *todas* las ecuaciones de suma
 
-No está “prediciendo” (y_b) (eso ya está dado). Está encontrando (\\lambda_h) tal que:
-No está “prediciendo” $y_b$ (eso ya está dado). Está encontrando $\lambda_h$ tal que:
+En este problema, $y_b$ no se “predice”: ya está observado. Lo que EM ajusta son productividades $\lambda_h$ y contribuciones esperadas $\hat z_{h,b}$ que, conjuntamente, sean compatibles con el agregado y con la estructura del modelo.
 
--   Brick A (100) se explique como suma esperada de H1,H2,H3
--   Brick A ($100$) se explique como suma esperada de H1,H2,H3
+En concreto, EM está encontrando $\lambda_h$ tal que:
 
--   Brick B ($60$) se explique como suma esperada de H2,H3,H4
+-   Brick A ($100$) se explique como suma esperada de H1, H2 y H3.
+-   Brick B ($60$) se explique como suma esperada de H2, H3 y H4.
+-   El reparto sea estable y auto-consistente.
 
--   Y que el reparto sea estable y auto-consistente
+### 2) Los HCPs que aparecen en más bricks quedan “regularizados” por consistencia
 
-### ✅ 2) Los HCPs que aparecen en más bricks quedan “regularizados” por consistencia
+H2 y H3 deben cuadrar **dos ecuaciones** (A y B) a la vez. Por ese motivo tienden a estabilizarse antes que un HCP que aparece en un único brick.
 
-H2 y H3 deben cuadrar **dos ecuaciones** (A y B), por eso se estabilizan.
-
-### ✅ 3) HCP “exclusivo” de brick grande tiende a llevarse más (si no hay más estructura)
+### 3) HCP “exclusivo” de brick grande tiende a llevarse más (si no hay más estructura)
 
 H1 solo está en A, así que el modelo puede subirlo sin que “choque” con otras restricciones.\
 Esto es una pista de un *pitfall real*: **sin covariables o priors, la identificabilidad puede ser débil**.
 
-## 7️⃣ Lectura de negocio del resultado (share final aproximado)
+## Lectura de negocio del resultado (*share* final aproximado)
+
+Desde la perspectiva de negocio, el resultado se resume en *shares* dentro de cada brick en convergencia (o cerca de ella). En este ejemplo, esas proporciones coinciden con las responsabilidades del *E-step*.
 
 Dentro de A (cerca de iteración 3):
 
 -   H1 ≈ 42%
-
 -   H2 ≈ 29%
-
 -   H3 ≈ 29%
 
 Dentro de B:
 
 -   H2 ≈ 38%
-
 -   H3 ≈ 38%
-
 -   H4 ≈ 24%
 
-Eso es exactamente la attribution probabilística del E-step en convergencia.
+Eso es exactamente la atribución probabilística del E-step en convergencia.
 
-## ✅ Checkpoint
+## Resumen
 
-¿Te ha quedado clara la dinámica?
-
--   **E-step** reparte dentro de cada brick proporcional a (\\lambda)
--   **E-step** reparte dentro de cada brick proporcional a $\lambda$
-
--   **M-step** recalcula $\lambda$ como “ventas esperadas / exposición”
-
--   Los HCPs con overlap quedan más “anclados”; los exclusivos pueden absorber más
+- En este ejemplo, el *E-step* reparte dentro de cada brick proporcionalmente a $\lambda$ (dado que $w_{h,b}=1$ para pertenencia).
+- El *M-step* recalcula $\lambda$ como “ventas esperadas / exposición”, donde la exposición es el número de bricks en los que aparece cada HCP bajo la codificación elegida.
+- Los HCPs con *overlap* (H2 y H3) quedan más “anclados” por consistencia entre bricks; un HCP exclusivo de un brick grande (H1) puede absorber una fracción mayor si no hay más estructura.
