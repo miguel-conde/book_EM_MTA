@@ -229,47 +229,47 @@ Estas variantes pueden añadirse posteriormente para testear robustez.
 
 Al entrenar EM con **solo** ($y_b$), ($w_{h,b}$) y ($X_h$), se puede comparar:
 
-### A) Recuperación de parámetros (si usas features)
+A) Recuperación de parámetros (si usas features)
 
--   Error en $\beta$:
+    -   Error en $\beta$:
 
-    -   RMSE: $\lVert\hat\beta - \beta^*\rVert$
+        -   RMSE: $\lVert\hat\beta - \beta^*\rVert$
 
-    -   o correlación entre $X\hat\beta$ y $X\beta^*$
+        -   o correlación entre $X\hat\beta$ y $X\beta^*$
 
-**Recomendación práctica:** comparar la productividad en escala log:
+    **Recomendación práctica:** comparar la productividad en escala log:
 
--   comparar $\eta_h = X_h\beta$ (log-rate), suele ser más estable.
+    -   comparar $\eta_h = X_h\beta$ (log-rate), suele ser más estable.
 
-### B) Recuperación de atribución
+B) Recuperación de atribución
 
-Comparas matrices (en formato long) entre:
+    Comparas matrices (en formato long) entre:
 
--   $z^*_{h,b}$ vs $\hat z_{h,b} = \mathbb{E}[z_{h,b}\mid y,\hat{\beta}]$
+    -   $z^*_{h,b}$ vs $\hat z_{h,b} = \mathbb{E}[z_{h,b}\mid y,\hat{\beta}]$
 
-Métricas típicas:
+    Métricas típicas:
 
--   Correlación por (h,b)
+    -   Correlación por (h,b)
 
--   RMSE por (h,b)
+    -   RMSE por (h,b)
 
--   Error relativo por brick (aunque por construcción debería sumar bien)
+    -   Error relativo por brick (aunque por construcción debería sumar bien)
 
-### C) Chequeos de calibración (must-have)
+C) Chequeos de calibración (must-have)
 
--   Por brick: $\sum_h \hat z_{h,b} = y_b$ (debe cumplirse numéricamente)
+    -   Por brick: $\sum_h \hat z_{h,b} = y_b$ (debe cumplirse numéricamente)
 
--   Distribución de residuales (si introduces overdispersion)
+    -   Distribución de residuales (si introduces overdispersion)
 
-### D) Métricas de likelihood
+D) Métricas de likelihood
 
--   Log-likelihood observada:
+    -   Log-likelihood observada:
 
-    $$
-    \sum_b \log \operatorname{Poisson}\Big(y_b \mid \sum_h \hat\lambda_h w_{h,b}\Big)
-    $$
+        $$
+        \sum_b \log \operatorname{Poisson}\Big(y_b \mid \sum_h \hat\lambda_h w_{h,b}\Big)
+        $$
 
--   Monitorizar que EM la **no disminuye** por iteración (sanity check)
+    -   Monitorizar que EM la **no disminuye** por iteración (sanity check)
 
 ## Nota: versión “euros” (Gamma) en mock data
 
