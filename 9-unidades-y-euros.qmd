@@ -1,59 +1,38 @@
-Sí — **toca exactamente ahora** 👍
-Este capítulo es el que evita muchos errores de modelado en producción. Vamos a hacerlo **práctico**, no académico.
-
----
-
 # Unidades vs Euros
 
 **Poisson vs Gamma / Lognormal**
 
-> **Pregunta central**:
-> *¿Qué distribución uso para repartir contribuciones cuando el total observado son unidades vs euros?*
+## Introducción
 
----
+Este capítulo guía una decisión de modelado que suele determinar la estabilidad del método en producción: la elección de distribución cuando el total observado está expresado en **unidades** (conteos) o en **euros** (variables continuas positivas). El objetivo es mantener un enfoque práctico: elegir un modelo que sea coherente con el tipo de variable y que, al mismo tiempo, se comporte bien dentro del algoritmo EM.
 
-## 1️⃣ Diferencia conceptual clave (la más importante)
+La elección afecta sobre todo al *M-step* (aprendizaje de productividades), mientras que el *E-step* (reparto) suele permanecer muy similar. En consecuencia, la pregunta central del capítulo es seleccionar una distribución adecuada para repartir contribuciones cuando el total observado son unidades o euros.
 
-### 🟦 **Unidades**
+## Diferencia conceptual clave (la más importante)
 
-Ejemplos:
+### Unidades
+
+Son ejemplos típicos de unidades:
 
 * nº de prescripciones
 * nº de ventas
 * nº de conversiones
 * nº de tickets
 
-👉 Son:
+En este caso, la variable observada es discreta y no negativa. En muchos entornos reales, la varianza es aproximadamente comparable a la media (o superior, por overdispersion). Por tanto, el **modelo natural** es **Poisson** (o NegBin).
 
-* discretas
-* no negativas
-* con varianza ≈ media (o mayor)
+### Euros
 
-📌 **Modelo natural**: **Poisson** (o NegBin)
-
----
-
-### 🟧 **Euros**
-
-Ejemplos:
+Son ejemplos típicos de euros:
 
 * revenue
 * margin
 * GMV
 * contribución monetaria del MMM
 
-👉 Son:
+En este caso, la variable observada es continua y positiva. En la práctica suele presentar colas pesadas (*heavy-tailed*) y outliers estructurales. Por tanto, el **modelo natural** es **Gamma** o **Lognormal**.
 
-* continuas
-* positivas
-* heavy-tailed
-* con outliers estructurales
-
-📌 **Modelo natural**: **Gamma** o **Lognormal**
-
----
-
-## 2️⃣ Qué cambia *realmente* entre Poisson y Gamma
+## Qué cambia realmente entre Poisson y Gamma / Lognormal
 
 | Aspecto             | Poisson (unidades) | Gamma / Lognormal (euros) |
 | ------------------- | ------------------ | ------------------------- |
@@ -66,45 +45,35 @@ Ejemplos:
 | Estabilidad EM      | Muy alta           | Más delicada              |
 | Sensible a escalado | No                 | Sí                        |
 
----
+## Impacto directo en el EM
 
-## 3️⃣ Impacto directo en el EM
+### E-step (reparto)
 
-### 🔹 E-step (reparto)
-
-**Importante**:
-👉 **El E-step es casi idéntico** en los tres casos.
-
-En la práctica:
-
+En la práctica, el **E-step es casi idéntico** en los tres casos, porque el reparto se apoya en pesos relativos (los *shares*) construidos a partir de productividad y exposición. El reparto de masa puede escribirse como:
 $$
 \hat z_{h,b}
 =
 y_b
 \cdot
-\frac{\lambda_h \omega_{b,h}}{\sum_{h'} \lambda_{h'} \omega_{b,h'}}
+\frac{\lambda_h \omega_{b,h}}{\sum_{h'} \lambda_{h'} \omega_{b,h'}}.
 $$
 
-* Poisson → exacto
-* Gamma → exacto si shape común
-* Lognormal → aproximado (pero funciona)
+La interpretación operativa es que los *shares* cambian poco entre modelos:
 
-📌 **El reparto (shares)** cambia poco entre modelos.
+* Poisson: exacto.
+* Gamma: exacto si *shape* común.
+* Lognormal: aproximado (pero funciona).
 
----
+### M-step (aprendizaje de $\lambda$)
 
-### 🔹 M-step (aprendizaje de $\lambda$)
+Las diferencias relevantes aparecen en el *M-step*, tanto en estabilidad como en sensibilidad a outliers. En particular, en Poisson se dispone de una actualización cerrada muy estable, mientras que en Gamma y Lognormal el aprendizaje suele requerir más cuidados (regularización, tratamiento de outliers y escalado de exposición).
 
-Aquí sí hay diferencias fuertes.
-
----
-
-## 4️⃣ Poisson (unidades): el caso “feliz”
+## Poisson (unidades): el caso más estable
 
 ### Modelo
 
 $$
-z_{h,b} \sim \text{Poisson}(\lambda_h \omega_{b,h})
+z_{h,b} \sim \text{Poisson}(\lambda_h \omega_{b,h}).
 $$
 
 ### M-step cerrado (sin covariables)
@@ -114,167 +83,111 @@ $$
 \lambda_h
 =
 \frac{\sum_b \hat z_{h,b}}{\sum_b \omega_{b,h}}
-}
+}.
 $$
 
 ### Ventajas
 
-* ultra-estable
-* convexidad
-* convergencia rápida
-* fácil de explicar
+Este es el caso “feliz” del libro: el EM tiende a ser ultra-estable, con buena convexidad en el *M-step*, convergencia rápida y una explicación simple ante negocio.
 
 ### Riesgos
 
-* si hay overdispersion fuerte → subestima varianza
+El riesgo principal es que, si hay overdispersion fuerte, el modelo puede subestimar varianza.
 
-📌 **Default recomendado siempre que puedas.**
+La recomendación por defecto es usar este caso siempre que sea posible.
 
----
-
-## 5️⃣ Gamma (euros): el caso realista
+## Gamma (euros): el caso realista
 
 ### Modelo
 
 $$
-z_{h,b} \sim \text{Gamma}(k,\ \theta_h \omega_{b,h})
+z_{h,b} \sim \text{Gamma}(k,\ \theta_h \omega_{b,h}).
 $$
-(media = $k\theta_h \omega$)
+La media es $k\theta_h \omega$.
 
 ### M-step
+
+En este caso, el *M-step* suele implementarse con:
 
 * $\theta_h$: GLM Gamma (log link)
 * $k$: fijo o estimado global
 
 ### Ventajas
 
-* respeta continuidad
-* maneja colas largas
-* interpretable en media
+La motivación de Gamma es que respeta continuidad, maneja colas largas y se interpreta de forma directa a través de la media.
 
 ### Riesgos
 
-* sensible a outliers extremos
-* EM más lento
-* puede volverse inestable sin regularización
+El coste práctico es que resulta más sensible a outliers extremos, el EM suele ser más lento y puede volverse inestable sin regularización.
 
-📌 Requiere:
+En práctica, este caso suele requerir una disciplina adicional:
 
 * winsorización o trimming
 * regularización
 * buen escalado de $\omega$
 
----
-
-## 6️⃣ Lognormal (euros): el caso peligroso
+## Lognormal (euros): el caso delicado
 
 ### Modelo
 
 $$
-\log z_{h,b} \sim \mathcal N(\mu_h + \log \omega_{b,h},\ \sigma^2)
+\log z_{h,b} \sim \mathcal N(\mu_h + \log \omega_{b,h},\ \sigma^2).
 $$
 
 ### Ventajas
 
-* modela muy bien heavy tails
-* muy común en revenue real
+El atractivo del Lognormal es que modela muy bien *heavy tails* y es muy común en revenue real.
 
 ### Problemas serios en EM
 
-* el reparto depende de $\exp(\mu)$
-* un outlier puede:
+En EM, sin embargo, aparecen tres problemas típicos: el reparto depende de $\exp(\mu)$, un outlier puede dominar el *M-step* y “secuestrar” $\lambda$, y no hay *M-step* cerrado.
 
-  * dominar el M-step
-  * "secuestrar" $\lambda$
-* no hay M-step cerrado
+Este caso solo es recomendable si se hace inferencia bayesiana, o si se utilizan *strong priors* + VI.
 
-📌 **Solo recomendable si**:
+## Sesgo por outliers (ejemplo mental)
 
-* haces inferencia bayesiana
-* o usas strong priors + VI
+Considérese el siguiente escenario: 100 bricks normales y 1 brick con revenue 100× mayor.
 
----
+En Poisson, ese brick pesa 100×, pero el modelo suele mantenerse estable. En Gamma, el brick dominante puede concentrar gran parte del *likelihood*, y $\lambda$ tiende a ajustarse para “explicarlo”. En Lognormal, el log ayuda, pero el EM puede volverse errático. Esto no es un bug: es una consecuencia matemática del modelo.
 
-## 7️⃣ Sesgo por outliers (ejemplo mental)
+## Cuándo conviene cada uno (guía práctica)
 
-Supón:
+### Usa Poisson si
 
-* 100 bricks normales
-* 1 brick con revenue 100× mayor
+El criterio operativo para elegir Poisson es priorizar estabilidad cuando el dato observado son conteos, o cuando se puede reexpresar el problema monetario mediante unidades.
 
-### Poisson
+En concreto, conviene cuando se trabaja con unidades, cuando se puede redefinir euros como nº de transacciones × ticket medio, y cuando se busca estabilidad y explicabilidad.
 
-* ese brick pesa 100×
-* pero no rompe el modelo
+La recomendación operativa es intentar modelar unidades primero, incluso cuando el objetivo final sea revenue.
 
-### Gamma
+### Usa Gamma si
 
-* ese brick domina el likelihood
-* $\lambda$ se ajusta para "explicarlo"
+Gamma suele ser razonable cuando el negocio exige trabajar en euros, pero se puede controlar el impacto de outliers y se dispone de buena señal de exposición.
 
-### Lognormal
+En concreto, conviene cuando el negocio exige euros, los outliers están controlados, hay buena señal en $\omega$ y se aplica regularización.
 
-* el log ayuda, pero:
-* el EM puede volverse errático
+### Usa Lognormal solo si
 
-👉 **Esto no es un bug, es matemática.**
+Lognormal es una opción para escenarios con colas extremas reales, a costa de mayor complejidad y de asumir un enfoque de inferencia más robusto.
 
----
+En concreto, conviene cuando hay colas extremas reales, se está cómodo con Bayesian inference y se acepta más complejidad.
 
-## 8️⃣ Cuándo conviene cada uno (guía práctica)
+## Regla de oro
 
-### ✅ Usa **Poisson** si:
+> El EM reparte masa. Cuanto más pesada sea la cola del total observado, más cuidado se necesita en el *M-step*.
 
-* trabajas con unidades
-* puedes redefinir euros como:
+## Recomendación final (industrial)
 
-  * nº de transacciones × ticket medio
-* quieres estabilidad y explicabilidad
+En la práctica, equipos maduros hacen lo siguiente:
 
-> **Recomendación fuerte**:
-> incluso para revenue, intenta modelar **unidades primero**.
-
----
-
-### ✅ Usa **Gamma** si:
-
-* el negocio exige euros
-* los outliers están controlados
-* tienes buena señal en $\omega$
-* aplicas regularización
-
----
-
-### ⚠️ Usa **Lognormal** solo si:
-
-* tienes colas extremas reales
-* estás cómodo con Bayesian inference
-* aceptas más complejidad
-
----
-
-## 9️⃣ Regla de oro (muy importante)
-
-> **El EM reparte masa.
-> Cuanto más “pesada” sea la cola del total observado,
-> más cuidado necesitas en el M-step.**
-
----
-
-## 10️⃣ Recomendación final (industrial)
-
-En la práctica, equipos maduros hacen:
-
-1. **Modelar unidades con Poisson EM**
+1. Modelar unidades con Poisson EM.
 2. Convertir a euros *post hoc*:
    $$
-   \hat z^{€}_{h,b} = \hat z^{units}_{h,b} \times \text{ticket medio}
+   \hat z^{eur}_{h,b} = \hat z^{units}_{h,b} \times \text{ticket medio}
    $$
-3. Usar Gamma solo si el paso 2 no es aceptable
+3. Usar Gamma solo si el paso 2 no es aceptable.
 
----
-
-## ✔️ Salida — **Guía de model choice**
+## Salida — Guía de model choice
 
 | Caso                     | Recomendación            |
 | ------------------------ | ------------------------ |
@@ -282,5 +195,14 @@ En la práctica, equipos maduros hacen:
 | Euros “limpios”          | Gamma                    |
 | Euros con colas extremas | Lognormal (con cautela)  |
 | Dudas                    | Poisson + conversión     |
-| Producción crítica       | Poisson + regularización |
+| Producción crítica       | **Poisson + regularización** |
+
+## Resumen
+
+- Unidades (conteos): Poisson (o NegBin) es el caso natural y el más estable.
+- Euros (continuas positivas): Gamma o Lognormal son alternativas naturales, con mayor sensibilidad a outliers.
+- El *E-step* tiende a ser muy parecido; la diferencia práctica aparece sobre todo en el *M-step*.
+- Gamma suele requerir control de outliers, regularización y escalado cuidadoso de $\omega$.
+- Lognormal es un caso delicado en EM; se reserva para inferencia bayesiana o *strong priors* + VI.
+- Recomendación industrial: modelar unidades con Poisson EM y convertir a euros *post hoc* cuando sea aceptable.
 
