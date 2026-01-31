@@ -68,6 +68,51 @@ En algunos textos se encuentran términos como **dose** o **treatment intensity*
 
 No es apropiado llamar a $\omega$ “probability”, “share”, “mixing proportion” (sin aclaración) o simplemente “weight” (sin contexto), porque esas etiquetas inducen errores conceptuales.
 
+## Interpretación operativa (qué representa $w$ / $\omega$)
+
+Además de fijar la nomenclatura, conviene precisar qué representa $\omega_{b,h}$ (o, de forma equivalente, $w_{h,b}$) en el modelo.
+
+En el libro se usa $w$ como notación canónica de exposición (u oportunidad). En otros textos aparece el mismo concepto como $\omega$. En ambos casos se trata del mismo objeto: una señal no negativa que modula el volumen esperable antes de introducir la productividad.
+
+Para cualquier caso de uso (HCP–Brick o MMM→MTA), $w$ (o $\omega$) significa **intensidad de exposición / elegibilidad / oportunidad** de la unidad individual para generar contribución dentro del agregado. No es una probabilidad, no es un share por sí sola, y no tiene por qué sumar 1.
+
+### Tres interpretaciones válidas
+
+1. Exposición binaria ($\{0,1\}$)
+
+	$$
+	\omega_{b,h} =
+	\begin{cases}
+	1 & \text{si } h \text{ pertenece al brick } b \\
+	0 & \text{si no}
+	\end{cases}
+	$$
+
+	En este caso, toda la diferenciación viene de $\lambda$.
+
+2. Exposición como intensidad ($[0,+\infty)$)
+
+	Ejemplos: número de visitas, número de médicos, impresiones/GRPs en $(t,geo)$, etc. El modelo se escribe:
+	$$
+	z_{h,b} \sim \operatorname{Poisson}(\lambda_h \cdot \omega_{b,h}).
+	$$
+
+3. Peso normalizado ($[0,1]$) como caso especial
+
+	A veces se define:
+	$$
+	\widetilde{\omega}_{b,h} = \frac{\omega_{b,h}}{\sum_{h'} \omega_{b,h'}}.
+	$$
+	Esto no cambia el reparto del E-step, porque el cociente
+	$$
+	\frac{\lambda_h \omega_{b,h}}{\sum_{h'} \lambda_{h'} \omega_{b,h'}}
+	$$
+	es invariante ante reescalados comunes dentro del agregado. Normalizar o no normalizar es irrelevante para el reparto, aunque sí cambia la escala numérica de $\lambda$.
+
+### Regla mental
+
+Si se elimina la productividad $\lambda$, la exposición $w$ (o $\omega$) debe seguir teniendo sentido como “oportunidad de generar contribución”.
+
 ## Recomendación por audiencia
 
 En documentos técnicos:
