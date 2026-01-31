@@ -7,19 +7,13 @@ La idea de este capítulo es generar un mundo sintético donde conocemos la **ve
 En concreto, en el mundo simulado fijamos:
 
 -   Features por HCP ($X_h$)
--   Parámetros “reales” ($\\beta^*$)
--   Contribuciones latentes reales ($z^*_{h,b}$)
--   Ventas observadas por brick ($y_b$)
-
 -   Parámetros “reales” ($\beta^*$)
-
 -   Contribuciones latentes reales ($z^*_{h,b}$)
-
 -   Ventas observadas por brick ($y_b$)
 
 A partir de estas cantidades, podemos medir si EM recupera:
 
-1.  $\\beta^*$ (productividad estructural)
+1.  $\beta^*$ (productividad estructural)
 
 2.  $z^*_{h,b}$ (atribución)
 
@@ -30,11 +24,8 @@ A partir de estas cantidades, podemos medir si EM recupera:
 ### HCPs
 
 -   **Especialidad** (categoría): GP / Cardio / Endo / …
-
--   **Seniority** (numérica o ordinal)
-
+-   **Seniority** (numérica u ordinal)
 -   **Visitas** (conteo; y pueden variar por brick)
-
 -   Opcional: “potencial” (continua), “segmento” (A/B/C)
 
 ### Bricks
@@ -42,36 +33,33 @@ A partir de estas cantidades, podemos medir si EM recupera:
 -   Composición heterogénea:
 
     -   bricks “densos” con muchos HCPs
-
     -   bricks “pequeños” con pocos HCPs
-
     -   overlaps: un HCP puede estar en varios bricks
 
 -   Exposición ($w_{h,b}$):
 
     -   0 si no pertenece
-
     -   si pertenece: proporcional a visitas u otro proxy
 
 ### Verdadera productividad
 
--   Unidades (Poisson):\
+En unidades, modelamos conteos con Poisson. Primero definimos la productividad por HCP como:
 
-    $$
-    \lambda_h^{*} = \exp(X_h\beta^{*})
-    $$
+$$
+\lambda_h^{*} = \exp(X_h\beta^{*}).
+$$
 
--   Luego:\
+A continuación generamos contribuciones latentes por par $(h,b)$ y observamos el agregado por brick:
 
-    $$
-    z_{h,b}^{*} \sim \operatorname{Poisson}(\lambda_h^{*} w_{h,b})
-    \quad;\quad
-    y_b = \sum_{h\in \mathcal{H}_b} z_{h,b}^{*}
-    $$
+$$
+z_{h,b}^{*} \sim \operatorname{Poisson}(\lambda_h^{*} w_{h,b})
+\quad;\quad
+y_b = \sum_{h\in \mathcal{H}_b} z_{h,b}^{*}.
+$$
 
 ## Código Python: generador reutilizable (unidades / Poisson)
 
-> Esto te deja un dataset listo para: entrenar EM, comparar contra ground truth, y hacer stress tests.
+El siguiente código genera un dataset listo para entrenar EM, comparar contra *ground truth* y hacer stress tests.
 
 ```python
 import numpy as np
@@ -235,11 +223,11 @@ Puedes hacer el mundo más “real” con:
 
     -   que visitas dependan de especialidad o potencial
 
-(Esto lo podemos añadir después si quieres testear robustez.)
+Estas variantes pueden añadirse posteriormente para testear robustez.
 
 ## Cómo evaluar si EM “recupera la verdad”
 
-Cuando entrenes EM con **solo** ($y_b$), ($w_{h,b}$) y ($X_h$), podrás comparar:
+Al entrenar EM con **solo** ($y_b$), ($w_{h,b}$) y ($X_h$), se puede comparar:
 
 ### A) Recuperación de parámetros (si usas features)
 
@@ -275,7 +263,7 @@ Métricas típicas:
 
 ### D) Métricas de likelihood
 
--   Log-likelihood observada:\
+-   Log-likelihood observada:
 
     $$
     \sum_b \log \operatorname{Poisson}\Big(y_b \mid \sum_h \hat\lambda_h w_{h,b}\Big)
@@ -285,7 +273,7 @@ Métricas típicas:
 
 ## Nota: versión “euros” (Gamma) en mock data
 
-Si quieres simular euros:
+Para simular euros:
 
 -   genera $z_{h,b}$ Gamma con media proporcional a $\theta_h w_{h,b}$
 
@@ -335,7 +323,7 @@ $$
 Esta tabla fija “quién compite con quién” dentro de cada brick y es donde vive el *E-step*.
 
 | Columna    | Nivel     | Disponible en datos reales | Rol                     |
-|------------|-----------|---------------|-------------------------|
+|------------|-----------|----------------------------|-------------------------|
 | `hcp_id`   | ID        | Sí                       | Join                    |
 | `brick_id` | ID        | Sí                       | Join                    |
 | `visits`   | Observada | Sí                       | Proxy esfuerzo          |
@@ -350,11 +338,11 @@ Esta tabla fija “quién compite con quién” dentro de cada brick y es donde 
 - `y`: ventas agregadas del brick, definidas por:
 
 $$
-y_b = \sum_{h\in \mathcal{H}_b} z_{h,b}.
+y_b = \sum_{h\in \mathcal{H}_b} z_{h,b}^{*}.
 $$
 
 | Columna    | Disponible en datos reales | Rol              |
-|------------|---------------|------------------|
+|------------|----------------------------|------------------|
 | `brick_id` | Sí                       | Identificador    |
 | `y`        | Sí                       | Ventas agregadas |
 
