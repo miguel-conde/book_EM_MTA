@@ -1,16 +1,23 @@
 # Mock data generation
 
-La idea es generar un mundo sintético donde conocemos la **verdad**:
+## Introducción
+
+La idea de este capítulo es generar un mundo sintético donde conocemos la **verdad** del proceso generativo. Esto permite entrenar EM en condiciones controladas y cuantificar qué recupera (y qué no) cuando solo se observa el agregado por brick.
+
+En concreto, en el mundo simulado fijamos:
 
 -   Features por HCP ($X_h$)
-
 -   Parámetros “reales” ($\\beta^*$)
+-   Contribuciones latentes reales ($z^*_{h,b}$)
+-   Ventas observadas por brick ($y_b$)
+
+-   Parámetros “reales” ($\beta^*$)
 
 -   Contribuciones latentes reales ($z^*_{h,b}$)
 
 -   Ventas observadas por brick ($y_b$)
 
-Así luego podemos medir si EM recupera:
+A partir de estas cantidades, podemos medir si EM recupera:
 
 1.  $\\beta^*$ (productividad estructural)
 
@@ -18,7 +25,7 @@ Así luego podemos medir si EM recupera:
 
 3.  $y_b$ (consistencia y calibración)
 
-## 1️⃣ Diseño de simulación (qué queremos que sea realista)
+## Diseño de simulación (qué queremos que sea realista)
 
 ### HCPs
 
@@ -57,12 +64,12 @@ Así luego podemos medir si EM recupera:
 -   Luego:\
 
     $$
-    z_{h,b}^{*} \sim \operatorname{Poisson}(\lambda_h^{*}, w_{h,b})
+    z_{h,b}^{*} \sim \operatorname{Poisson}(\lambda_h^{*} w_{h,b})
     \quad;\quad
-    y_b = \sum_h z_{h,b}^{*}
+    y_b = \sum_{h\in \mathcal{H}_b} z_{h,b}^{*}
     $$
 
-## 2️⃣ Código Python: generador reutilizable (unidades / Poisson)
+## Código Python: generador reutilizable (unidades / Poisson)
 
 > Esto te deja un dataset listo para: entrenar EM, comparar contra ground truth, y hacer stress tests.
 
@@ -208,7 +215,7 @@ print("beta_true:", meta["beta_true"])
 
 -   `meta`: `beta_true` y nombres de features
 
-## 3️⃣ Variantes útiles (para stress testing)
+## Variantes útiles (para stress testing)
 
 Puedes hacer el mundo más “real” con:
 
@@ -230,7 +237,7 @@ Puedes hacer el mundo más “real” con:
 
 (Esto lo podemos añadir después si quieres testear robustez.)
 
-## 4️⃣ ¿Cómo evaluar si EM “recupera la verdad”?
+## Cómo evaluar si EM “recupera la verdad”
 
 Cuando entrenes EM con **solo** ($y_b$), ($w_{h,b}$) y ($X_h$), podrás comparar:
 
@@ -276,7 +283,7 @@ Métricas típicas:
 
 -   Monitorizar que EM la **no disminuye** por iteración (sanity check)
 
-## 5️⃣ Nota: versión “euros” (Gamma) en mock data
+## Nota: versión “euros” (Gamma) en mock data
 
 Si quieres simular euros:
 
@@ -288,478 +295,83 @@ La evaluación es igual, pero:
 
 -   compara en escala log o con métricas robustas (outliers pesan más).
 
-------------------------------------------------------------------------
+## Estructura de los datasets simulados
 
-explica cada columna de hcp_df
+El generador devuelve tres tablas. Conviene entenderlas porque corresponden a los tres “niveles” que aparecen en el modelo: HCP (productividad), HCP–brick (exposición y latentes) y brick (agregado observado).
 
-------------------------------------------------------------------------
+### `hcp_df`: tabla a nivel HCP
 
-Perfecto — vamos **columna por columna**, con **significado estadístico** y **rol en el modelo**.\
-Me centraré en `hcp_df`, que representa el **nivel HCP** (unidad individual).
+`hcp_df` contiene **una fila por HCP**. Mezcla variables observables (que existirían en producción) con variables de *ground truth* (solo disponibles en simulación).
 
-# 📊 `hcp_df` — explicación detallada de cada columna
+- `hcp_id`: identificador del HCP. Sirve para joins con `hb_df` y no entra al modelo.
+- `specialty`: especialidad médica (categórica). En el modelo se representa con dummies `spec_*`.
+- `seniority`: años de experiencia (numérica). Se escala como `seniority_x0.1 = seniority / 10` para estabilidad.
+- `potential`: proxy continuo de potencial comercial. Se transforma como `log1p_potential = \log(1+\texttt{potential})`.
 
-`hcp_df` contiene **una fila por HCP**.\
-Conceptualmente mezcla **datos observables** + **verdad simulada** (solo para evaluación).
+Además, `hcp_df` incluye columnas de diseño (la matriz $X_h$): `intercept`, `seniority_x0.1`, `log1p_potential` y `spec_*`. En producción, con intercept y dummies completas hay colinealidad y conviene fijar una categoría de referencia o usar regularización.
 
-## 🆔 Identificación
-
-### **`hcp_id`**
-
--   Identificador único del HCP
-
--   Tipo: entero
-
--   Uso:
-
-    -   Clave para unir con `hb_df`
-
-    -   Nunca entra directamente al modelo
-
-## 🧠 Variables “reales” (observables en la vida real)
-
-Estas son las **features que sí existirían en producción**.
-
-### **`specialty`**
-
--   Tipo: categórica (`GP`, `CARDIO`, `ENDO`, `ONCO`, `PULMO`)
-
--   Significado:
-
-    -   Especialidad médica del HCP
-
--   Uso:
-
-    -   Se transforma a *one-hot* (ver columnas `spec_*`)
-
-    -   Captura diferencias estructurales de productividad
-
-📌 En el modelo:
-
-> Diferentes especialidades → diferente productividad esperada
-
-### **`seniority`**
-
--   Tipo: entero (0–20)
-
--   Significado:
-
-    -   Años de experiencia del HCP
-
--   Uso:
-
-    -   Feature numérica
-
-    -   Se escala (`seniority / 10`) para estabilidad numérica
-
-📌 Interpretación:
-
-> Cada +10 años de seniority multiplica la tasa por `exp(β_seniority)`
-
-### **`potential`**
-
--   Tipo: continuo positivo (lognormal)
-
--   Significado:
-
-    -   Proxy de “potencial comercial” del HCP
-
--   Uso:
-
-    -   Se transforma como `log1p(potential)`
-
-    -   Reduce skew y hace la relación más lineal en log-space
-
-📌 Interpretación:
-
-> HCPs con mayor potencial generan más ventas esperadas
-
-## 🧮 Variables de diseño (matriz (X_h))
-
-Estas columnas **sí entran directamente** en:
+Por último, `lambda_true` es **ground truth** (no observable en producción):
 
 $$
-\lambda_h = \exp(X_h\beta)
+\lambda_h^{*} = \exp(X_h\beta^{*}).
 $$
 
-### **`intercept`**
+Una lectura mental útil es: `hcp_df` describe **qué esperamos de cada HCP en promedio**; el algoritmo no observa ventas por HCP y, por tanto, no puede “aprender ventas” individuales directamente.
 
--   Siempre vale 1
+### `hb_df`: tabla a nivel HCP–brick
 
--   Significado:
+`hb_df` está en formato long y representa **relaciones HCP–brick** (una fila por par $(h,b)$ con pertenencia). Aquí viven la exposición y, en simulación, los latentes reales.
 
-    -   Nivel base de productividad
+- `hcp_id`: FK hacia `hcp_df.hcp_id`.
+- `brick_id`: FK hacia `y_df.brick_id`. Define los conjuntos $\mathcal{H}_b$.
+- `visits`: proxy observado de oportunidad/esfuerzo.
+- `w`: exposición efectiva $w_{h,b}$ (en la simulación, aproximadamente `w ≈ visits`, con un pequeño suelo para evitar ceros).
+- `z_true`: latente real (solo en simulación), generado como:
 
--   Uso:
+$$
+z_{h,b}^{*} \sim \operatorname{Poisson}(\lambda_h^{*} w_{h,b}).
+$$
 
-    -   Captura la tasa media cuando todas las demás features son 0
+Esta tabla fija “quién compite con quién” dentro de cada brick y es donde vive el *E-step*.
 
-📌 Sin intercept:
-
--   el modelo estaría forzado a pasar por el origen
-
--   mala idea en Poisson / Gamma
-
-### **`seniority_x0.1`**
-
--   Definición: `seniority / 10`
-
--   Tipo: continuo
-
--   Significado:
-
-    -   Versión escalada de seniority
-
--   Uso:
-
-    -   Mejora convergencia del GLM
-
-    -   Hace β más interpretable
-
-📌 Interpretación de β:
-
-> +0.2 ⇒ +10 años → \~+22% en tasa (exp(0.2))
-
-### **`log1p_potential`**
-
--   Definición: `log(1 + potential)`
-
--   Tipo: continuo
-
--   Significado:
-
-    -   Transformación suave del potencial
-
--   Uso:
-
-    -   Evita que outliers dominen el ajuste
-
-📌 Interpretación:
-
-> Relación multiplicativa y estable con la productividad
-
-### **`spec_GP`, `spec_CARDIO`, `spec_ENDO`, `spec_ONCO`, `spec_PULMO`**
-
--   Tipo: binarias (0/1)
-
--   Significado:
-
-    -   One-hot encoding de la especialidad
-
--   Uso:
-
-    -   Permite efectos específicos por especialidad
-
-⚠️ Nota técnica importante:
-
--   Con **intercept + todas las dummies** hay colinealidad perfecta
-
--   En producción harías una de estas:
-
-    -   eliminar una dummy (categoría de referencia)
-
-    -   o usar regularización (ridge)
-
--   En la simulación se tolera porque:
-
-    -   queremos control total del ground truth
-
-    -   EM + ridge lo maneja bien
-
-📌 Interpretación:
-
-> β positivo ⇒ esa especialidad es más productiva que la media
-
-## 🔮 Variables de “ground truth” (NO observables en la vida real)
-
-Estas columnas **solo existen para evaluación** del método.
-
-### **`lambda_true`**
-
--   Tipo: continuo positivo
-
--   Definición:\
-
-    $$
-    \lambda_h^{*} = \exp(X_h\beta^{*})
-    $$
-
--   Significado:
-
-    -   Productividad real subyacente del HCP
-
--   Uso:
-
-    -   Comparar con $\hat\lambda_h$ estimado por EM
-
-    -   Diagnóstico de sesgo / varianza
-
-📌 Nunca estaría disponible en datos reales.
-
-## 🧩 Resumen por niveles
-
-### 🔹 Observables reales
-
-| Columna     | Uso                |
-|-------------|--------------------|
-| `hcp_id`    | Identificación     |
-| `specialty` | Feature categórica |
-| `seniority` | Feature numérica   |
-| `potential` | Feature numérica   |
-
-### 🔹 Diseño del modelo
-
-| Columna           | Entra en (X_h)? |
-|-------------------|-----------------|
-| `intercept`       | ✔️              |
-| `seniority_x0.1`  | ✔️              |
-| `log1p_potential` | ✔️              |
-| `spec_*`          | ✔️              |
-
-### 🔹 Solo para evaluación
-
-| Columna       | En producción |
-|---------------|---------------|
-| `lambda_true` | ❌            |
-
-## 🧠 Lectura mental correcta
-
-> `hcp_df` define **quién es el HCP** y **qué esperamos de él en promedio**.\
-> El EM **no aprende ventas por HCP directamente**,\
-> aprende **cómo esas features explican ventas agregadas por brick**.
-
-## ✅ Checkpoint
-
-¿Quieres que hagamos lo mismo ahora con:
-
--   `hb_df` (HCP–brick, exposiciones y `z_true`)
-
--   o `y_df` (ventas observadas por brick)
-
--   o pasamos ya a **Capítulo 7 — Implementación completa del EM en Python**?
-
-------------------------------------------------------------------------
-
-si, haz lo mismo con las otras
-
-------------------------------------------------------------------------
-
-Perfecto. Vamos **igual de sistemático** con las otras dos tablas.\
-Primero `hb_df` (nivel HCP–Brick), luego `y_df` (nivel Brick).
-
-# 📊 `hb_df` — tabla HCP–Brick (el corazón del problema)
-
-`hb_df` está en formato **long** y representa **una relación HCP–Brick**.\
-Aquí viven **las variables latentes y la exposición**.
-
-## 🆔 Identificación y joins
-
-### **`hcp_id`**
-
--   Identificador del HCP
-
--   FK hacia `hcp_df.hcp_id`
-
--   Uso:
-
-    -   unir features ($X_h$)
-
-    -   agrupar resultados por HCP
-
-### **`brick_id`**
-
--   Identificador del brick
-
--   FK hacia `y_df.brick_id`
-
--   Uso:
-
-    -   agrupar ventas observadas
-
-    -   definir los conjuntos $\mathcal{H}_b$
-
-## 📈 Variables de exposición (observables reales)
-
-Estas columnas **sí existirían en producción**.
-
-### **`visits`**
-
--   Tipo: entero ≥ 0
-
--   Significado:
-
-    -   Número de visitas del HCP al brick
-
--   Uso:
-
-    -   Proxy de oportunidad / esfuerzo
-
-    -   Puede entrar:
-
-        -   directamente como `w_{h,b}`
-
-        -   o como feature adicional en (X_h) o a nivel interacción
-
-📌 Intuición:
-
-> A más visitas → mayor exposición → más ventas esperadas
-
-### **`w`**
-
--   Tipo: continuo positivo
-
--   Significado:
-
-    -   Exposición efectiva del HCP (h) en el brick (b)
-
--   Uso en el modelo:\
-
-    $$
-    z_{h,b} \sim \operatorname{Poisson}(\lambda_h, w_{h,b})
-    $$
-
-En la simulación:
-
--   `w ≈ visits`
-
--   Con un pequeño floor para evitar ceros
-
-📌 En producción:
-
--   `w` puede ser:
-
-    -   visitas
-
-    -   share de territorio
-
-    -   tiempo dedicado
-
-    -   combinación ponderada
-
-## 👻 Variables latentes (ground truth solo para evaluación)
-
-### **`z_true`**
-
--   Tipo: entero ≥ 0
-
--   Significado:
-
-    -   Ventas *reales* atribuibles al HCP (h) en el brick (b)
-
--   Generación:\
-
-    $$
-    z_{h,b}^{*} \sim \operatorname{Poisson}(\lambda_h^{*} w_{h,b})
-    $$
-
-📌 En datos reales:
-
--   ❌ nunca observable
-
--   ✔️ es lo que EM intenta recuperar **en esperanza**
-
-## 🧠 Rol conceptual de `hb_df`
-
-Esta tabla:
-
--   Define **quién compite con quién** dentro de cada brick
-
--   Define las **restricciones estructurales**:\
-
-    $$
-    y_b = \sum_{h\in \mathcal{H}_b} z_{h,b}
-    $$
-
--   Es donde vive el **E-step**
-
-## 🧩 Resumen `hb_df`
-
-| Columna    | Nivel     | En producción | Rol                     |
+| Columna    | Nivel     | Disponible en datos reales | Rol                     |
 |------------|-----------|---------------|-------------------------|
-| `hcp_id`   | ID        | ✔️            | Join                    |
-| `brick_id` | ID        | ✔️            | Join                    |
-| `visits`   | Observada | ✔️            | Proxy esfuerzo          |
-| `w`        | Observada | ✔️            | Exposición en el modelo |
-| `z_true`   | Latente   | ❌            | Ground truth            |
+| `hcp_id`   | ID        | Sí                       | Join                    |
+| `brick_id` | ID        | Sí                       | Join                    |
+| `visits`   | Observada | Sí                       | Proxy esfuerzo          |
+| `w`        | Observada | Sí                       | Exposición en el modelo |
+| `z_true`   | Latente   | No                       | Ground truth            |
 
-# 📊 `y_df` — tabla de ventas por Brick
+### `y_df`: tabla a nivel brick (agregado observado)
 
-`y_df` representa **exactamente lo que tienes en la vida real**.
+`y_df` representa lo que típicamente está disponible en datos reales: el total por brick.
 
-## 🆔 Identificación
+- `brick_id`: identificador del brick.
+- `y`: ventas agregadas del brick, definidas por:
 
-### **`brick_id`**
+$$
+y_b = \sum_{h\in \mathcal{H}_b} z_{h,b}.
+$$
 
--   Identificador único del brick
-
--   Uso:
-
-    -   define la unidad de observación
-
-    -   join con `hb_df`
-
-## 💰 Variable objetivo observada
-
-### **`y`**
-
--   Tipo: entero ≥ 0
-
--   Significado:
-
-    -   Ventas totales del brick
-
--   Definición:\
-
-    $$
-    y_b = \sum_{h\in \mathcal{H}_b} z_{h,b}
-    $$
-
-📌 Este es el **único target real** del problema.
-
-## 🧠 Rol conceptual de `y_df`
-
--   Es la **likelihood observada**
-
--   EM intenta explicar estos (y_b) usando:
-
-    -   estructura de bricks (`hb_df`)
-
-    -   productividad HCP (`hcp_df`)
-
--   No hay labels por HCP → **problema inverso**
-
-## 🧩 Resumen `y_df`
-
-| Columna    | En producción | Rol              |
+| Columna    | Disponible en datos reales | Rol              |
 |------------|---------------|------------------|
-| `brick_id` | ✔️            | Identificador    |
-| `y`        | ✔️            | Ventas agregadas |
+| `brick_id` | Sí                       | Identificador    |
+| `y`        | Sí                       | Ventas agregadas |
 
-## 🔗 Cómo encajan las 3 tablas (lectura final)
+### Cómo encajan las tres tablas (lectura operativa)
 
-```         
-hcp_df   →  define λ_h = exp(X_h β)    ↓ hb_df    →  define dónde y cuánto se expone cada HCP (w_{h,b})    ↓ y_df     →  observa solo la suma por brick 
+```text
+hcp_df  -> define λ_h = exp(X_h β)
+hb_df   -> define exposición por par (h,b): w_{h,b}
+y_df    -> observa solo el agregado por brick: y_b
 ```
 
-EM hace:
+En este esquema, el *E-step* opera sobre `hb_df` (reparto esperado dentro de cada brick) y el *M-step* opera sobre `hcp_df` (actualización de $\beta$ si hay covariables). La likelihood observada corresponde a `y_df`.
 
--   **E-step**: trabaja en `hb_df` (estima ẑ)
+## Resumen
 
--   **M-step**: trabaja en `hcp_df` (actualiza β)
-
--   **Likelihood**: vive en `y_df`
-
-## ✅ Checkpoint final
-
-Con esto ya tienes:
-
--   modelo teórico ✔️
-
--   datos mock ✔️
-
--   interpretación de cada columna ✔️
-
-Si quieres, el siguiente paso natural es:
-
-👉 **Capítulo 7 — Implementación completa del EM en Python**,\
-donde entrenamos el modelo con estos datos y medimos si recupera `beta_true` y `z_true`.
+- El objetivo del mock data es disponer de un mundo sintético con *ground truth* para evaluar recuperación de parámetros, atribución latente y calibración del agregado.
+- El generador produce tres tablas: `hcp_df` (features y productividad verdadera), `hb_df` (estructura HCP–brick, exposición y latentes simuladas) y `y_df` (ventas agregadas por brick).
+- En unidades, el mundo simulado usa $\lambda_h^{*}=\exp(X_h\beta^{*})$ y genera $z_{h,b}^{*}\sim\operatorname{Poisson}(\lambda_h^{*} w_{h,b})$ con $y_b=\sum_{h\in\mathcal{H}_b} z_{h,b}^{*}$.
+- Para stress testing, se pueden introducir overdispersion, zero inflation y efectos de brick sin cambiar la lógica general del pipeline.
+- La evaluación debe incluir recuperación de $\beta$ (cuando hay covariables), recuperación de $z$ en formato long y chequeos de conservación de masa $\sum_h \hat z_{h,b}=y_b$.

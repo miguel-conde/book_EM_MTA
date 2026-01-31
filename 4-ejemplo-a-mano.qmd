@@ -158,7 +158,7 @@ Las actualizaciones son ya pequeñas: el procedimiento está **casi convergido**
 
 ## Qué aprende EM en este ejemplo
 
-### 1) Aprende productividades relativas coherentes con *todas* las ecuaciones de suma
+1. **Aprende productividades relativas coherentes con *todas* las ecuaciones de suma**
 
 En este problema, $y_b$ no se “predice”: ya está observado. Lo que EM ajusta son productividades $\lambda_h$ y contribuciones esperadas $\hat z_{h,b}$ que, conjuntamente, sean compatibles con el agregado y con la estructura del modelo.
 
@@ -168,12 +168,11 @@ En concreto, EM está encontrando $\lambda_h$ tal que:
 -   Brick B ($60$) se explique como suma esperada de H2, H3 y H4.
 -   El reparto sea estable y auto-consistente.
 
-### 2) Los HCPs que aparecen en más bricks quedan “regularizados” por consistencia
+2. **Los HCPs que aparecen en más bricks quedan “regularizados” por consistencia**
 
 H2 y H3 deben cuadrar **dos ecuaciones** (A y B) a la vez. Por ese motivo tienden a estabilizarse antes que un HCP que aparece en un único brick.
 
-### 3) HCP “exclusivo” de brick grande tiende a llevarse más (si no hay más estructura)
-
+3. **HCP “exclusivo” de brick grande tiende a llevarse más (si no hay más estructura)**
 H1 solo está en A, así que el modelo puede subirlo sin que “choque” con otras restricciones.\
 Esto es una pista de un *pitfall real*: **sin covariables o priors, la identificabilidad puede ser débil**.
 

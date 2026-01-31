@@ -1,8 +1,8 @@
 # Modelo probabilístico base (sin covariables)
 
-Este capítulo fija el modelo probabilístico base que usaremos durante el resto del libro. El objetivo es doble: (i) dejar la notación cerrada y estable, y (ii) formalizar el mecanismo “agregado → desagregado” como un modelo generativo con variables latentes.
-
 ## Introducción
+
+Este capítulo fija el modelo probabilístico base que usaremos durante el resto del libro. El objetivo es doble: (i) dejar la notación cerrada y estable, y (ii) formalizar el mecanismo “agregado → desagregado” como un modelo generativo con variables latentes.
 
 El propósito operativo de este capítulo es que el lector salga con un modelo completamente especificado y reutilizable: **qué observamos** ($y_b$ y $w_{h,b}$), **qué variable latente** introducimos ($z_{h,b}$) y qué suposiciones probabilísticas ligan ambos niveles. Para ello, primero fijamos la notación que se mantiene en el resto del libro, y después proponemos dos familias de modelos según la naturaleza del agregado (unidades frente a euros).
 

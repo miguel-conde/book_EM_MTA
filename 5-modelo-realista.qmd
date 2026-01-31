@@ -1,21 +1,14 @@
 # Incorporando features de HCP (modelo realista)
 
-Este capítulo es **el salto a producción**.\
-Pasamos de “un $\lambda_h$ libre por HCP” a un modelo **paramétrico, generalizable y regularizado**.
+## Introducción
 
-## 1️⃣ Por qué necesitamos covariables (motivación)
+Este capítulo es **el salto a producción**. Pasamos de “un $\lambda_h$ libre por HCP” a un modelo **paramétrico, generalizable y regularizado**.
 
-En el Capítulo 4 vimos un problema clave:
+## Por qué necesitamos covariables (motivación)
 
--   HCPs “exclusivos” de bricks grandes pueden absorber demasiada venta
+En el Capítulo 4 se ve un problema clave: los HCPs “exclusivos” de bricks grandes pueden absorber demasiada venta, el modelo es **débilmente identificable** y no generaliza a HCPs nuevos. La salida natural es **atar la productividad a información observable**.
 
--   El modelo es **débilmente identificable**
-
--   No generaliza a HCPs nuevos
-
-👉 Solución: **atar la productividad a información observable**.
-
-## 2️⃣ Nueva definición de productividad
+## Nueva definición de productividad
 
 Definimos:
 
@@ -23,34 +16,29 @@ $$
 \boxed{\lambda_h = \exp(X_h \beta)}
 $$
 
-donde:
+En esta parametrización:
 
 -   $X_h \in \mathbb{R}^p$: features del HCP\
     (especialidad, seniority, nº visitas, potencial, etc.)
-
 -   $\beta \in \mathbb{R}^p$: coeficientes globales
 
-📌 Interpretación:
+La interpretación es directa: dos HCPs con los mismos $X$ tienen la misma productividad esperada, y el modelo **comparte fuerza estadística**.
 
--   Dos HCPs con mismos $X$ tienen misma productividad esperada
+## Modelo completo con covariables (Poisson)
 
--   El modelo **comparte fuerza estadística**
-
-## 3️⃣ Modelo completo con covariables (Poisson)
-
-### 🔹 Generativo
+### Modelo generativo
 
 $$
-z_{h,b} \sim \text{Poisson}(\exp(X_h\beta), w_{h,b})
+z_{h,b} \sim \operatorname{Poisson}(\exp(X_h\beta),\, w_{h,b})
 $$
 
 $$
 y_b = \sum_{h\in b} z_{h,b}
 $$
 
-## 4️⃣ EM + GLM: cómo encajan
+## EM + GLM: cómo encajan
 
-### 🔁 E-step (igual que antes)
+### E-step (igual que antes)
 
 Con $\lambda_h^{(t)} = \exp(X_h\beta^{(t)})$:
 
@@ -63,141 +51,115 @@ $$
 }
 $$
 
-📌 **Nada cambia conceptualmente**.
+En este punto, **nada cambia conceptualmente**.
 
-### 🔄 M-step (ahora es un GLM)
+### M-step (ahora es un GLM)
 
 Definimos los “pseudo-targets”:
 
 $$
-    ilde y_h = \sum_b \mathbb{E}[z_{h,b}]
+\widetilde{y}_h = \sum_b \mathbb{E}[z_{h,b}]
 $$
 
 y la exposición total:
 
 $$
-    ilde w_h = \sum_b w_{h,b}
+\widetilde{w}_h = \sum_b w_{h,b}
 $$
 
 Entonces el M-step es:
 
 $$
 \boxed{
-\max_{\beta} \sum_h \left[ \tilde y_h \log \lambda_h - \lambda_h \tilde w_h \right]
+\max_{\beta} \sum_h \left[ \widetilde{y}_h \log \lambda_h - \lambda_h \widetilde{w}_h \right]
 \quad
-    \text{con }\lambda_h = \exp(X_h\beta)
+\mathrm{con}\ \lambda_h = \exp(X_h\beta)
 }
 $$
 
-👉 Esto es exactamente una **Poisson regression con offset**:
+Esto es exactamente una **Poisson regression con offset**:
 
--   Response: $\tilde y_h$
+-   Response: $\widetilde{y}_h$
+-   Offset: $\log(\widetilde{w}_h)$
 
--   Offset: $\log(\tilde w_h)$
+Se resuelve con IRLS estándar.
 
-📌 Se resuelve con IRLS estándar.
-
-## 5️⃣ Caso euros (Gamma + covariables)
+## Caso euros (Gamma + covariables)
 
 Análogo:
 
 $$
-z_{h,b} \sim \text{Gamma}(k, \theta_h w_{h,b})
+z_{h,b} \sim \operatorname{Gamma}(k,\, \theta_h w_{h,b})
 \quad
-    \text{con }\theta_h = \exp(X_h\beta)
+\mathrm{con}\ \theta_h = \exp(X_h\beta)
 $$
 
 -   E-step: reparto proporcional a $\theta_h w_{h,b}$
-
 -   M-step:
-
     -   $\beta$: GLM Gamma con link log
-
     -   $k$: fijo o estimado con Newton
 
-📌 Misma lógica, distinta distribución.
+Misma lógica, distinta distribución.
 
-## 6️⃣ Regularización (crítica en la práctica)
+## Regularización (crítica en la práctica)
 
-Sin regularización:
+Sin regularización, $\beta$ puede explotar, especialmente si hay features raras o colineales.
 
--   $\beta$ puede explotar
-
--   Especialmente si hay features raras o colineales
-
-### 🔹 Penalización típica
+### Penalización típica
 
 $$
 \beta \sim \mathcal{N}(0,\sigma^2 I)
 $$
 
-Equivalente a:
+Esto es equivalente a ridge (L2) y a MAP en versión bayesiana. En producción, es muy recomendable.
 
--   Ridge (L2)
+## Identificabilidad (qué se arregla y qué no)
 
--   MAP en versión bayesiana
-
-📌 Muy recomendable en producción.
-
-## 7️⃣ Identificabilidad (qué se arregla y qué no)
-
-### ✔️ Lo que mejora
+### Lo que mejora
 
 -   HCPs exclusivos ya no “absorben” arbitrariamente
-
 -   Productividades están ancladas a $X_h$
-
 -   Generaliza a HCPs nuevos
 
-### ❌ Lo que sigue siendo cierto
+### Lo que sigue siendo cierto
 
 -   Attribution ≠ causalidad
-
 -   Si dos HCPs tienen $X$ casi idéntico y siempre co-ocurren, no se distinguen
 
-## 8️⃣ ¿Qué pasa cuando un HCP está en muchos bricks?
+## Qué pasa cuando un HCP está en muchos bricks
 
-Esto es **bueno**, no malo.
+Esto es **bueno**, no malo. Un HCP que aparece en muchos bricks entra en muchas ecuaciones,
 
--   Aparece en muchas ecuaciones:
+$$
+y_b \approx \sum_h \exp(X_h\beta)\, w_{h,b}
+$$
 
-    $$
-    y_b \approx \sum_h \exp(X_h\beta)\, w_{h,b}
-    $$
+por lo que el modelo puede usarlo como ancla y reducir la varianza de $\beta$. En la práctica, los HCPs “centrales” estabilizan el ajuste, y los HCPs raros se benefician del *pooling*.
 
--   El modelo **lo usa como ancla**
-
--   Reduce varianza de $\beta$
-
-📌 En la práctica:
-
--   HCPs “centrales” estabilizan el modelo
-
--   HCPs raros se benefician del pooling
-
-## 9️⃣ ✔️ SALIDA — Modelo listo para datos reales
+## Salida — Modelo listo para datos reales
 
 ### Modelo final (unidades)
 
 $$
 \boxed{
 \begin{aligned}
-z_{h,b} &\sim \text{Poisson}(\exp(X_h\beta), w_{h,b}) \\
+z_{h,b} &\sim \operatorname{Poisson}(\exp(X_h\beta),\, w_{h,b}) \\
 y_b &= \sum_{h\in b} z_{h,b}
 \end{aligned}
 }
 $$
 
-con:
+con EM para inferencia, GLM en el M-step y regularización opcional.
 
--   EM para inferencia
-
--   GLM en el M-step
-
--   Regularización opcional
-
-## 🔚 Lectura de negocio (muy importante)
+## Lectura de negocio (muy importante)
 
 > “Estamos estimando un **modelo probabilístico de generación de ventas**,\
 > usando información observable del HCP,\
 > y la attribution es la **mejor explicación consistente** con ese modelo.”
+
+## Resumen
+
+- Este capítulo reemplaza el parámetro libre $\lambda_h$ por una productividad estructurada $\lambda_h=\exp(X_h\beta)$ para ganar generalización y estabilidad.
+- El *E-step* se mantiene; el *M-step* se convierte en un ajuste de GLM (Poisson con offset) a partir de pseudo-targets $\widetilde{y}_h$ y exposición agregada $\widetilde{w}_h$.
+- La regularización sobre $\beta$ es crítica en la práctica y mejora la identificabilidad.
+- Esto no convierte la attribution en causalidad ni resuelve casos en los que dos HCPs son prácticamente indistinguibles por sus $X$ y su patrón de co-ocurrencia.
