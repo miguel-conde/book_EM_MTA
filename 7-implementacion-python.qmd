@@ -1,6 +1,8 @@
 # Implementación completa en Python
 
-Aquí tienes el **Capítulo 7** con una implementación **EM desde cero en Python (sin sklearn)**, E-step **vectorizado**, M-step con **IRLS** (Poisson GLM con *offset*) + **ridge**, y un bloque de **debugging** típico.
+## Introducción
+
+Este capítulo presenta una implementación completa del algoritmo **EM** en Python, construida desde cero (sin `sklearn`). La implementación incluye un *E-step* **vectorizado**, un *M-step* mediante **IRLS** (GLM Poisson con *offset*) con **ridge**, y un bloque de **debugging** orientado a los problemas típicos de producción.
 
 [Download the notebook](sandbox:/mnt/data/em_hcp_brick_end_to_end.ipynb)
 
@@ -12,13 +14,13 @@ Aquí tienes el **Capítulo 7** con una implementación **EM desde cero en Pytho
 
     -   **E-step** vectorizado con `np.bincount`
 
-    -   **M-step**: Poisson GLM con link log y **offset** `log(w_tilde)` implementado con **IRLS** + **ridge**
+    -   **M-step**: GLM Poisson con link log y **offset** `log(w_tilde)`, implementado con **IRLS** + **ridge**
 
--   **Convergencia**: trazado de log-likelihood observada por iteración + criterio de parada por cambio relativo en `beta`
+-   **Convergencia**: trazado de log-likelihood observada por iteración y criterio de parada por cambio relativo en `beta`
 
--   **Evaluación** contra ground truth:
+-   **Evaluación** contra *ground truth*:
 
-    -   correlación y RMSE en `η = Xβ` (más estable que comparar β directo si hay colinealidad)
+    -   correlación y RMSE en `η = Xβ` (más estable que comparar `β` directo si hay colinealidad)
 
     -   correlación y RMSE en `z_true` vs `zhat`
 
@@ -39,12 +41,12 @@ En cada relación (fila) HCP–brick:
 Esto garantiza automáticamente:
 
 $$
-\sum_{h\in b} \hat z_{h,b} = y_b
+\sum_{h\in b} \hat z_{h,b} = y_b.
 $$
 
 ### M-step como GLM con offset
 
-Construyes:
+En el *M-step* se construyen agregados a nivel HCP:
 
 -   `y_tilde[h] = sum_b zhat[h,b]`
 
@@ -53,9 +55,9 @@ Construyes:
 -   Ajustas:
 
     $$
-    \tilde y_h \sim \text{Poisson}(\exp(X_h\beta + \log \tilde w_h))
+    \widetilde y_h \sim \operatorname{Poisson}(\exp(X_h\beta + \log \widetilde w_h)),
     $$
-    
+
     con IRLS y ridge.
 
 ## Debugging típico (lo más útil en producción)
@@ -68,7 +70,7 @@ Construyes:
 
 -   **Check #4**: si `exp(Xβ)` explota, sube ridge o estandariza/clipea `η`
 
-✅ **Checkpoint**: si lo abres y lo ejecutas, deberías ver:
+**Checkpoint**: al abrirlo y ejecutarlo, se debería observar:
 
 -   log-likelihood creciendo y estabilizando
 
@@ -76,4 +78,11 @@ Construyes:
 
 -   correlaciones razonables `z_true` vs `zhat` y `η_true` vs `η_hat`
 
-Cuando me digas “OK”, pasamos al **Capítulo 8 — Unidades vs Euros (Poisson vs Gamma/Lognormal)**.
+El siguiente paso continúa en el **Capítulo 8 — Unidades vs Euros (Poisson vs Gamma/Lognormal)**.
+
+## Resumen
+
+- El notebook implementa EM end-to-end con datos simulados (`hcp_df`, `hb_df`, `y_df`) y acceso a *ground truth* (`beta_true`, `lambda_true`, `z_true`).
+- El *E-step* se implementa de forma vectorizada y garantiza la conservación de masa por brick: $\sum_{h\in b}\hat z_{h,b}=y_b$.
+- El *M-step* se resuelve como GLM Poisson con link log y *offset* `log(w_tilde)`, estimado con IRLS y regularización ridge.
+- La validación incluye convergencia de la log-likelihood, chequeos estructurales (por brick) y métricas de recuperación sobre `η = Xβ` y sobre `z_true`.

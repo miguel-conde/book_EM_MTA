@@ -153,7 +153,7 @@ def simulate_hcp_brick_poisson(
     # We'll just report achieved distribution; simulation already creates variation.
 
     # ----- (D) Generate latent z* and observed y -----
-    # z_{h,b} ~ Poisson(lambda_h * w_{h,b})
+    # z_{h,b}^{*} ~ Poisson(lambda_true[h] * w[h,b])
     mu = lambda_true[hb["hcp_id"].to_numpy()] * hb["w"].to_numpy()
     z_true = rng.poisson(lam=mu)
 
@@ -217,7 +217,7 @@ Puedes hacer el mundo más “real” con:
 
 -   **Brick effects**:
 
-    -   añadir un factor por brick ($a_b$): ($\mu_{h,b} = \lambda_h w_{h,b} a_b$)
+    -   añadir un factor por brick ($a_b$): ($\mu_{h,b} = \lambda_h^{*} w_{h,b} a_b$)
 
 -   **Dependencia en visitas**:
 
@@ -349,7 +349,7 @@ $$
 ### Cómo encajan las tres tablas (lectura operativa)
 
 ```text
-hcp_df  -> define λ_h = exp(X_h β)
+hcp_df  -> define λ_h^* = exp(X_h β^*)
 hb_df   -> define exposición por par (h,b): w_{h,b}
 y_df    -> observa solo el agregado por brick: y_b
 ```
