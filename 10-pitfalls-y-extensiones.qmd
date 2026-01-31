@@ -1,86 +1,59 @@
-Perfecto. Este es **el capítulo que diferencia a alguien que “sabe EM” de alguien que lo puede poner en producción**. Voy a ser deliberadamente **pragmático y un poco duro**: esto es criterio de senior.
-
----
-
 # Pitfalls reales y extensiones
 
 **Criterio de Senior Data Scientist**
 
----
+## Introducción
 
-## 1️⃣ Identifiability: el problema que nunca desaparece
+Este capítulo recoge criterio de producción para aplicar EM en problemas de reparto “agregado → desagregado”. El objetivo no es ampliar la teoría, sino explicitar los fallos típicos que aparecen en entornos reales (identificabilidad, sobreajuste y *cold start*) y las extensiones prácticas que suelen ser necesarias para estabilizar el output.
 
-### ❓ Qué significa aquí
+## Identificabilidad: el problema que nunca desaparece
+
+### Qué significa aquí
 
 Un modelo es identificable si **los datos contienen suficiente información** para distinguir los parámetros.
 
 En EM intra-canal / HCP–Brick:
 $$
 y_b = \sum_h z_{h,b},\quad
-z_{h,b} \sim f(\lambda_h \omega_{b,h})
+z_{h,b} \sim f(\lambda_h \omega_{b,h}).
 $$
 
-👉 **No todo $\lambda$ es identificable**.
+En este contexto, la implicación operativa es que **no todo $\lambda$ es identificable**.
 
----
+### Casos típicos de no-identificabilidad
 
-### 🚨 Casos típicos de no-identificabilidad
+#### Colinealidad perfecta en $\omega$
 
-#### a) Colinealidad perfecta en $\omega$
-
-Ejemplo:
-
-* dos campañas siempre activas juntas
-* mismo perfil temporal y geo
-* mismas impresiones adstockeadas
-
-Entonces:
+Un caso típico aparece cuando dos campañas están siempre activas juntas, comparten el mismo perfil temporal y geo, y tienen las mismas impresiones adstockeadas. Entonces, una combinación como
 $$
 \lambda_1 \omega_1 + \lambda_2 \omega_2
 $$
-no se puede separar.
+no se puede separar. En consecuencia, EM “elige” una solución de forma arbitraria.
 
-📌 **EM “elige” arbitrariamente**.
+#### Escala no identificable
 
----
+También es común una no-identificabilidad por escala. Si se multiplica
 
-#### b) Escala no identificable
+* $\lambda_h \leftarrow c\lambda_h$,
+* $\omega_{b,h} \leftarrow \omega_{b,h}/c$,
 
-Si multiplicas:
+el likelihood no cambia.
 
-* $\lambda_h \leftarrow c\lambda_h$
-* $\omega_{b,h} \leftarrow \omega_{b,h}/c$
+En este caso, las soluciones prácticas son:
 
-👉 El likelihood no cambia.
+* fijar escala de $\omega$,
+* normalizar $\lambda$ (media = 1),
+* usar offsets explícitos.
 
-📌 Solución:
-
-* fijar escala de $\omega$
-* normalizar $\lambda$ (media = 1)
-* usar offsets explícitos
-
----
-
-### 🧠 Criterio senior
+### Criterio senior
 
 > **Si dos entidades no se diferencian en $\omega$ a lo largo del dataset, no esperes que EM las diferencie.**
 
----
-
-## 2️⃣ Overfitting silencioso (el más peligroso)
+## Overfitting silencioso (el más peligroso)
 
 ### Qué lo hace “silencioso”
 
-* El likelihood sube
-* Las métricas internas mejoran
-* El output parece “razonable”
-
-Pero:
-
-* el modelo está explicando **ruido**
-* los $\lambda$ son inestables entre runs
-
----
+El sobreajuste puede ser silencioso porque el likelihood sube, las métricas internas mejoran y el output parece “razonable”. Sin embargo, el modelo está explicando **ruido**, y los $\lambda$ tienden a ser inestables entre *runs*.
 
 ### Síntomas típicos
 
@@ -89,91 +62,66 @@ Pero:
 * campañas nuevas “ganan” sin evidencia
 * extrema sensibilidad a un brick
 
----
-
 ### Antídotos prácticos
 
-#### ✅ Regularización (no opcional)
+#### Regularización (no opcional)
 
 * ridge / lasso
 * o priors normales
 
-#### ✅ Pooling jerárquico
+#### Pooling jerárquico
 
 $$
-\lambda_h \sim \operatorname{LogNormal}(\mu_{\text{group}}, \sigma)
+\lambda_h \sim \operatorname{LogNormal}(\mu_{\text{group}}, \sigma).
 $$
 
-#### ✅ Tests de estabilidad
+#### Tests de estabilidad
 
 * re-fit con bootstrap temporal
 * compara rankings
 
-📌 **Si no haces esto, EM miente educadamente.**
+Si no se aplican estos controles, EM puede producir un resultado que “miente educadamente”.
 
----
-
-## 3️⃣ Cold start (HCPs / campañas nuevas)
+## Cold start (HCPs / campañas nuevas)
 
 ### El problema
 
-Un HCP o campaña con:
-
-* poca $\omega$
-* pocos bricks
-* datos recientes
-
-👉 EM tiende a:
-
-* asignarles extremos
-* o colapsarlos a cero
-
----
+Un HCP o campaña con poca $\omega$, pocos bricks o datos recientes tiende a provocar inestabilidad. En estos casos, EM puede asignar valores extremos o colapsar el reparto a cero.
 
 ### Soluciones ordenadas por madurez
 
-#### 🟢 Nivel 1 — Heurística
+#### Nivel 1 — Heurística
 
 * floor en $\omega$
 * shrinkage manual
 
-#### 🟡 Nivel 2 — Covariables
+#### Nivel 2 — Covariables
 
 $$
-\lambda_h = \exp(X_h \beta)
+\lambda_h = \exp(X_h \beta).
 $$
 
-Comparte señal entre entidades similares.
+Esta parametrización comparte señal entre entidades similares.
 
-#### 🔵 Nivel 3 — Jerárquico
+#### Nivel 3 — Jerárquico
 
 $$
-\beta_h \sim \mathcal{N}(\beta_{\text{group}}, \Sigma)
+\beta_h \sim \mathcal{N}(\beta_{\text{group}}, \Sigma).
 $$
-
----
 
 ### Regla senior
 
 > **Si tienes cold start, EM sin pooling es mala idea.**
 
----
-
-## 4️⃣ EM vs Bayesian Hierarchical Models (BHM)
+## EM vs Bayesian Hierarchical Models (BHM)
 
 ### Qué hace EM realmente
 
-* estima **puntos** ($\hat\lambda$)
-* asume máxima verosimilitud
-* no propaga incertidumbre
+En esta formulación, EM estima **puntos** ($\hat\lambda$), asume máxima verosimilitud y no propaga incertidumbre.
 
 ### Qué hace un BHM
 
-* estima **distribuciones**
-* hace shrinkage automático
-* maneja mejor colas y escasez
-
----
+Un BHM estima **distribuciones**, induce shrinkage automático y maneja mejor colas y escasez.
 
 ### Comparación honesta
 
@@ -182,48 +130,38 @@ $$
 | Complejidad       | Baja       | Alta                |
 | Escalabilidad     | Muy alta   | Media               |
 | Interpretabilidad | Alta       | Media               |
-| Incertidumbre     | ❌          | ✅                   |
-| Cold start        | ❌          | ✅                   |
+| Incertidumbre     | No         | Sí                  |
+| Cold start        | No         | Sí                  |
 | Priors            | Implícitos | Explícitos          |
 | Debug             | Fácil      | Difícil             |
-
----
 
 ### Criterio senior
 
 > **EM es un excelente baseline productivo.
 > BHM es para cuando ya sabes exactamente por qué EM falla.**
 
----
-
-## 5️⃣ Cuándo pasar a Variational Inference (VI)
+## Cuándo pasar a Variational Inference (VI)
 
 ### Señales claras de que EM ya no basta
 
-#### 🚩 1) Mucha jerarquía
+#### 1) Mucha jerarquía
 
 * campañas dentro de medios
 * creatividades dentro de campañas
 * geos dentro de países
 
-EM se vuelve un Frankenstein.
+En esta situación, EM se vuelve un Frankenstein.
 
----
-
-#### 🚩 2) Incertidumbre importa
+#### 2) Incertidumbre importa
 
 * decisiones de inversión
 * intervalos de confianza
 * risk management
 
----
-
-#### 🚩 3) Datos escasos + colas pesadas
+#### 3) Datos escasos + colas pesadas
 
 * revenue extremo
 * pocos puntos por entidad
-
----
 
 ### Qué te da VI
 
@@ -238,23 +176,19 @@ EM se vuelve un Frankenstein.
 * tiempo de cómputo
 * dificultad de explicación
 
-📌 **No es un upgrade trivial, es un cambio de paradigma.**
+No es un upgrade trivial: es un cambio de paradigma.
 
----
+## Anti-patterns (cosas que NO hacer)
 
-## 6️⃣ Anti-patterns (cosas que NO hacer)
+- “EM converge, luego está bien”
+- “Más features = mejor”
+- “Si sube el likelihood, es correcto”
+- “Usar Lognormal porque es revenue”
+- “Cold start sin pooling”
 
-❌ “EM converge, luego está bien”
-❌ “Más features = mejor”
-❌ “Si sube el likelihood, es correcto”
-❌ “Usar Lognormal porque es revenue”
-❌ “Cold start sin pooling”
+## Checklist de senior antes de producción
 
----
-
-## 7️⃣ Checklist de senior antes de producción
-
-Antes de poner EM en prod, pregúntate:
+Antes de poner EM en producción, este checklist ayuda a evitar los fallos más comunes:
 
 * [ ] ¿$\omega$ distingue realmente a las entidades?
 * [ ] ¿He fijado la escala?
@@ -263,36 +197,32 @@ Antes de poner EM en prod, pregúntate:
 * [ ] ¿Tengo estrategia para cold start?
 * [ ] ¿Sé explicar por qué **no** es causal?
 
-Si fallas 2 o más → **no está listo**.
+Si fallas 2 o más, no está listo.
 
----
-
-## 8️⃣ Conclusión (criterio real)
+## Conclusión (criterio real)
 
 > **EM es un bisturí, no un martillo.**
 > En manos expertas: preciso, rápido, explicable.
 > En manos inexpertas: elegante y peligrosamente convincente.
 
----
+## Salida — Criterio de Senior Data Scientist
 
-## ✔️ Salida — **Criterio de Senior Data Scientist**
+Usa EM cuando:
 
-* Usa EM cuando:
+* el problema es “repartir un total”
+* tienes buena señal en $\omega$
+* necesitas algo estable y explicable
 
-  * el problema es “repartir un total”
-  * tienes buena señal en $\omega$
-  * necesitas algo estable y explicable
+Pásate a jerárquico / VI cuando:
 
-* Pásate a jerárquico / VI cuando:
+* hay mucha escasez
+* necesitas incertidumbre
+* el negocio lo exige
 
-  * hay mucha escasez
-  * necesitas incertidumbre
-  * el negocio lo exige
+## Resumen
 
----
-
-Si quieres, el siguiente (y último) capítulo podría ser:
-
-* **Capítulo 10 — Cómo explicar EM + MMM + MTA a negocio en 3 slides**,
-  o
-* **Capítulo 10 — Diseño de una librería interna EM para attribution (API + tests)**
+- La identificabilidad depende de que $\omega$ distinga entidades a lo largo del dataset y de fijar una escala.
+- El sobreajuste puede ser silencioso; regularización, pooling y tests de estabilidad son controles prácticos.
+- El *cold start* requiere heurísticas, covariables o jerarquía, según el nivel de madurez.
+- EM proporciona un baseline productivo; BHM y VI aportan incertidumbre y shrinkage, a costa de complejidad.
+- El criterio de producción se apoya en anti-patterns y un checklist explícito antes de desplegar.
