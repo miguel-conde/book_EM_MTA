@@ -4,17 +4,16 @@
 
 Este capítulo presenta una implementación completa del algoritmo **EM** en Python, construida desde cero (sin `sklearn`). La implementación incluye un *E-step* **vectorizado**, un *M-step* mediante **IRLS** (GLM Poisson con *offset*) con **ridge**, y un bloque de **debugging** orientado a los problemas típicos de producción.
 
-[Download the notebook](sandbox:/mnt/data/em_hcp_brick_end_to_end.ipynb)
+[Download the notebook](em_hcp_brick_end_to_end.ipynb)
 
 ## Qué incluye el notebook (end-to-end)
 
 -   **Generación de datos mock** (`hcp_df`, `hb_df`, `y_df`) con `beta_true`, `lambda_true`, `z_true`
-
 -   **EM completo**:
 
     -   **E-step** vectorizado con `np.bincount`
 
-    -   **M-step**: GLM Poisson con link log y **offset** `log(w_tilde)`, implementado con **IRLS** + **ridge**
+    -   **M-step**: GLM Poisson con enlace log y **offset** `log(w_tilde)`, implementado con **IRLS** + **ridge**
 
 -   **Convergencia**: trazado de log-likelihood observada por iteración y criterio de parada por cambio relativo en `beta`
 
@@ -41,7 +40,7 @@ En cada relación (fila) HCP–brick:
 Esto garantiza automáticamente:
 
 $$
-\sum_{h\in b} \hat z_{h,b} = y_b.
+\sum_{h\in \mathcal{H}_b} \hat z_{h,b} = y_b.
 $$
 
 ### M-step como GLM con offset
@@ -55,7 +54,7 @@ En el *M-step* se construyen agregados a nivel HCP:
 -   Ajustas:
 
     $$
-    \widetilde y_h \sim \operatorname{Poisson}(\exp(X_h\beta + \log \widetilde w_h)),
+    \widetilde y_h \sim \operatorname{Poisson}(\exp(X_h\beta + \log \widetilde w_h)).
     $$
 
     con IRLS y ridge.
@@ -83,6 +82,6 @@ El siguiente paso continúa en el **Capítulo 8 — Unidades vs Euros (Poisson v
 ## Resumen
 
 - El notebook implementa EM end-to-end con datos simulados (`hcp_df`, `hb_df`, `y_df`) y acceso a *ground truth* (`beta_true`, `lambda_true`, `z_true`).
-- El *E-step* se implementa de forma vectorizada y garantiza la conservación de masa por brick: $\sum_{h\in b}\hat z_{h,b}=y_b$.
-- El *M-step* se resuelve como GLM Poisson con link log y *offset* `log(w_tilde)`, estimado con IRLS y regularización ridge.
+- El *E-step* se implementa de forma vectorizada y garantiza la conservación de masa por brick: $\sum_{h\in \mathcal{H}_b}\hat z_{h,b}=y_b$.
+- El *M-step* se resuelve como GLM Poisson con enlace log y *offset* `log(w_tilde)`, estimado con IRLS y regularización ridge.
 - La validación incluye convergencia de la log-likelihood, chequeos estructurales (por brick) y métricas de recuperación sobre `η = Xβ` y sobre `z_true`.
