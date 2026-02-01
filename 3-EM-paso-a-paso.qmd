@@ -1,4 +1,4 @@
-# EM paso a paso en este contexto
+# EM paso a paso: E-step (reparto) y M-step (estimación)
 
 ## Introducción
 

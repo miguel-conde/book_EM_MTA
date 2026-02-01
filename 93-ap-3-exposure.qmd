@@ -1,4 +1,4 @@
-# Término de exposición: nombre técnico de $\omega_{b,h}$
+# Ap-3 — Exposición y offset: nomenclatura e interpretación
 
 En este libro, $\omega_{b,h}$ (o, de forma equivalente, $w_{h,b}$) representa un **término de exposición (u oportunidad) conocido** que escala la intensidad del proceso generativo. Darle un nombre técnico preciso reduce ambigüedades, pero conviene recordar que **no existe un único nombre universal**: la nomenclatura depende de la tradición estadística y del contexto aplicado.
 

@@ -1,4 +1,4 @@
-# Why Multitouch Attribution Fails — and How to Fix It Without Losing Incrementality
+# Blog post (CMO) — Why Multitouch Attribution Fails — and How to Fix It Without Losing Incrementality
 
 *Audience: Chief Marketing Officers (CMOs) and senior marketing leadership.*
 

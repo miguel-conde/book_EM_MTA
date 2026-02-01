@@ -1,4 +1,4 @@
-# Mock data generation
+# Datos sintéticos (mock data): diseño y validación
 
 ## Introducción
 

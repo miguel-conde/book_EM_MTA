@@ -1,4 +1,4 @@
-# Multitouch Attribution as a Latent Variable Problem: A Data Science Perspective
+# Blog post (Head of Data Science) — Multitouch Attribution as a Latent Variable Problem: A Data Science Perspective
 
 *Audience: Heads of Data Science and senior data science leadership.*
 

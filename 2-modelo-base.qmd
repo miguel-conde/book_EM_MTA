@@ -1,4 +1,4 @@
-# Modelo probabilístico base (sin covariables)
+# Modelo probabilístico base (Poisson) y notación
 
 ## Introducción
 

@@ -1,4 +1,4 @@
-# Incorporando features de HCP (modelo realista)
+# Modelo realista: covariables, regularización y estabilidad
 
 ## Introducción
 

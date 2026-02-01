@@ -1,4 +1,4 @@
-# Pitfalls reales y extensiones
+# Pitfalls en producción y extensiones
 
 **Criterio de Senior Data Scientist**
 

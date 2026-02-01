@@ -1,4 +1,4 @@
-# Implementación completa en Python
+# Implementación en Python: E-step vectorizado + M-step (GLM con offset)
 
 ## Introducción
 

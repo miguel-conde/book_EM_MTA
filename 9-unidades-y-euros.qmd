@@ -1,4 +1,4 @@
-# Unidades vs Euros
+# Unidades vs euros: Poisson vs Gamma/Lognormal (implicaciones para EM)
 
 **Poisson vs Gamma / Lognormal**
 

@@ -1,5 +1,5 @@
 
-# Capítulo extra — EM para repartir contribuciones de MMM a campañas/creatividades (MTA)
+# Caso de uso (MMM→MTA): repartir contribución a campañas/creatividades
 
 ## Introducción
 

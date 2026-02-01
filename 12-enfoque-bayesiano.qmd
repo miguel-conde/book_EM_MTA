@@ -1,4 +1,4 @@
-# Enfoque Bayesiano Jerárquico (BHM) para HCP–Brick / MMM–MTA
+# Enfoque bayesiano jerárquico (BHM): cuándo y por qué
 
 ## Introducción
 

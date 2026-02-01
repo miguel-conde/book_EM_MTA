@@ -1,3 +1,7 @@
+---
+title: "Ap-2 — Whitepaper para CXOs (EN)"
+---
+
 This appendix contains a vendor-agnostic whitepaper written in English for CMOs and Heads of Data Science. The document is structured to be reusable as source material for executive slides and blog posts.
 
 # Multitouch Attribution in Modern Marketing Measurement

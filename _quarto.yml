@@ -23,8 +23,8 @@ book:
     - 12-enfoque-bayesiano.qmd
     - 90-apendices.qmd
     - 91-ap-1-sw-para-MTA.qmd
-    - 92-ap-2-doc-CXOs.qmd
     - 93-ap-3-exposure.qmd
+    - 92-ap-2-doc-CXOs.qmd
     - 94-blog_post_CMO.qmd
     - 95-blog-post-DS.qmd
     - 99-biblio-anotada.qmd

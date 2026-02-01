@@ -1,4 +1,4 @@
-# Introducción
+# Introducción — De agregado a desagregado: HCP–Brick y MMM→MTA
 
 Este libro parte de una situación muy común en empresas: existe un **agregado observado** (por ejemplo, ventas por brick $y_b$, o contribución incremental por canal $C_{m,t,g}^{inc}$) y, sin embargo, la decisión operativa exige bajar a un nivel más fino (HCPs, campañas, creatividades). El objetivo no es “repartir por repartir”, sino construir un reparto que **conserve masa** (sume exactamente al total), sea **estable y reproducible**, y resulte **interpretable y auditable**.
 
