@@ -6,6 +6,10 @@ Este capítulo presenta una implementación completa del algoritmo **EM** en Pyt
 
 [Download the notebook](em_hcp_brick_end_to_end.ipynb)
 
+Para la interpretación de $w$/*exposure* y su uso como *offset* en el M-step (GLM con enlace log), véase el [Ap-3 — Exposición y offset: nomenclatura e interpretación](93-ap-3-exposure.qmd).
+
+Para una vista práctica del ecosistema de software y del *stack* típico MMM→MTA (MMM off-the-shelf + capa EM *custom*), véase [Ap-1 — Software para MMM → MTA](91-ap-1-sw-para-MTA.qmd).
+
 ## Qué incluye el notebook (end-to-end)
 
 -   **Generación de datos mock** (`hcp_df`, `hb_df`, `y_df`) con `beta_true`, `lambda_true`, `z_true`

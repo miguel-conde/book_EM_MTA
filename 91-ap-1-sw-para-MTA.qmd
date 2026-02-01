@@ -121,3 +121,10 @@ Herramientas como `PyMC`, `Pyro` o `NumPyro` permiten inferencia (NUTS/VI). Este
 Una solución que suele funcionar en equipos de Data Science es construir un estimador pequeño “sklearn-like” con una API explícita, por ejemplo: `fit(C_df, x_df, campaign_features_df)`, `predict_allocation()` (devuelve $\hat z_{m,k,t,g}$) y `get_params()` (devuelve $\hat\lambda$ o $\hat\beta$). Internamente, el E-step se mantiene en NumPy vectorizado y el M-step se resuelve con `statsmodels.GLM` o IRLS propio con ridge. Este enfoque facilita reproducibilidad, tests (conservación de masa, monotonicidad y estabilidad) e integración con un pipeline MMM.
 
 Un siguiente paso natural es convertir el notebook MMM→MTA en una clase tipo sklearn (`MMM2MTAEM`) con `fit`/`transform`, soportando exposición efectiva mediante adstock y saturación, un modo “closed form” (sin covariables) y un modo “GLM” (con covariables y regularización).
+
+## Referencias dentro del libro
+
+- Para la implementación del E-step/M-step en Python y el uso de *offset* en el GLM, véase [Implementación en Python: E-step vectorizado + M-step (GLM con offset)](7-implementacion-python.qmd).
+- Para el caso de uso MMM→MTA con adstock y saturación, véase [Caso de uso (MMM→MTA): repartir contribución a campañas/creatividades](8-caso-de-uso-MTA.qmd).
+- Para la nomenclatura de exposición/offset y el concepto de *effective exposure*, véase [Ap-3 — Exposición y offset: nomenclatura e interpretación](93-ap-3-exposure.qmd).
+- Para un documento ejecutivo reutilizable (EN) y Q&A defensivo, véase [Ap-2 — Whitepaper para CXOs (EN)](92-ap-2-doc-CXOs.qmd).

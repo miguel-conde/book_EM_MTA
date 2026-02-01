@@ -58,6 +58,8 @@ y_b
 \frac{\lambda_h \omega_{b,h}}{\sum_{h'} \lambda_{h'} \omega_{b,h'}}.
 $$
 
+Para la nomenclatura y la relación entre $\omega$/*exposure* y el *offset* en enlace log, véase el [Ap-3 — Exposición y offset: nomenclatura e interpretación](93-ap-3-exposure.qmd).
+
 La interpretación operativa es que los *shares* cambian poco entre modelos:
 
 * Poisson: exacto.

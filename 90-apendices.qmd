@@ -1,1 +1,10 @@
 ## **APÉNDICES** {.unnumbered}
+
+Esta parte agrupa material de soporte y piezas reutilizables (software, nomenclatura técnica, documentación ejecutiva y lecturas).
+
+- [Ap-1 — Software para MMM → MTA](91-ap-1-sw-para-MTA.qmd): panorama de herramientas (MMM) y por qué el puente MMM→MTA vía EM suele ser una capa *custom*.
+- [Ap-3 — Exposición y offset: nomenclatura e interpretación](93-ap-3-exposure.qmd): terminología para $w$/$\omega$ (*exposure*/*offset*) y lectura correcta en GLM.
+- [Ap-2 — Whitepaper para CXOs (EN)](92-ap-2-doc-CXOs.qmd): documento ejecutivo reutilizable (EN) con framing MMM↔MTA y Q&A defensivo.
+- [Blog post (CMO)](94-blog_post_CMO.qmd): versión breve orientada a liderazgo de marketing.
+- [Blog post (Head of Data Science)](95-blog-post-DS.qmd): versión breve orientada a liderazgo técnico, con apéndice técnico.
+- [Biblio anotada](99-biblio-anotada.qmd): lecturas y referencias para EM, Bayes, adstock/saturación y medición causal.

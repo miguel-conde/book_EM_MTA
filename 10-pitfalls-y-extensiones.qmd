@@ -6,6 +6,8 @@
 
 Este capítulo recoge criterio de producción para aplicar EM en problemas de reparto “agregado → desagregado”. El objetivo no es ampliar la teoría, sino explicitar los fallos típicos que aparecen en entornos reales (identificabilidad, sobreajuste y *cold start*) y las extensiones prácticas que suelen ser necesarias para estabilizar el output.
 
+Como material complementario, el libro incluye: [Ap-1 — Software para MMM → MTA](91-ap-1-sw-para-MTA.qmd) (ecosistema y *stack* típico), [Ap-2 — Whitepaper para CXOs (EN)](92-ap-2-doc-CXOs.qmd) (versión ejecutiva y Q&A defensivo), [Blog post (Head of Data Science)](95-blog-post-DS.qmd) (encuadre DS con apéndice técnico) y la [Biblio anotada](99-biblio-anotada.qmd).
+
 ## Identificabilidad: el problema que nunca desaparece
 
 ### Qué significa aquí

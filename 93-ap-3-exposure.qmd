@@ -151,3 +151,5 @@ Como ampliación, se puede:
 - ver cómo cambia el modelo si $\omega$ se trata como latente;
 - revisar referencias donde aparece exactamente este término;
 - redactar la sección metodológica con una nomenclatura consistente.
+
+Para lecturas y referencias de contexto (EM, adstock/saturación, enfoques bayesianos), véase la [Biblio anotada](99-biblio-anotada.qmd).

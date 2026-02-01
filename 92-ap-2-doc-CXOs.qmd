@@ -4,6 +4,8 @@ title: "Ap-2 — Whitepaper para CXOs (EN)"
 
 This appendix contains a vendor-agnostic whitepaper written in English for CMOs and Heads of Data Science. The document is structured to be reusable as source material for executive slides and blog posts.
 
+Related materials in this book: [Appendix 1 — Software for MMM → MTA](91-ap-1-sw-para-MTA.qmd), [Blog post (CMO)](94-blog_post_CMO.qmd), and [Blog post (Head of Data Science)](95-blog-post-DS.qmd).
+
 # Multitouch Attribution in Modern Marketing Measurement
 
 ## Bridging Marketing Mix Models, Incrementality, and Intra-Channel Optimization

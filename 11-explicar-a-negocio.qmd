@@ -3,6 +3,8 @@
 
 Este capítulo presenta un guion operativo para explicar EM + MMM + MTA ante negocio en tres slides, con mensajes claros, sin ecuaciones y con frases defendibles ante preguntas. El objetivo es que el comité entienda **qué se hace**, **por qué es coherente** y **qué no promete**.
 
+Como material reutilizable en formato documento, el libro incluye el [Ap-2 — Whitepaper para CXOs (EN)](92-ap-2-doc-CXOs.qmd). Como piezas breves para difusión, véanse [Blog post (CMO)](94-blog_post_CMO.qmd) y [Blog post (Head of Data Science)](95-blog-post-DS.qmd).
+
 ## Slide 1 — El problema real (y por qué una sola técnica no basta)
 
 ### Título

@@ -173,3 +173,5 @@ When grounded in MMM and treated as a disciplined credit allocation problem, MTA
 > **MMM decides where to invest.
 > MTA helps you execute better—without losing the truth.**
 
+Further reading in this book: [Appendix 2 — Whitepaper for CXOs (EN)](92-ap-2-doc-CXOs.qmd).
+

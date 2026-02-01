@@ -4,6 +4,8 @@
 
 En este capítulo nos centramos en el caso de **unidades (Poisson)**, porque en ese escenario EM queda **cerrado** y operativo. Al final se incluye el análogo para **euros (Gamma)**.
 
+Para referencias canónicas de EM y lecturas complementarias, véase la [Biblio anotada](99-biblio-anotada.qmd).
+
 ## Recordatorio del modelo (Capítulo 2)
 
 Para cada brick $b$ y HCP $h \in \mathcal{H}_b$, introducimos latentes no observados $z_{h,b}$ y observamos el agregado $y_b$.

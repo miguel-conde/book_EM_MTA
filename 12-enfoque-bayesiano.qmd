@@ -4,6 +4,8 @@
 
 Este capítulo describe el planteamiento de un **enfoque bayesiano jerárquico** (*Bayesian Hierarchical Model*, BHM) como alternativa al uso de **EM** con estimación puntual (*maximum likelihood*, MLE) en el problema “agregado → desagregado”. La idea central consiste en inferir el **modelo generativo completo**, incluidas las **variables latentes**, mediante **inferencia bayesiana**, en lugar de obtener estimadores puntuales para los parámetros.
 
+Para lecturas recomendadas (EM y bayesiano jerárquico), véase la [Biblio anotada](99-biblio-anotada.qmd). Para el encuadre práctico EM→Bayes en MTA, véase también [Blog post (Head of Data Science)](95-blog-post-DS.qmd).
+
 El cambio no se reduce a “poner priors”: el enfoque bayesiano modifica qué se estima, qué significa el resultado, cómo se controla el *overfitting* y qué preguntas operativas se pueden responder. A lo largo del capítulo se presenta (i) la formulación del modelo, (ii) la organización de los datos, (iii) el tratamiento de las variables latentes, (iv) las salidas del modelo y (v) el papel de los grupos y las jerarquías, incluyendo el caso en el que la jerarquía llega hasta creatividad.
 
 ---

@@ -7,6 +7,10 @@ En este capítulo se aplica el mismo patrón *agregado → desagregado* a un cas
 
 El capítulo también fija dos ideas prácticas que guían el modelado: (i) cuando el MMM es incremental, el total que se reparte conserva esa interpretación, pero el reparto intra-canal no se vuelve causal por sí mismo; (ii) si el MMM usa transformaciones (adstock y saturación), la forma más coherente de llevarlo a EM es definir la exposición del reparto a partir de una **exposición efectiva** MMM-consistente.
 
+Para una discusión operativa sobre software y por qué la capa EM intra-canal suele implementarse como componente *custom*, véase [Ap-1 — Software para MMM → MTA](91-ap-1-sw-para-MTA.qmd). Para nomenclatura e interpretación de exposición/offset (incluida *effective exposure*), véase [Ap-3 — Exposición y offset: nomenclatura e interpretación](93-ap-3-exposure.qmd).
+
+Para una versión ejecutiva (EN) del encuadre MMM↔MTA y un bloque de Q&A defensivo, véase el [Ap-2 — Whitepaper para CXOs (EN)](92-ap-2-doc-CXOs.qmd).
+
 ## Planteamiento: observado, latente y conservación de masa
 
 Para cada periodo (y opcionalmente geo) se dispone de:

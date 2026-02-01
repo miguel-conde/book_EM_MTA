@@ -214,6 +214,8 @@ Bayesian hierarchical models extend it when uncertainty matters.
 
 The key is not choosing the “best” algorithm—but **choosing the right formulation**.
 
+Further reading in this book: [Appendix 1 — Software for MMM → MTA](91-ap-1-sw-para-MTA.qmd) and [Appendix 2 — Whitepaper for CXOs (EN)](92-ap-2-doc-CXOs.qmd).
+
 ## Technical Appendix
 
 Below is a **Technical Appendix** you can attach to the whitepaper or link as a separate document. It is written for **Heads of Data Science / senior DS**, with **formal equations** and **implementation-ready pseudo-code**, but still scoped to be readable and defensible.

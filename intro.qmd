@@ -14,6 +14,8 @@ Tercero, el reparto está controlado por una noción de **productividad/eficienc
 
 Por último, el modelo incorpora un término de **exposición/oportunidad**, conocido, que modula el volumen esperable. En HCP–brick lo representamos como $w_{h,b}$ (o, si se prefiere, $\omega_{b,h}$); en MMM→MTA aparece como $w_{m,k,t,g}$ (por ejemplo spend/impresiones), potencialmente transformado mediante adstock y saturación.
 
+Para la nomenclatura técnica y la distinción entre *exposure* y *offset* (y su interpretación en este libro), véase el [Ap-3 — Exposición y offset: nomenclatura e interpretación](93-ap-3-exposure.qmd).
+
 En forma canónica (para unidades), el modelo típico es:
 
 $$
@@ -39,3 +41,5 @@ Si el total observado proviene de un MMM incremental/causal, entonces el **total
 ## Qué encontrarás más adelante
 
 El recorrido empieza con el caso base (sin covariables) y progresa hacia un modelo realista con GLM y regularización. A lo largo del camino se introduce un generador de datos mock para evaluar recuperación y hacer *stress testing*, una implementación práctica en Python, y un caso de uso MMM→MTA (incluyendo un notebook donde la exposición efectiva incorpora adstock y saturación). El tramo final está dedicado a criterio de producción: pitfalls, cómo explicarlo a negocio y una alternativa bayesiana.
+
+Como material reutilizable para comunicación, el libro incluye el [Ap-2 — Whitepaper para CXOs (EN)](92-ap-2-doc-CXOs.qmd) y dos piezas breves: [Blog post (CMO)](94-blog_post_CMO.qmd) y [Blog post (Head of Data Science)](95-blog-post-DS.qmd).

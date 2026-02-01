@@ -82,6 +82,8 @@ Esto es exactamente una **Poisson regression con offset**:
 -   Response: $\widetilde{y}_h$
 -   Offset: $\log(\widetilde{w}_h)$
 
+La terminología y la interpretación de $w$ (exposición) y del *offset* en enlace log se discute en el [Ap-3 — Exposición y offset: nomenclatura e interpretación](93-ap-3-exposure.qmd).
+
 Se resuelve con IRLS estándar.
 
 ## Caso euros (Gamma + covariables)
