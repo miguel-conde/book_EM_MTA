@@ -73,10 +73,22 @@ Una ruta corta y orientada a implementación consiste en leer:
 - **Capítulo 12 (Bayesiano)**: cómo se vería un modelo jerárquico, qué cambia y qué ganas (incertidumbre + shrinkage).
 - **Apéndices**: software público relevante, documento para CXOs, y nomenclatura de “exposure/offset”.
 
-## Notebook incluido (MMM → MTA con adstock + saturación)
+## Notebooks incluidos
 
-Además del texto, el repositorio incluye el notebook `em_mmm_to_mta_adstock_saturation.ipynb`, que muestra un flujo completo para:
+Además del texto, el repositorio incluye dos notebooks end-to-end.
+
+### EM HCP–Brick (Poisson) — End-to-End
+
+El notebook `em_hcp_brick_end_to_end.ipynb` muestra un flujo completo para:
+
+- Generar datos mock HCP–brick con *ground truth*.
+- Ejecutar EM con E-step vectorizado y M-step como GLM con *offset*.
+- Validar conservación de masa y evaluar recuperación.
+
+### MMM → MTA con adstock + saturación
+
+El notebook `em_mmm_to_mta_adstock_saturation.ipynb` muestra un flujo completo para:
 
 - Construir **exposición efectiva MMM-consistente** con adstock + saturación (Hill).
 - Repartir contribución incremental $C_{m,t,g}^{inc}$ a campañas dentro de cada medio.
-- Validar conservación de masa y comparar contra ground truth en datos simulados.
+- Validar conservación de masa y comparar contra *ground truth* en datos simulados.
