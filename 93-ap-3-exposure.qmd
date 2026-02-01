@@ -1,12 +1,12 @@
 # Término de exposición: nombre técnico de $\omega_{b,h}$
 
-En este libro, $\omega_{b,h}$ (o, de forma equivalente, $w_{h,b}$) representa un **término de exposición/oportunidad conocido** que escala la intensidad del proceso generativo. Ponerle un nombre técnico preciso reduce ambigüedades, pero conviene tener presente que **no existe un único nombre universal**: la nomenclatura depende de la tradición estadística y del contexto aplicado.
+En este libro, $\omega_{b,h}$ (o, de forma equivalente, $w_{h,b}$) representa un **término de exposición (u oportunidad) conocido** que escala la intensidad del proceso generativo. Darle un nombre técnico preciso reduce ambigüedades, pero conviene recordar que **no existe un único nombre universal**: la nomenclatura depende de la tradición estadística y del contexto aplicado.
 
-La exposición se presenta a continuación de lo más formal a lo más aplicado, indicando el término recomendado en cada caso.
+A continuación se presenta la nomenclatura desde lo más formal a lo más aplicado, indicando el término recomendado en cada caso.
 
 ## Recomendación de uso (práctica)
 
-En el contexto de este libro (EM, Poisson/Gamma, HCP–brick, MMM→MTA), el nombre técnico más defendible para $\omega_{b,h}$ es **exposure** (o **exposure term**). En formulaciones GLM con link log, también se usa **offset** para referirse a $\log \omega$.
+En el contexto de este libro (EM, Poisson/Gamma, HCP–Brick, MMM→MTA), el nombre técnico más defendible para $\omega_{b,h}$ es **exposure** (o **exposure term**). En formulaciones GLM con enlace log, también se usa **offset** para referirse a $\log \omega$.
 
 ## Estadística clásica (Poisson / GLM)
 
@@ -15,16 +15,13 @@ $$
 z \sim \operatorname{Poisson}(\lambda \cdot \omega).
 $$
 
-En esa forma:
-
-- $\lambda$ es la *rate* (tasa).
-- $\omega$ es la **exposure** (tiempo, área, población, impresiones, etc.).
+En esa forma, $\lambda$ es la *rate* (tasa) y $\omega$ es la **exposure** (tiempo, área, población, impresiones, etc.).
 
 Ejemplos estándar incluyen accidentes por km (km como exposición), llamadas por hora (horas como exposición) o ventas por visitas (visitas como exposición). Este paralelismo es el que se usa en el modelo base del libro.
 
 ### Forma log-lineal y *offset*
 
-Con link log:
+Con enlace log:
 $$
 \log \mathbb{E}[z] = \log \omega + \log \lambda.
 $$
@@ -35,7 +32,7 @@ En esta representación, $\log \omega$ se denomina **offset**. En términos prá
 
 En estos contextos, además de **exposure** aparecen términos como **risk set size**, **at-risk population** u **opportunity**. La lectura es “población en riesgo” o “oportunidad” de que ocurra el evento.
 
-En HCP–brick, la interpretación natural es la oportunidad de que un HCP pueda generar contribución en ese brick.
+En HCP–Brick, la interpretación natural es la oportunidad de que un HCP pueda generar contribución en ese *brick*.
 
 ## Mixture models / asignación con EM
 
@@ -74,7 +71,7 @@ Además de fijar la nomenclatura, conviene precisar qué representa $\omega_{b,h
 
 En el libro se usa $w$ como notación canónica de exposición (u oportunidad). En otros textos aparece el mismo concepto como $\omega$. En ambos casos se trata del mismo objeto: una señal no negativa que modula el volumen esperable antes de introducir la productividad.
 
-Para cualquier caso de uso (HCP–Brick o MMM→MTA), $w$ (o $\omega$) significa **intensidad de exposición / elegibilidad / oportunidad** de la unidad individual para generar contribución dentro del agregado. No es una probabilidad, no es un share por sí sola, y no tiene por qué sumar 1.
+Para cualquier caso de uso (HCP–Brick o MMM→MTA), $w$ (o $\omega$) significa **intensidad de exposición / elegibilidad / oportunidad** de la unidad individual para generar contribución dentro del agregado. No es una probabilidad, no es un *share* por sí sola, y no tiene por qué sumar 1.
 
 ### Tres interpretaciones válidas
 
@@ -118,7 +115,7 @@ Si se elimina la productividad $\lambda$, la exposición $w$ (o $\omega$) debe s
 En documentos técnicos:
 
 - **Exposure term** ($\omega_{b,h}$)
-- **Known exposure** (offset en el link log)
+- **Known exposure** (offset en el enlace log)
 
 En documentos de negocio:
 
@@ -136,7 +133,7 @@ effective_exposure
 
 ## Formulación formal (usable sin ambigüedad)
 
-“$\omega_{b,h}$ es el **término de exposición conocido** que escala la intensidad del proceso generativo; en un GLM con link log entra como **offset**.”
+“$\omega_{b,h}$ es el **término de exposición conocido** que escala la intensidad del proceso generativo; en un GLM con enlace log entra como **offset**.”
 
 ## Resumen
 
