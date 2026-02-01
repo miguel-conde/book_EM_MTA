@@ -43,3 +43,5 @@ Si el total observado proviene de un MMM incremental/causal, entonces el **total
 El recorrido empieza con el caso base (sin covariables) y progresa hacia un modelo realista con GLM y regularización. A lo largo del camino se introduce un generador de datos mock para evaluar recuperación y hacer *stress testing*, una implementación práctica en Python, y un caso de uso MMM→MTA (incluyendo un notebook donde la exposición efectiva incorpora adstock y saturación). El tramo final está dedicado a criterio de producción: pitfalls, cómo explicarlo a negocio y una alternativa bayesiana.
 
 Como material reutilizable para comunicación, el libro incluye el [Ap-2 — Whitepaper para CXOs (EN)](92-ap-2-doc-CXOs.qmd) y dos piezas breves: [Blog post (CMO)](94-blog_post_CMO.qmd) y [Blog post (Head of Data Science)](95-blog-post-DS.qmd).
+
+Para una ruta de lectura por perfil (CMO vs Data Science), véase el [Preface](index.qmd).

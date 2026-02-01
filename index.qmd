@@ -35,6 +35,28 @@ No (a propósito):
 3. Capítulo extra (MMM → MTA): cómo reutilizar el mismo patrón para bajar de canal a campañas/creatividades.
 4. Capítulos finales: unidades vs euros, pitfalls, cómo explicarlo a negocio, y alternativa bayesiana.
 
+## Rutas de lectura por perfil
+
+### Perfil: liderazgo de marketing (CMO y dirección)
+
+Una ruta corta y orientada a decisión consiste en leer:
+
+1. [Introducción — De agregado a desagregado: HCP–Brick y MMM→MTA](intro.qmd).
+2. [Cómo explicar EM + MMM + MTA a negocio en 3 slides](11-explicar-a-negocio.qmd).
+3. [Ap-2 — Whitepaper para CXOs (EN)](92-ap-2-doc-CXOs.qmd).
+4. [Blog post (CMO)](94-blog_post_CMO.qmd).
+
+### Perfil: Data Science (desarrollo y producción)
+
+Una ruta corta y orientada a implementación consiste en leer:
+
+1. [Modelo probabilístico base (Poisson) y notación](2-modelo-base.qmd).
+2. [EM paso a paso: E-step (reparto) y M-step (estimación)](3-EM-paso-a-paso.qmd).
+3. [Modelo realista: covariables, regularización y estabilidad](5-modelo-realista.qmd).
+4. [Implementación en Python: E-step vectorizado + M-step (GLM con offset)](7-implementacion-python.qmd).
+5. [Pitfalls en producción y extensiones](10-pitfalls-y-extensiones.qmd).
+6. [Ap-1 — Software para MMM → MTA](91-ap-1-sw-para-MTA.qmd) y [Blog post (Head of Data Science)](95-blog-post-DS.qmd).
+
 ## Mapa del contenido
 
 - **Capítulo 1**: plantea el problema como variables latentes y conecta con mixture/credit attribution.
