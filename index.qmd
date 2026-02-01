@@ -79,7 +79,7 @@ Además del texto, el repositorio incluye dos notebooks end-to-end.
 
 ### EM HCP–Brick (Poisson) — End-to-End
 
-El notebook `em_hcp_brick_end_to_end.ipynb` muestra un flujo completo para:
+El notebook [em_hcp_brick_end_to_end.ipynb](em_hcp_brick_end_to_end.ipynb) muestra un flujo completo para:
 
 - Generar datos mock HCP–brick con *ground truth*.
 - Ejecutar EM con E-step vectorizado y M-step como GLM con *offset*.
@@ -87,7 +87,7 @@ El notebook `em_hcp_brick_end_to_end.ipynb` muestra un flujo completo para:
 
 ### MMM → MTA con adstock + saturación
 
-El notebook `em_mmm_to_mta_adstock_saturation.ipynb` muestra un flujo completo para:
+El notebook [em_mmm_to_mta_adstock_saturation.ipynb](em_mmm_to_mta_adstock_saturation.ipynb) muestra un flujo completo para:
 
 - Construir **exposición efectiva MMM-consistente** con adstock + saturación (Hill).
 - Repartir contribución incremental $C_{m,t,g}^{inc}$ a campañas dentro de cada medio.
