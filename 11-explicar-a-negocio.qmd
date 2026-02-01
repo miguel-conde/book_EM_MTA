@@ -1,15 +1,9 @@
-Perfecto. Te lo doy **exactamente como lo usaría un senior delante de comité**, en **3 slides**, con **mensajes claros**, **sin ecuaciones**, y con **frases defendibles** si te preguntan.
-
----
-
 # Cómo explicar EM + MMM + MTA a negocio en 3 slides
+## Introducción
 
-> Objetivo:
-> Que entiendan **qué hacemos**, **por qué es coherente**, y **qué NO promete**.
+Este capítulo presenta un guion operativo para explicar EM + MMM + MTA ante negocio en tres slides, con mensajes claros, sin ecuaciones y con frases defendibles ante preguntas. El objetivo es que el comité entienda **qué se hace**, **por qué es coherente** y **qué no promete**.
 
----
-
-## 🟦 **Slide 1 — El problema real (y por qué una sola técnica no basta)**
+## Slide 1 — El problema real (y por qué una sola técnica no basta)
 
 ### Título
 
@@ -36,7 +30,7 @@ MTA (campañas / creatividades)
 
 ---
 
-## 🟦 **Slide 2 — La solución: reparto coherente y controlado**
+## Slide 2 — La solución: reparto coherente y controlado
 
 ### Título
 
@@ -70,13 +64,13 @@ MTA (campañas / creatividades)
 
 ---
 
-## 🟦 **Slide 3 — Qué sí es, qué no es (y por qué confiar en ello)**
+## Slide 3 — Qué sí es, qué no es (y por qué confiar en ello)
 
 ### Título
 
 **Qué garantiza el método (y qué no promete)**
 
-### ✔️ Lo que SÍ garantiza
+### Lo que sí garantiza
 
 * El total por canal **cuadra exactamente** con el MMM
 * El reparto:
@@ -85,7 +79,7 @@ MTA (campañas / creatividades)
   * es estable y reproducible
 * Es transparente y auditable
 
-### ⚠️ Lo que NO promete
+### Lo que no promete
 
 * No prueba causalidad entre campañas dentro del canal
 * No sustituye experimentos
@@ -97,41 +91,35 @@ MTA (campañas / creatividades)
 
 ---
 
-# 🎯 Cierre para preguntas difíciles (chuleta)
+## Cierre para preguntas difíciles (chuleta)
 
-Si te preguntan…
+Si aparecen preguntas típicas en comité, estas respuestas cortas están diseñadas para ser consistentes y defendibles.
 
-### ❓ “¿Esto es causal?”
-
-👉
+### Pregunta: “¿Esto es causal?”
 
 > “El total sí, viene del MMM.
 > El reparto es un modelo explicativo basado en exposición y comportamiento histórico.”
 
-### ❓ “¿Por qué no usar solo MTA?”
-
-👉
+### Pregunta: “¿Por qué no usar solo MTA?”
 
 > “Porque el MTA solo no distingue correlación de incrementalidad.
 > Aquí mantenemos ambas cosas separadas.”
 
-### ❓ “¿Podemos usarlo para optimizar?”
-
-👉
+### Pregunta: “¿Podemos usarlo para optimizar?”
 
 > “Sí, como señal comparativa y de priorización,
 > no como sustituto de experimentos.”
 
 ---
 
-# 🧠 Regla de oro para negocio (una frase)
+## Regla de oro para negocio (una frase)
 
 > **MMM decide cuánto invertir por canal.
 > EM–MTA ayuda a decidir cómo ejecutar dentro del canal.**
 
 ---
 
-## ✔️ Resultado final del curso
+## Resultado final del curso
 
 Con esto ya tienes:
 
@@ -140,31 +128,20 @@ Con esto ya tienes:
 * criterio senior
 * y **un storytelling claro para negocio**
 
-Si quieres, el siguiente paso opcional sería:
+Como siguiente paso opcional, se puede:
 
 * convertir estas 3 slides en **un deck listo para comité**
 * o preparar **Q&A defensivo** para finance / marketing / legal
 
-Tú dirás.
+La elección depende del objetivo del comité.
 
-***
+## Q&A defensivo — EM + MMM + MTA
 
-prepara Q&A defensivo para analytics / finance / marketing / legal
+Este bloque de Q&A está estructurado por stakeholder, con respuestas cortas, consistentes y defendibles. Está pensado para reuniones exigentes.
 
-***
+### ANALYTICS / DATA SCIENCE
 
-Perfecto. Te dejo un **Q&A defensivo**, estructurado **por stakeholder**, con **respuestas cortas, consistentes y defendibles**.
-Esto está pensado para **reuniones duras**, no para docencia.
-
----
-
-# 🛡️ Q&A defensivo — EM + MMM + MTA
-
----
-
-## 🧠 **ANALYTICS / DATA SCIENCE**
-
-### ❓ *“¿Por qué EM y no un modelo bayesiano jerárquico?”*
+#### Pregunta: “¿Por qué EM y no un modelo bayesiano jerárquico?”
 
 **Respuesta corta**
 
@@ -177,7 +154,7 @@ Esto está pensado para **reuniones duras**, no para docencia.
 
 ---
 
-### ❓ *“¿Cómo sabemos que el modelo es identificable?”*
+#### Pregunta: “¿Cómo sabemos que el modelo es identificable?”
 
 **Respuesta**
 
@@ -186,7 +163,7 @@ Esto está pensado para **reuniones duras**, no para docencia.
 
 ---
 
-### ❓ *“¿El EM converge al óptimo global?”*
+#### Pregunta: “¿El EM converge al óptimo global?”
 
 **Respuesta**
 
@@ -195,7 +172,7 @@ Esto está pensado para **reuniones duras**, no para docencia.
 
 ---
 
-### ❓ *“¿Qué pasa si dos campañas son idénticas?”*
+#### Pregunta: “¿Qué pasa si dos campañas son idénticas?”
 
 **Respuesta**
 
@@ -204,24 +181,23 @@ Esto está pensado para **reuniones duras**, no para docencia.
 
 ---
 
----
 
-## 💰 **FINANCE / CONTROLLING**
+### FINANCE / CONTROLLING
 
-### ❓ *“¿Esto crea o destruye ventas?”*
+#### Pregunta: “¿Esto crea o destruye ventas?”
 
 **Respuesta clara**
 
 > No.
 > El total por canal, periodo y región **cuadra exactamente** con el MMM.
 
-📌 Frase clave:
+Frase clave:
 
 > “Es una redistribución contable del incremental, no una reestimación.”
 
 ---
 
-### ❓ *“¿Podemos reconciliar esto con P&L?”*
+#### Pregunta: “¿Podemos reconciliar esto con P&L?”
 
 **Respuesta**
 
@@ -231,11 +207,11 @@ Esto está pensado para **reuniones duras**, no para docencia.
 
 ---
 
-### ❓ *“¿Qué pasa con outliers de revenue?”*
+#### Pregunta: “¿Qué pasa con outliers de revenue?”
 
 **Respuesta**
 
-> Los controlamos explícitamente:
+Los controlamos explícitamente:
 
 * model choice (Poisson vs Gamma)
 * winsorización
@@ -245,7 +221,7 @@ No dejamos que un punto extremo domine el modelo.
 
 ---
 
-### ❓ *“¿Esto es suficientemente estable para forecast?”*
+#### Pregunta: “¿Esto es suficientemente estable para forecast?”
 
 **Respuesta**
 
@@ -254,23 +230,22 @@ No dejamos que un punto extremo domine el modelo.
 
 ---
 
----
 
-## 📣 **MARKETING / MEDIA**
+### MARKETING / MEDIA
 
-### ❓ *“¿Esto me dice qué campaña funciona mejor?”*
+#### Pregunta: “¿Esto me dice qué campaña funciona mejor?”
 
 **Respuesta honesta**
 
 > Te dice qué campañas **explican mejor el incremental del canal**, dadas sus impresiones y timing.
 
-📌 Aclara:
+Aclara:
 
 > No es una prueba causal entre campañas, es una señal comparativa.
 
 ---
 
-### ❓ *“¿Por qué no usar solo MTA clásico?”*
+#### Pregunta: “¿Por qué no usar solo MTA clásico?”
 
 **Respuesta**
 
@@ -279,7 +254,7 @@ No dejamos que un punto extremo domine el modelo.
 
 ---
 
-### ❓ *“¿Por qué una campaña con más impresiones no se lleva todo?”*
+#### Pregunta: “¿Por qué una campaña con más impresiones no se lleva todo?”
 
 **Respuesta**
 
@@ -293,7 +268,7 @@ Más impresiones no implica más impacto incremental.
 
 ---
 
-### ❓ *“¿Podemos optimizar creatividades con esto?”*
+#### Pregunta: “¿Podemos optimizar creatividades con esto?”
 
 **Respuesta**
 
@@ -302,11 +277,10 @@ Más impresiones no implica más impacto incremental.
 
 ---
 
----
 
-## ⚖️ **LEGAL / COMPLIANCE / PRIVACY**
+### LEGAL / COMPLIANCE / PRIVACY
 
-### ❓ *“¿Usa datos personales?”*
+#### Pregunta: “¿Usa datos personales?”
 
 **Respuesta clara**
 
@@ -315,7 +289,7 @@ Más impresiones no implica más impacto incremental.
 
 ---
 
-### ❓ *“¿Es un modelo determinista o automatizado de decisión?”*
+#### Pregunta: “¿Es un modelo determinista o automatizado de decisión?”
 
 **Respuesta**
 
@@ -324,7 +298,7 @@ Más impresiones no implica más impacto incremental.
 
 ---
 
-### ❓ *“¿Cumple con explicabilidad?”*
+#### Pregunta: “¿Cumple con explicabilidad?”
 
 **Respuesta**
 
@@ -335,7 +309,7 @@ No usamos cajas negras opacas.
 
 ---
 
-### ❓ *“¿Podría inducir sesgos?”*
+#### Pregunta: “¿Podría inducir sesgos?”
 
 **Respuesta**
 
@@ -344,11 +318,10 @@ No usamos cajas negras opacas.
 
 ---
 
----
 
-## 🧾 **PREGUNTAS TRANSVERSALES (las más difíciles)**
+### PREGUNTAS TRANSVERSALES (las más difíciles)
 
-### ❓ *“¿Qué pasa si el MMM está mal?”*
+#### Pregunta: “¿Qué pasa si el MMM está mal?”
 
 **Respuesta**
 
@@ -357,11 +330,11 @@ No usamos cajas negras opacas.
 
 ---
 
-### ❓ *“¿Cómo sabemos que esto funciona?”*
+#### Pregunta: “¿Cómo sabemos que esto funciona?”
 
 **Respuesta**
 
-> Validamos:
+Validamos:
 
 * coherencia contable
 * estabilidad temporal
@@ -372,7 +345,7 @@ No hay una única métrica mágica.
 
 ---
 
-### ❓ *“¿Podemos auditarlo?”*
+#### Pregunta: “¿Podemos auditarlo?”
 
 **Respuesta**
 
@@ -382,7 +355,7 @@ No hay una única métrica mágica.
 
 ---
 
-## 🧠 Frase de cierre universal (úsala tal cual)
+## Frase de cierre universal (úsala tal cual)
 
 > **“El MMM decide cuánto invertir por canal.
 > Este modelo nos ayuda a ejecutar mejor dentro del canal,
@@ -390,11 +363,21 @@ No hay una única métrica mágica.
 
 ---
 
-Si quieres, el siguiente paso puede ser:
+Como siguiente paso, se puede:
 
 * convertir este Q&A en **one-pager para comité**
 * o preparar **respuestas técnicas extendidas** solo para analytics
-* o simular una **reunión hostil** (role-play) y ensayar respuestas 😄
+* o simular una **reunión hostil** (role-play) y ensayar respuestas
+
+## Resumen
+
+* El MMM decide cuánto invertir por canal; este modelo ayuda a ejecutar dentro del canal sin inventar ventas.
+* El reparto es contable: el total por canal, periodo y región cuadra exactamente con el MMM.
+* A nivel campaña, no es una prueba causal: sirve como señal comparativa para priorización y optimización.
+* Para forecast estratégico se usa MMM; para ejecución táctica, el EM puede ser estable a corto plazo, sin usarse como predictor standalone.
+* Se controlan explícitamente outliers (model choice, winsorización y regularización) para evitar que un punto extremo domine el modelo.
+* El reparto hereda la calidad del MMM y se valida con coherencia contable, estabilidad temporal, consistencia con tests conocidos y plausibilidad de negocio.
+* Trabaja con datos agregados (impresiones, GRPs, contribuciones), sin identificadores individuales.
 
 
 

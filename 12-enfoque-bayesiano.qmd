@@ -1,532 +1,238 @@
-***
-
-Quiero saber también el planteamiento del enfoque bayesiano jerarquico. La idea es inferir el modelo generativo de las variables latentes mediante inferencia bayesiana en vez de usar MLE, no? O es otra? O hay más cosas? Como se organizarian los datos, como se formularia el modelo, como tratamos las variables latentes, que salidas habría,
-
-***
-
-Excelente pregunta. Y muy bien formulada: **ya estás en el nivel correcto** para pasar de “usar EM” a **diseñar modelos**.
-
-Voy a responder de forma **estructurada y honesta**, porque aquí hay varios malentendidos comunes.
-
----
-
 # Enfoque Bayesiano Jerárquico (BHM) para HCP–Brick / MMM–MTA
 
-## Respuesta corta (para alinear conceptos)
+## Introducción
 
-👉 **Sí**, la idea central es:
+Este capítulo describe el planteamiento de un **enfoque bayesiano jerárquico** (*Bayesian Hierarchical Model*, BHM) como alternativa al uso de **EM** con estimación puntual (*maximum likelihood*, MLE) en el problema “agregado → desagregado”. La idea central consiste en inferir el **modelo generativo completo**, incluidas las **variables latentes**, mediante **inferencia bayesiana**, en lugar de obtener estimadores puntuales para los parámetros.
 
-> inferir el **modelo generativo completo de las variables latentes** mediante **inferencia bayesiana**, en lugar de estimar puntos vía MLE (EM).
-
-👉 **Pero no es solo eso**.
-El enfoque bayesiano **no es EM con priors**, sino que:
-
-* cambia **qué se estima**
-* cambia **qué significa el resultado**
-* cambia **cómo se controla el overfitting**
-* cambia **qué preguntas puedes responder**
-
-Vamos por partes.
+El cambio no se reduce a “poner priors”: el enfoque bayesiano modifica qué se estima, qué significa el resultado, cómo se controla el *overfitting* y qué preguntas operativas se pueden responder. A lo largo del capítulo se presenta (i) la formulación del modelo, (ii) la organización de los datos, (iii) el tratamiento de las variables latentes, (iv) las salidas del modelo y (v) el papel de los grupos y las jerarquías, incluyendo el caso en el que la jerarquía llega hasta creatividad.
 
 ---
 
-## 1️⃣ EM vs Bayesiano: qué cambia realmente
+## 1. EM vs bayesiano: qué cambia realmente
 
-### EM (lo que ya conoces)
+### EM (lo que ya se ha usado en el libro)
 
-* Asume un modelo generativo
-* Trata $z$ como latente
-* Optimiza:
-  $$
-  \hat\theta = \arg\max_\theta p(y \mid \theta)
-  $$
-* Resultado:
+En EM se asume un modelo generativo, se trata $z$ como variable latente y se optimiza un criterio de tipo MLE:
+$$
+\hat\theta = \arg\max_\theta p(y \mid \theta).
+$$
 
-  * estimaciones puntuales ($\hat\lambda$, $\hat\beta$)
-  * asignación esperada $\mathbb{E}[z \mid y, \hat\theta]$
-
-👉 **No hay incertidumbre explícita**.
-
----
+El resultado típico es doble: (i) estimaciones puntuales (por ejemplo, $\hat\lambda$ o $\hat\beta$) y (ii) una asignación esperada $\mathbb{E}[z \mid y, \hat\theta]$. En este planteamiento no hay **incertidumbre explícita** en forma de distribución posterior.
 
 ### Bayesiano jerárquico
 
-* Define el **mismo modelo generativo**, pero:
-* Trata **todo** como variable aleatoria:
+En un enfoque bayesiano jerárquico se define el mismo modelo generativo, pero se trata **todo** como variable aleatoria (productividades, coeficientes y, en algunos diseños, los propios $z$). El objetivo es inferir la posterior completa:
+$$
+p(\theta, z \mid y).
+$$
 
-  * productividades
-  * coeficientes
-  * (a veces) los propios $z$
-* Infiere:
-  $$
-  p(\theta, z \mid y)
-  $$
-
-👉 Resultado:
-
-* **distribuciones posteriores**, no puntos
-* shrinkage automático
-* intervalos creíbles
-* decisiones basadas en riesgo
+La salida deja de ser un punto y pasa a ser una **distribución posterior**: aparecen *shrinkage* automático, intervalos creíbles y decisiones basadas en riesgo.
 
 ---
 
-## 2️⃣ El modelo generativo (forma general)
+## 2. Modelo generativo (forma general)
 
-Voy a escribirlo en forma **canónica**, válida tanto para HCP–Brick como MMM–MTA.
+La formulación puede escribirse de manera canónica para ambos casos de uso del libro.
 
-### Observado
+**Observado.** Un agregado (por ejemplo, ventas en un brick o contribución incremental de MMM):
+$$
+y_b \quad \text{o} \quad C_{m,t,g}.
+$$
 
-* Agregado:
-  $$
-  y_b \quad \text{o} \quad C_{m,t,g}
-  $$
+**Latente.** Contribuciones individuales no negativas cuya suma reproduce el agregado:
+$$
+z_{i,b} \ge 0,\quad \sum_i z_{i,b} = y_b.
+$$
 
-### Latente
-
-* Contribuciones individuales:
-  $$
-  z_{i,b} \ge 0,\quad \sum_i z_{i,b} = y_b
-  $$
-
----
-
-### Nivel 1 — Likelihood (idéntico conceptualmente a EM)
+### Nivel 1 — Likelihood (conceptualmente idéntico a EM)
 
 Ejemplo Poisson (unidades):
 $$
-z_{i,b} \sim \operatorname{Poisson}(\lambda_i \omega_{b,i})
+z_{i,b} \sim \operatorname{Poisson}(\lambda_i\, w_{b,i}).
 $$
 
-o Gamma (euros):
+Ejemplo Gamma (euros):
 $$
-z_{i,b} \sim \operatorname{Gamma}(k,\ \theta_i \omega_{b,i})
-$$
-
-Y:
-$$
-y_b = \sum_i z_{i,b}
+z_{i,b} \sim \operatorname{Gamma}(k,\ \theta_i\, w_{b,i}).
 $$
 
-📌 **Hasta aquí no hay diferencia conceptual con EM.**
+Y, estructuralmente:
+$$
+y_b = \sum_i z_{i,b}.
+$$
+
+Hasta aquí no hay diferencia conceptual con EM: el cambio aparece al especificar priors y jerarquías para regularizar y cuantificar incertidumbre. La notación $w$ representa la **exposición** (en otros textos se escribe $\omega$).
 
 ---
 
-## 3️⃣ Dónde entra lo Bayesiano (la diferencia clave)
+## 3. Dónde entra lo bayesiano: jerarquía y priors
 
 ### Nivel 2 — Productividades jerárquicas
 
-En lugar de:
+En lugar de fijar determinísticamente una relación del tipo
 $$
-\lambda_i = \exp(X_i \beta)
+\lambda_i = \exp(X_i \beta),
 $$
-
-defines:
+puede definirse una jerarquía probabilística, por ejemplo:
 $$
 \begin{aligned}
 \beta &\sim \mathcal{N}(0, \sigma_\beta^2) \\
-\lambda_i &\sim \operatorname{LogNormal}(X_i \beta,\ \sigma_\lambda^2)
+\lambda_i &\sim \operatorname{LogNormal}(X_i \beta,\ \sigma_\lambda^2).
 \end{aligned}
 $$
 
-o, por grupos:
+Otra opción equivalente desde la perspectiva de *pooling* consiste en modelar por grupos:
 $$
-\lambda_{i,g} \sim \operatorname{LogNormal}(\mu_g,\ \sigma_g)
+\lambda_{i,g} \sim \operatorname{LogNormal}(\mu_g,\ \sigma_g).
 $$
 
-👉 Esto introduce:
-
-* pooling
-* regularización automática
-* control del cold start
-
----
+Esto introduce *pooling*, regularización automática y control del *cold start*.
 
 ### Nivel 3 — Hyperpriors
 
+Para evitar soluciones inestables, los hiperparámetros también se regularizan:
 $$
 \mu_g \sim \mathcal{N}(0, 1)
 \quad
-\sigma_g \sim \operatorname{HalfNormal}(0.5)
+\sigma_g \sim \operatorname{HalfNormal}(0.5).
 $$
-
-📌 Esto evita que el modelo “explote”.
 
 ---
 
-## 4️⃣ ¿Qué pasa con las variables latentes $z$?
+## 4. Tratamiento de las variables latentes $z$
 
-Aquí hay **dos estrategias**.
+En la práctica aparecen dos estrategias.
+
+### Opción A — Integrar $z$ (la más común)
+
+No se muestrea $z$ explícitamente. Se usa la propiedad de cierre (suma de Poisson es Poisson; suma de Gamma es Gamma). Por ejemplo:
+$$
+y_b \sim \operatorname{Poisson}\Big(\sum_i \lambda_i\, w_{b,i}\Big).
+$$
+
+Esto reduce el número de variables, mejora la escalabilidad y hace la inferencia más estable. El $z$ se recupera a posteriori como expectativa.
+
+### Opción B — Muestrear $z$ explícitamente (más literal)
+
+Se modela el vector completo de asignaciones:
+$$
+(z_{1,b}, \dots, z_{K,b}) \sim \operatorname{Multinomial}\big(y_b,\ p_{i,b}\big),
+$$
+con
+$$
+p_{i,b} \propto \lambda_i\, w_{b,i}.
+$$
+
+Esta formulación es interpretativa y produce asignaciones explícitas, pero escala peor por el número de variables latentes. En producción se usa casi siempre la opción A.
 
 ---
 
-### 🔵 Opción A — Integrar $z$ (más común)
+## 5. Organización de los datos
 
-No muestreas $z$ explícitamente.
+Un formato natural es el formato *long* (análogo al usado en EM):
 
-Usas la propiedad:
+| b (brick / m,t,g) | i (hcp / campaign) | $w$ | $X_i$ | $y_b$ |
+| ----------------- | ------------------ | --- | ----- | ----- |
 
-* suma de Poisson → Poisson
-* suma de Gamma → Gamma
-
-Ejemplo:
-$$
-y_b \sim \operatorname{Poisson}\Big(\sum_i \lambda_i \omega_{b,i}\Big)
-$$
-
-📌 Ventajas:
-
-* menos variables
-* mejor escalabilidad
-* inferencia más estable
-
-📌 Desventaja:
-
-* $z$ se recupera **a posteriori** como expectativa
+En Bayes no es necesario duplicar $y_b$ en cada fila: puede agruparse por $b$ y usar sumas en el término $\sum_i \lambda_i\, w_{b,i}$.
 
 ---
 
-### 🔵 Opción B — Muestrear $z$ explícitamente (más literal)
+## 6. Inferencia: cómo se estima
 
-Defines:
-$$
-(z_{1,b}, \dots, z_{K,b}) \sim \operatorname{Multinomial}\big(y_b,\ p_{i,b}\big)
-$$
-con:
-$$
-p_{i,b} \propto \lambda_i \omega_{b,i}
-$$
+El mayor cambio operativo frente a EM es el mecanismo de inferencia.
 
-📌 Ventajas:
+### MCMC (NUTS)
 
-* muy interpretativo
-* asignaciones explícitas
+Se implementa típicamente en PyMC o Stan. Es preciso, pero lento y difícil de escalar; se usa en investigación, validación y datasets pequeños.
 
-📌 Desventajas:
+### Variational Inference (VI)
 
-* muchísimas variables latentes
-* escalabilidad pobre
-
-👉 En producción, **se usa casi siempre la opción A**.
+VI aproxima la posterior y es mucho más rápido, a costa de menor precisión. En la práctica industrial se utilizan con frecuencia PyMC VI, NumPyro SVI o Pyro SVI.
 
 ---
 
-## 5️⃣ Organización de los datos (muy importante)
-
-### Formato long (igual que EM)
-
-| b (brick / m,t,g) | i (hcp / campaign) | ω | X_i | y_b |
-| ----------------- | ------------------ | - | --- | --- |
-
-Pero en Bayes:
-
-* **no necesitas duplicar y_b**
-* puedes agrupar por b y usar sumas
-
----
-
-## 6️⃣ Inferencia: cómo se estima
-
-Aquí está el gran cambio respecto a EM.
-
-### Opciones reales
-
-#### 🟢 MCMC (NUTS)
-
-* PyMC / Stan
-* Muy preciso
-* Muy lento
-* Difícil de escalar
-
-👉 Usado en:
-
-* research
-* validación
-* small datasets
-
----
-
-#### 🟡 Variational Inference (VI)
-
-* PyMC VI
-
-* NumPyro SVI
-
-* Pyro SVI
-
-* Aproxima la posterior
-
-* Mucho más rápido
-
-* Algo menos preciso
-
-👉 **Es el estándar industrial** para estos modelos.
-
----
-
-## 7️⃣ Qué salidas tienes (mucho más ricas que EM)
+## 7. Salidas del modelo
 
 ### En EM
 
 * $\hat\lambda_i$
 * $\hat z_{i,b}$
 
----
+### En bayesiano
 
-### En Bayesiano
-
-* Posterior de $\lambda_i$
-
-  * media
-  * intervalos creíbles
+* Posterior de $\lambda_i$ (media e intervalos creíbles)
 * Posterior predictivo de $z_{i,b}$
-* Incertidumbre por:
-
-  * campaña
-  * periodo
-  * grupo
-* Probabilidad de que:
-
-  * campaña A > campaña B
-  * uplift > 0
-
-📌 Esto es **oro para decisiones**.
+* Incertidumbre por campaña, periodo y grupo
+* Probabilidad de que campaña A sea mayor que campaña B
+* Probabilidad de que $\text{uplift} > 0$
 
 ---
 
-## 8️⃣ Entonces… ¿cuándo merece la pena el enfoque bayesiano?
+## 8. Cuándo merece la pena el enfoque bayesiano
 
-### ✅ Merece la pena si:
-
-* hay **mucho cold start**
-* necesitas **intervalos de confianza**
-* tienes jerarquías profundas
-* el coste de una mala decisión es alto
-
-### ❌ No merece la pena si:
-
-* necesitas escalar rápido
-* solo quieres rankings
-* el negocio no entiende incertidumbre
-* el MMM ya es el cuello de botella
+El enfoque bayesiano jerárquico resulta especialmente útil cuando hay *cold start*, se necesitan intervalos de confianza, se modelan jerarquías profundas o el coste de una mala decisión es alto. En cambio, no suele compensar si la prioridad es escalar rápido, si solo se busca ranking, si el negocio no puede trabajar con incertidumbre o si el MMM ya es el cuello de botella.
 
 ---
 
-## 9️⃣ Regla mental final (muy importante)
+## 9. Regla mental
 
 > **EM estima “el mejor reparto”.
 > Bayesiano estima “qué repartos son plausibles y con qué incertidumbre”.**
 
-No es solo cambiar MLE por Bayes:
-👉 es cambiar **la pregunta que haces al modelo**.
+El cambio no es únicamente sustituir MLE por Bayes; cambia la pregunta que se hace al modelo.
 
 ---
 
-## 10️⃣ Cómo suele usarse en la práctica (honesto)
+## 10. Uso típico en la práctica
 
-En empresas maduras:
+En organizaciones maduras suele verse un patrón mixto:
 
-1. EM para:
+1. EM para *baseline*, escalabilidad y explicabilidad.
+2. Bayesiano para *cold start*, validación y decisiones de alto riesgo.
+3. Enfoques híbridos (EM con *shrinkage* inspirado en Bayes).
 
-   * baseline
-   * escalabilidad
-   * explicabilidad
-2. Bayesiano para:
-
-   * cold start
-   * validation
-   * decisiones de alto riesgo
-3. EM + shrinkage inspirado en Bayes (híbrido)
+Como siguiente paso, suele ser razonable escribir el modelo completo en PyMC/NumPyro como pseudocódigo, comparar EM vs VI en el mismo dataset o diseñar un roadmap de madurez analítica (EM → Bayes).
 
 ---
 
-Si quieres, el siguiente paso puede ser:
+## 11. Grupos y jerarquías: ejemplos operativos
 
-* escribir el **modelo completo en PyMC / NumPyro (pseudo-código)**
-* comparar **EM vs VI en el mismo dataset**
-* o diseñar un **roadmap de madurez analítica** (EM → Bayes)
-
-Dime cómo seguimos.
-
-
-***
-
-Pon ejemplos de gomo sserian los "grupios"
-
-***
-
-Perfecto — aquí voy a ser **muy concreto** y **operativo**.
-Cuando hablamos de **“grupos” en un modelo bayesiano jerárquico**, nos referimos a **estructuras donde varias entidades comparten información parcial** (*partial pooling*).
-
-Voy a darte **ejemplos reales**, organizados por **caso de uso**, y para cada uno te digo:
-
-* qué es el grupo
-* por qué tiene sentido
-* cómo entra en el modelo
-
----
-
-# Qué es un “grupo” (definición clara)
-
-En un BHM, un **grupo** es un conjunto de entidades para las cuales creemos que:
-
-> *sus productividades no son iguales, pero tampoco completamente independientes*
-
-Matemáticamente:
+En un BHM, un **grupo** es un conjunto de entidades para las cuales se asume que sus productividades no son iguales, pero tampoco completamente independientes (*partial pooling*). En forma compacta:
 $$
-\lambda_i \sim \operatorname{LogNormal}(\mu_{\text{grupo}(i)},\ \sigma_{\text{grupo}(i)})
+\lambda_i \sim \operatorname{LogNormal}(\mu_{\text{grupo}(i)},\ \sigma_{\text{grupo}(i)}).
 $$
 
----
+### 11.1. Grupos en HCP–Brick
 
-# 1️⃣ Grupos en **HCP–Brick**
-
-## 🔹 Ejemplo 1 — Especialidad médica
-
-**Grupo**: especialidad del HCP
-
-* GP
-* Cardio
-* Endo
-* Onco
-
-### Por qué tiene sentido
-
-* Médicos de la misma especialidad:
-
-  * tienen patrones de prescripción similares
-  * responden de forma parecida a visitas
-* Un GP nuevo se parece más a otros GPs que a un Onco
-
-### Modelo
-
+**Especialidad médica.** El grupo es la especialidad del HCP (GP, Cardio, Endo, Onco). La motivación es que médicos de la misma especialidad tienden a compartir patrones de prescripción y a responder de manera parecida a visitas; un GP nuevo se parece más a otros GPs que a un Onco. Un esquema típico es:
 $$
 \begin{aligned}
 \lambda_h &\sim \operatorname{LogNormal}(\mu_{\text{spec}(h)},\ \sigma_{\text{spec}}) \\
-\mu_{\text{spec}} &\sim \mathcal{N}(\mu_0,\ \sigma_0)
+\mu_{\text{spec}} &\sim \mathcal{N}(\mu_0,\ \sigma_0).
 \end{aligned}
 $$
 
-👉 **Cold start resuelto automáticamente**
+**Seniority buckets.** El grupo es un bucket de seniority (0–2 años, 3–7 años, 8+ años). Se usa cuando se considera que médicos jóvenes tienen menos impacto y que los perfiles senior son más estables.
 
----
+**Región.** El grupo es la región (Norte/Centro/Sur; Urbano/Rural). Es útil cuando el mercado no es homogéneo y existen diferencias estructurales.
 
-## 🔹 Ejemplo 2 — Seniority buckets
+### 11.2. Grupos en MMM → MTA (campañas / creatividades)
 
-**Grupo**: seniority
-
-* 0–2 años
-* 3–7 años
-* 8+ años
-
-### Uso típico
-
-* Médicos jóvenes tienen menos impacto
-* Seniors más estables
-
----
-
-## 🔹 Ejemplo 3 — Región
-
-**Grupo**: región geográfica
-
-* Norte / Centro / Sur
-* Urbano / Rural
-
-📌 Muy útil cuando:
-
-* el mercado no es homogéneo
-* hay diferencias estructurales
-
----
-
-# 2️⃣ Grupos en **MMM → MTA (campañas / creatividades)**
-
-Aquí es donde más se usan.
-
----
-
-## 🔹 Ejemplo 4 — Tipo de campaña (el más común)
-
-**Grupo**: objective
-
-* Awareness
-* Consideration
-* Conversion
-
-### Por qué
-
-* Campañas de awareness:
-
-  * saturan antes
-  * menor eficiencia directa
-* Conversion:
-
-  * menos volumen
-  * más impacto por impresión
-
-### Modelo
-
+**Tipo de campaña (objective).** El grupo es el objetivo (Awareness, Consideration, Conversion). La intuición es que campañas de awareness saturan antes y suelen tener menor eficiencia directa, mientras que campañas de conversión tienden a tener menos volumen y más impacto por impresión. Un ejemplo de parametrización es:
 $$
-\lambda_{m,k} \sim \operatorname{LogNormal}(\mu_{\text{objective}(k)},\ \sigma_{\text{objective}})
+\lambda_{m,k} \sim \operatorname{LogNormal}(\mu_{\text{objective}(k)},\ \sigma_{\text{objective}}).
 $$
 
----
+**Formato creativo.** El grupo es el formato (Video, Display, Search text, Rich media). Es útil cuando hay muchas creatividades con poca historia y se necesita estabilizar rankings.
 
-## 🔹 Ejemplo 5 — Formato creativo
+**Creative family / concepto.** El grupo es una familia de concepto (Concept A, Concept B, Concept C). Se usa en tests creativos y como mecanismo de aprendizaje transferido entre variantes.
 
-**Grupo**:
+**Plataforma / publisher.** El grupo es la plataforma (Meta, Google, TikTok, Programmatic). Aunque el MMM sea por canal, a nivel intra-canal pueden existir dinámicas y saturación efectiva distintas.
 
-* Video
-* Display
-* Search text
-* Rich media
+### 11.3. Jerarquías anidadas
 
-📌 Muy útil cuando:
-
-* tienes muchas creatividades con poca historia
-* necesitas estabilizar rankings
-
----
-
-## 🔹 Ejemplo 6 — Creative family / concepto
-
-**Grupo**:
-
-* Concept A
-* Concept B
-* Concept C
-
-### Uso real
-
-* tests creativos
-* aprendizaje transferido entre variantes
-
----
-
-## 🔹 Ejemplo 7 — Plataforma / publisher
-
-**Grupo**:
-
-* Meta
-* Google
-* TikTok
-* Programmatic
-
-Aunque el MMM sea por canal, intra-canal puedes tener:
-
-* distintas dinámicas
-* distinta saturación efectiva
-
----
-
-# 3️⃣ Grupos jerárquicos anidados (nivel senior)
-
-Aquí es donde el enfoque bayesiano **brilla**.
-
----
-
-## 🔹 Ejemplo 8 — Jerarquía completa en MTA
+Una jerarquía completa en MTA puede seguir el patrón:
 
 ```
 Canal
@@ -536,73 +242,25 @@ Canal
                 └── Creatividad
 ```
 
-Modelo conceptual:
+Un esquema conceptual es:
 $$
-\lambda_{\text{crea}}
-\sim \operatorname{LogNormal}(\mu_{\text{campaña}},\ \sigma_{\text{crea}})
+\lambda_{\text{crea}} \sim \operatorname{LogNormal}(\mu_{\text{campaña}},\ \sigma_{\text{crea}}),
 $$
-
 y así sucesivamente hacia arriba.
 
-📌 EM **no puede** manejar esto limpiamente.
-📌 Bayesiano sí.
+### 11.4. Grupos “blandos”
 
----
+**Cohortes temporales.** El grupo puede ser una cohorte (campañas lanzadas el mismo mes; HCPs incorporados el mismo trimestre). Esto captura efectos de madurez y cambios estructurales del mercado.
 
-# 4️⃣ Grupos “blandos” (no obvios, pero muy potentes)
+**Clusters aprendidos.** El grupo puede venir de clustering no supervisado (k-means, embeddings), por ejemplo agrupando creatividades por similitud visual o HCPs por comportamiento histórico. Este enfoque es potente, con el coste de mayor riesgo de pérdida de interpretabilidad.
 
-## 🔹 Ejemplo 9 — Cohortes temporales
+### 11.5. Anti-ejemplos y criterio de decisión
 
-**Grupo**:
+No suelen ser buenos grupos: el ID individual (no agrupa), grupos con un solo elemento, grupos altamente colineales entre sí o grupos sin hipótesis de similitud.
 
-* campañas lanzadas el mismo mes
-* HCPs onboarded el mismo trimestre
+Antes de introducir un grupo conviene verificar: (i) si existe una hipótesis *a priori* de similitud, (ii) si hay escasez de datos a nivel individual, (iii) si el grupo puede mejorar el *cold start* y (iv) si el negocio acepta esa segmentación. Si se cumplen dos o más criterios, suele ser un buen candidato.
 
-👉 Captura:
-
-* efectos de madurez
-* cambios estructurales del mercado
-
----
-
-## 🔹 Ejemplo 10 — Clusters aprendidos
-
-**Grupo**:
-
-* clusters no supervisados (k-means, embeddings)
-
-Ejemplo:
-
-* agrupar creatividades por similitud visual
-* agrupar HCPs por comportamiento histórico
-
-📌 Muy potente, pero cuidado con interpretabilidad.
-
----
-
-# 5️⃣ Qué NO es un buen grupo (anti-ejemplos)
-
-❌ ID individual (no agrupa nada)
-❌ Grupos con 1 elemento
-❌ Grupos altamente colineales entre sí
-❌ Grupos “porque sí” sin hipótesis de similitud
-
----
-
-# 6️⃣ Cómo decidir si algo merece ser grupo (regla senior)
-
-Antes de crear un grupo, pregúntate:
-
-1. ¿Creemos *a priori* que estas entidades se parecen?
-2. ¿Hay escasez de datos a nivel individual?
-3. ¿Mejoraría el cold start?
-4. ¿Acepta el negocio esta segmentación?
-
-Si respondes **sí** a 2 o más → buen candidato.
-
----
-
-# 7️⃣ Resumen visual (mental)
+### 11.6. Resumen visual (mental)
 
 | Caso      | Grupo típico     | Beneficio         |
 | --------- | ---------------- | ----------------- |
@@ -613,58 +271,27 @@ Si respondes **sí** a 2 o más → buen candidato.
 | MMM–MTA   | Creative family  | Transfer learning |
 | Ambos     | Cohorte temporal | Robustez          |
 
----
-
-## Cierre (muy importante)
-
 > **Los grupos no son un detalle técnico.
 > Son donde introduces conocimiento del negocio en el modelo.**
 
-Si quieres, el siguiente paso puede ser:
-
-* escribir **un modelo bayesiano completo con 2–3 niveles de grupos**
-* comparar **qué grupos valen la pena vs cuáles no**
-* o ver **cómo traducir un EM actual a una versión jerárquica mínima**
-
-Tú decides cómo seguimos.
-
-
-***
-
-si la jerarquia va desde canal a creatividad, estariamos atribuyendo directamente a cada creatividad, verdad?
-
-***
-
-Sí — **exactamente**, pero con un matiz muy importante que conviene dejar cristalino.
-
-Voy a explicarlo en **3 capas**:
-
-1. qué significa “atribuir a creatividad” en un modelo jerárquico
-2. cómo se hace **técnicamente**
-3. qué **no** significa (para evitar malentendidos de negocio)
+Como siguiente paso, es habitual escribir un modelo bayesiano completo con 2–3 niveles de grupos, comparar qué grupos valen la pena frente a cuáles no, o traducir un EM actual a una versión jerárquica mínima.
 
 ---
 
-## 1️⃣ ¿Estamos atribuyendo directamente a cada creatividad?
+## 12. Jerarquía canal → creatividad: atribución a creatividad
 
-### **Respuesta corta**
+### 12.1. Qué significa “atribuir a creatividad” en un modelo jerárquico
 
-👉 **Sí**: el modelo puede producir
+Un modelo jerárquico puede producir, en particular, una atribución directa por creatividad:
 $$
-\hat z_{\text{creatividad},t,g}
+\hat z_{\text{creatividad},t,g}.
 $$
-es decir, **atribución directa por creatividad**.
 
-Pero:
+Esa atribución queda regularizada y condicionada por toda la jerarquía (canal → plataforma → formato → campaña → creatividad).
 
-> **esa atribución está regularizada y condicionada por toda la jerarquía**
-> (canal → plataforma → formato → campaña → creatividad).
+### 12.2. Formulación a nivel de modelo
 
----
-
-## 2️⃣ Qué significa esto **en términos de modelo**
-
-Supongamos la jerarquía:
+Considérese la jerarquía:
 
 ```
 Canal (m)
@@ -674,121 +301,82 @@ Canal (m)
                 └── Creatividad (c)
 ```
 
-### Productividad a nivel creatividad
-
-Definimos:
+Una parametrización ilustrativa de productividad a nivel creatividad es:
 $$
-\lambda_c \sim \operatorname{LogNormal}(\mu_k,\ \sigma_c)
+\lambda_c \sim \operatorname{LogNormal}(\mu_k,\ \sigma_c),
 $$
-
 y recursivamente:
 $$
-\mu_k \sim \operatorname{LogNormal}(\mu_f,\ \sigma_k)
+\mu_k \sim \operatorname{LogNormal}(\mu_f,\ \sigma_k),
 $$
 $$
-\mu_f \sim \operatorname{LogNormal}(\mu_p,\ \sigma_f)
+\mu_f \sim \operatorname{LogNormal}(\mu_p,\ \sigma_f),
 $$
 $$
-\mu_p \sim \operatorname{LogNormal}(\mu_m,\ \sigma_p)
+\mu_p \sim \operatorname{LogNormal}(\mu_m,\ \sigma_p).
 $$
 
-👉 **Cada creatividad tiene su propio $\lambda_c$**
-pero:
+Cada creatividad tiene su propio $\lambda_c$, pero con *partial pooling*: con pocos datos se aproxima a su campaña; con muchos datos se separa.
 
-* si tiene pocos datos → se “pega” a su campaña
-* si tiene muchos datos → se separa
+### 12.3. Atribución final
 
-Eso es **partial pooling**.
-
----
-
-## 3️⃣ Cómo se calcula la atribución final
-
-En el E-step (o posterior predictivo bayesiano), para cada unidad agregada $(m,t,g)$:
-
+En el E-step (o en el posterior predictivo bayesiano), para cada unidad agregada $(m,t,g)$:
 $$
 \hat z_{c,t,g}
 =
 C_{m,t,g}
 \cdot
-\frac{\lambda_c \cdot \omega_{c,t,g}}
-{\sum_{c' \in m} \lambda_{c'} \cdot \omega_{c',t,g}}
+\frac{\lambda_c \cdot w_{c,t,g}}
+{\sum_{c' \in m} \lambda_{c'} \cdot w_{c',t,g}}.
 $$
 
-👉 Sí, **la unidad final de atribución es la creatividad**.
+La unidad final de atribución es la creatividad, pero la estimación de $\lambda_c$ no es independiente: hereda información de toda la jerarquía.
 
-Pero la **estimación de $\lambda_c$**:
+### 12.4. Interpretación y límites
 
-* no es independiente
-* hereda información de toda la jerarquía
+Este resultado no implica identificación causal propia por creatividad, ni permite comparar creatividades de canales distintos “en bruto”, ni implica que una creatividad nueva tenga un $\lambda$ completamente libre. En cambio, sí habilita ranking estable de creatividades dentro de su contexto, control del ruido extremo y gestión de *cold start*.
 
----
-
-## 4️⃣ Qué **NO** significa (esto es crucial)
-
-### ❌ No significa:
-
-* que cada creatividad tenga identificación causal propia
-* que puedas comparar creatividades de canales distintos “en bruto”
-* que una creatividad nueva tenga un $\lambda$ libre
-* que una creatividad nueva tenga un $\lambda$ libre
-
-### ✔️ Sí significa:
-
-* ranking **estable** de creatividades dentro de su contexto
-* control del ruido extremo
-* cold start gestionado
-
----
-
-## 5️⃣ Comparación con enfoques no jerárquicos
+### 12.5. Comparación con enfoques no jerárquicos
 
 | Enfoque                 | ¿Atribuye a creatividad? | Estabilidad | Cold start |
 | ----------------------- | ------------------------ | ----------- | ---------- |
-| Heurístico (share imps) | ✔️                       | Baja        | ❌          |
-| EM plano                | ✔️                       | Media       | ❌          |
-| Bayes jerárquico        | ✔️                       | **Alta**    | ✔️         |
+| Heurístico (share imps) | Sí                       | Baja        | No         |
+| EM plano                | Sí                       | Media       | No         |
+| Bayes jerárquico        | Sí                       | Alta        | Sí         |
 
-📌 La diferencia no es **si** atribuyes, sino **cómo de confiable es esa atribución**.
+La diferencia no es si se atribuye, sino cómo de confiable es esa atribución.
 
----
-
-## 6️⃣ Cómo explicarlo a negocio (frase clave)
+### 12.6. Frase de negocio
 
 > “Sí, atribuimos a creatividad,
 > pero la creatividad no compite sola:
-> compite **dentro de su campaña y formato**,
+> compite dentro de su campaña y formato,
 > y el modelo lo tiene en cuenta.”
 
----
-
-## 7️⃣ Regla senior para decidir el nivel final de atribución
+### 12.7. Regla de diseño
 
 > **Atribuye al nivel más bajo
 > para el que tengas señal suficiente
 > o pooling jerárquico adecuado.**
 
-Si no:
+Cuando no se cumpla, se baja el nivel (campaña) o se refuerza la jerarquía.
 
-* baja el nivel (campaña)
-* o refuerza la jerarquía
+### 12.8. Conclusión
 
----
+* Un modelo jerárquico canal → creatividad atribuye directamente a creatividad.
+* Esa atribución es regularizada, estable y consistente con MMM.
+* La atribución no convierte el resultado en causal.
 
-## 8️⃣ Conclusión clara
+Como siguiente paso natural, se puede dibujar un diagrama completo del modelo generativo jerárquico, escribir pseudocódigo PyMC/NumPyro del modelo canal→creatividad o discutir cuándo no conviene bajar hasta creatividad.
 
-* ✔️ **Sí**, un modelo jerárquico canal → creatividad **atribuye directamente a creatividad**
-* ✔️ Lo hace de forma:
+## Resumen
 
-  * regularizada
-  * estable
-  * consistente con MMM
-* ⚠️ **No convierte esa atribución en causal**
+* Un BHM infiere $p(\theta, z \mid y)$ y produce distribuciones posteriores (no solo estimaciones puntuales), habilitando *shrinkage* e intervalos creíbles.
+* El *likelihood* base es conceptualmente el mismo que en EM; la diferencia clave aparece en la jerarquía de productividades y en los priors/hyperpriors.
+* Las variables latentes $z$ pueden integrarse (lo más común en producción) o muestrearse explícitamente (más literal, pero menos escalable).
+* La inferencia suele hacerse con MCMC (preciso, lento) o VI (aproximada, más rápida), según necesidades de escala.
+* Los grupos y jerarquías introducen *partial pooling* y controlan *cold start*; definen cómo se comparte información entre entidades.
+* Una jerarquía canal → creatividad permite atribución a creatividad, de forma regularizada y no causal.
 
-Si quieres, el siguiente paso natural es:
-
-* dibujar **un diagrama completo del modelo generativo jerárquico**
-* o escribir **pseudo-código PyMC / NumPyro** del modelo canal→creatividad
-* o discutir **cuándo NO conviene bajar hasta creatividad**
 
 
