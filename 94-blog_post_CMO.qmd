@@ -1,18 +1,19 @@
 # Why Multitouch Attribution Fails — and How to Fix It Without Losing Incrementality
 
+*Audience: Chief Marketing Officers (CMOs) and senior marketing leadership.*
+
 *By design, Multitouch Attribution promises clarity.
 In practice, it often delivers confusion.*
 
-For years, marketing leaders have been told that Multitouch Attribution (MTA) would finally explain *what really drives performance*. Yet many organizations still struggle to trust their attribution results—or worse, make decisions that later prove misleading.
+For years, marketing leaders have been told that Multitouch Attribution (MTA) would finally explain *what really drives performance*. Yet many organizations still struggle to trust their attribution results—or, worse, make decisions that later prove misleading.
 
-The issue is not that MTA is useless.
-The issue is that **MTA is often asked to solve the wrong problem**.
+The issue is not that MTA is useless. The issue is that **MTA is often asked to solve the wrong problem**.
 
 ---
 
 ## **The core tension: granularity vs truth**
 
-CMOs face two very different needs:
+CMOs face two different needs:
 
 1. **Strategic truth**
 
@@ -24,7 +25,7 @@ CMOs face two very different needs:
    * Which campaigns work better?
    * Which creatives should be scaled or paused?
 
-Most attribution debates arise when these two needs are mixed.
+Most attribution debates arise when these two needs get mixed.
 
 ---
 
@@ -36,7 +37,7 @@ Classic MTA approaches typically:
 * allocate credit based on observed journeys
 * assume exposure equals influence
 
-The problem?
+The underlying problem is simple:
 
 > **Exposure is not causation.**
 
@@ -52,7 +53,7 @@ This is why organizations relying solely on MTA often:
 
 ## **Where Marketing Mix Models (MMM) change the picture**
 
-Marketing Mix Models solve a different—and crucial—problem.
+Marketing Mix Models (MMM) solve a different—and crucial—problem.
 
 MMM answers:
 
@@ -63,8 +64,7 @@ In other words:
 
 > **MMM provides causal grounding at the channel level.**
 
-But MMM alone is not enough.
-It tells you *where to invest*, not *how to execute inside the channel*.
+But MMM alone is not enough. It tells you *where to invest*, not *how to execute inside the channel*.
 
 ---
 
@@ -162,8 +162,7 @@ Each plays a different role.
 
 ## **The bottom line for CMOs**
 
-Multitouch Attribution is not broken.
-It is often **misapplied**.
+Multitouch Attribution is not broken. It is often **misapplied**.
 
 When grounded in MMM and treated as a disciplined credit allocation problem, MTA becomes:
 

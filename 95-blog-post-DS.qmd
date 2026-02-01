@@ -1,9 +1,11 @@
 # Multitouch Attribution as a Latent Variable Problem: A Data Science Perspective
 
+*Audience: Heads of Data Science and senior data science leadership.*
+
 *Attribution debates often fail not because models are wrong,
 but because the problem is framed incorrectly.*
 
-For data science teams, Multitouch Attribution (MTA) is frequently presented as a modeling choice: rules vs machine learning, heuristics vs deep learning, paths vs graphs.
+For data science teams, Multitouch Attribution (MTA) is often presented as a modeling choice: rules vs machine learning, heuristics vs deep learning, paths vs graphs.
 
 In reality, **the most important decision is not the algorithm**, but how the attribution problem itself is formulated.
 
@@ -36,8 +38,7 @@ Across domains, the structure is always the same:
 * We do **not** observe individual contributions
 * The sum of latent contributions must equal the observed total
 
-This is not a machine learning problem in the classical sense.
-It is a **constrained inference problem**.
+This is not a machine learning problem in the classical sense. It is a **constrained inference problem**.
 
 ---
 
@@ -78,14 +79,13 @@ In MTA:
 * observed variables are MMM incremental totals
 * exposure acts as a known intensity modifier
 
-The E-step computes expected allocations under current parameters.
-The M-step updates relative efficiencies.
+The E-step computes expected allocations under the current parameters. The M-step updates relative efficiencies.
 
 Crucially:
 
 > **EM preserves mass by construction.**
 
-This single property eliminates many reconciliation issues common in attribution systems.
+This single property eliminates many reconciliation issues in attribution systems.
 
 ---
 
@@ -104,7 +104,7 @@ This single property eliminates many reconciliation issues common in attribution
 * Automatic handling of cold start
 * Guarantees of identifiability
 
-These limitations are not bugs—they are properties of maximum likelihood estimation under partial observability.
+These limitations are not bugs; they are properties of maximum likelihood estimation under partial observability.
 
 ---
 
@@ -216,8 +216,7 @@ The key is not choosing the “best” algorithm—but **choosing the right form
 
 ## Technical Appendix
 
-Below is a **Technical Appendix** you can attach to the whitepaper or link as a separate document.
-It is written for **Heads of Data Science / senior DS**, with **formal equations** and **implementation-ready pseudo-code**, but still scoped to be readable and defensible.
+Below is a **Technical Appendix** you can attach to the whitepaper or link as a separate document. It is written for **Heads of Data Science / senior DS**, with **formal equations** and **implementation-ready pseudo-code**, but still scoped to be readable and defensible.
 
 ---
 
