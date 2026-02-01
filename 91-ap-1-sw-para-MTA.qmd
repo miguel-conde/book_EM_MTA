@@ -1,4 +1,4 @@
-# Ap-1 — Software para MMM → MTA
+# Software para MMM → MTA
 
 Este apéndice responde a una pregunta práctica: qué software de libre acceso permite implementar el enfoque discutido en el libro (MMM incremental y su reparto intra-canal con EM, manteniendo adstock y saturación), y qué alternativas resultan razonables en función del objetivo y la madurez del equipo. El ecosistema mezcla ofertas comerciales y repositorios abiertos, con un nivel de claridad desigual.
 
