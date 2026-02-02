@@ -37,6 +37,9 @@ format:
     theme:
       - cosmo
       - brand
+  pdf:
+    pdf-engine: xelatex
+    toc: true
 
 
 
